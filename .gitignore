@@ -1,0 +1,19 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Simulation transient/output artifacts (keep curated results tracked)
+simulation/results/**/mesh_*.log
+*.tmp
+*.bak
+
+# Secrets — never commit
+.env
+*.key
+*credentials*
+*secret*
+
+# OS
+.DS_Store
