@@ -15,10 +15,10 @@ Dates are planning targets. Every gate is pass/fail; failure triggers a document
 ## Seven-day execution checklist (from today)
 
 - [x] Day 0 — Inspect environment, create workspace, init version control, Python env
-- [ ] Day 1 — Literature search pass 1 (SRM, SynRM, 2W/3W India context); fill `research/research_matrix.csv`
-- [ ] Day 2 — Literature pass 2 (torque ripple, control, thermal, AI-optimization); `bibliography.bib`
-- [ ] Day 3 — Prior-art pass (Google Patents / PATENTSCOPE); `ip/patent_search_log.md`
-- [ ] Day 4 — Architecture comparison matrix scored; baseline shortlist
+- [x] Day 1 — Literature search pass 1 (SRM, SynRM, 2W/3W India context); fill `research/research_matrix.csv`
+- [x] Day 2 — Literature pass 2 (torque ripple, control, thermal, AI-optimization); `bibliography.bib`
+- [x] Day 3 — Prior-art pass (Google Patents / PATENTSCOPE); `ip/patent_search_log.md` (landed in `research/prior_art.md`)
+- [x] Day 4 — Architecture comparison matrix scored; baseline shortlist (SynRM provisional, founder approval pending)
 - [ ] Day 5 — Toolchain: attempt FEMM/OpenFemm install; record blockers honestly
 - [ ] Day 6 — Baseline geometry + first mesh (even if unsolved/incomplete); mesh plan
 - [ ] Day 7 — Gate A review: hypotheses, gaps, smallest credible experiment defined
