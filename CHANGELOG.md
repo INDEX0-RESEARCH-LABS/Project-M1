@@ -25,3 +25,18 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
 - **2026-10-20** — geometry: `synrm_geometry.stator_profile` defined slot bottoms at
   `r_bore - depth` (slots pointing inward, swallowing the airgap) instead of
   `r_bore + depth`. Baseline JSON regenerated; regression tests added.
+- **2026-10-20** — geometry: `rotor_barriers` centered barrier sets on the pole axes
+  (blocking d-flux: an inverted reluctance rotor) instead of the q-axes; the mesh
+  classifier already used the correct q-centering. Cross-module regression test
+  added comparing polygon angular midpoints with the classifier.
+- **2026-10-20** — solver: load assembly in `solve_az` was nested inside the materials
+  loop, so per-slot current regions that replaced the single `slots` group delivered
+  no current (all fields read ~0.02 T). Current loading is now independent of
+  material classification; `solve_az_core` added for in-memory meshes.
+
+### Added
+- **2026-10-20** — torque extraction validation: `synrm_torque_convergence.py` shows
+  Maxwell-stress torque converging under mesh refinement (2.6% between finest levels)
+  with airgap radius independence ≤3%; `T ≈ 0.030 ± 0.001 N·m` at the test point
+  (`simulation/validation/torque/RESULT.md`, placeholder steel). Mesh rays now align
+  to slot/barrier edges and the airgap supports multiple element rows.

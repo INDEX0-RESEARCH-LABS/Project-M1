@@ -34,7 +34,10 @@ class SynRMGeometry:
     n_barriers: int = 3               # barriers per pole
     barrier_radial_span: float = 0.006   # total radial depth of barrier zone [m]
     barrier_gap_frac: float = 0.40    # iron rib fraction between barriers (of zone)
-    barrier_center_angle: float = math.pi / 4  # pole-pitch half-angle placement center [rad]
+    barrier_center_angle: float = math.pi / 4  # barrier-set placement centre within
+    # a pole quadrant [rad]: pi/4 = q-axis (standard SynRM); 0 = blocking the pole
+    # axis (inverted). Jointly offsets barriers and the mesh classifier, so a
+    # nonzero value equals rotating the rotor relative to the stator MMF frame.
     barrier_angle_frac: float = 0.62  # barrier angular width as fraction of pole pitch
     bridge: float = 0.0006            # thin iron bridge at rotor surface [m]
 
@@ -102,7 +105,7 @@ def rotor_barriers(g: SynRMGeometry) -> list[dict]:
     half_span = (g.barrier_angle_frac * g.pole_pitch) / 2
     polys = []
     for k in range(4):  # barrier set centred on the q-axis of each pole
-        center = k * math.pi / 2 + math.pi / 4
+        center = k * math.pi / 2 + g.barrier_center_angle
         for j in range(g.n_barriers):
             r_o = zone_out - j * (t + gap)
             r_i = r_o - t

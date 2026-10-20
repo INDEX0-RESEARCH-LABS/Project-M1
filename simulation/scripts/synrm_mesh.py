@@ -44,7 +44,7 @@ def _in_barrier(g: SynRMGeometry, x: float, y: float) -> bool:
     r = math.hypot(x, y)
     pole_pitch = math.pi / 2
     a = math.atan2(y, x) % pole_pitch
-    centre = pole_pitch / 2
+    centre = g.barrier_center_angle
     half_span = (g.barrier_angle_frac * g.pole_pitch) / 2
     if abs(a - centre) > half_span:
         return False
@@ -125,13 +125,40 @@ def expected_areas(g: SynRMGeometry) -> dict[str, float]:
     }
 
 
-def build_mesh(g: SynRMGeometry, *, n_r=30, n_theta=768):
+def build_mesh(g: SynRMGeometry, *, n_r=30, n_theta=768, n_gap_rows=2):
+    """Polar-grid mesh of the machine cross-section.
+
+    n_theta     number of uniformly spaced rays (all rings share them)
+    n_gap_rows  element rows across the airgap (>=2); extra rows reduce the                element-wise-constant-B noise floor of the Maxwell torque
+                integral, which samples element jumps inside the gap
+
+    Rays are *aligned* to the slot and barrier boundary angles: a material
+    edge lying exactly on a ray means element centroids never straddle it, so
+    region assignment carries no staircase error at those edges. Without this
+    the barrier effective width stair-steps with rotor rotation and the
+    extracted torque is untrustworthy at the percent level.
+    """
     from skfem import MeshTri
     r_sh = g.shaft_od / 2
     r_ro = g.rotor_od / 2
-    r_bore, depth, _, _ = slot_angles(g)
+    r_bore, depth, a_open, half_bot = slot_angles(g)
     r_out = g.stator_od / 2
     r_dom = 1.18 * r_out
+    pitch = 2 * math.pi / g.n_slots
+    
+    # rays: uniform base grid + material-boundary angles (slot edges, barrier
+    # edges), merged; very close rays are dropped to avoid slivers
+    base = 2 * math.pi * np.arange(n_theta) / n_theta
+    extra = []
+    for k in range(g.n_slots):
+        c = k * pitch
+        extra += [c - a_open, c + a_open, c - half_bot, c + half_bot]
+    for k in range(4):
+        c = k * math.pi / 2 + g.barrier_center_angle
+        hs = (g.barrier_angle_frac * g.pole_pitch) / 2
+        extra += [c - hs, c + hs]
+    th_ray = np.unique(np.concatenate([base, np.mod(np.array(extra), 2 * math.pi)]))
+    th_ray = th_ray[np.r_[True, np.diff(th_ray) > 1e-4]]
     
     # radial breaks
     r = np.concatenate([
@@ -140,7 +167,7 @@ def build_mesh(g: SynRMGeometry, *, n_r=30, n_theta=768):
         # barriers
         np.sort(np.unique([r for r_i,r_o in barrier_bands(g) for r in [r_i,r_o]])),
         np.linspace(r_ro - g.bridge, r_ro, 3),
-        np.linspace(r_ro, r_bore, 3),
+        np.linspace(r_ro, r_bore, 2 * n_gap_rows + 1),
         np.linspace(r_bore, r_bore + depth, 6),
         np.linspace(r_bore + depth, r_out, 4),
         np.linspace(r_out, r_dom, 4),
@@ -149,13 +176,14 @@ def build_mesh(g: SynRMGeometry, *, n_r=30, n_theta=768):
     
     nodes = [(0.0, 0.0)]
     rings = []
+    n_ray = len(th_ray)
     for rk in r:
         if rk < 1e-15:
             continue
-        th = 2 * math.pi * np.arange(n_theta) / n_theta
-        idx = np.arange(len(nodes), len(nodes) + n_theta)
-        for i in range(n_theta):
-            nodes.append((rk * math.cos(th[i]), rk * math.sin(th[i])))
+        th = th_ray
+        idx = np.arange(len(nodes), len(nodes) + n_ray)
+        for i in range(n_ray):
+            nodes.append((rk * math.cos(th_ray[i]), rk * math.sin(th_ray[i])))
         rings.append(idx)
     
     pts = np.array(nodes).T
@@ -166,17 +194,16 @@ def build_mesh(g: SynRMGeometry, *, n_r=30, n_theta=768):
     if rings:
         r0f = r[1] if len(r) > 1 else r[0] if len(r) > 0 else 0
         reg0 = SHAFT if r0f <= r_sh + 1e-12 else ROTOR
-        for i in range(n_theta):
-            i2 = (i + 1) % n_theta
+        for i in range(n_ray):
+            i2 = (i + 1) % n_ray
             tris.append((0, rings[0][i], rings[0][i2]))
             band_of_tri.append(reg0)
     
     # stitch rings
     for k in range(len(rings)-1):
-        rk_mid = (r[k+1] + r[k+2]) / 2 if k+2 < len(r) else (r[k+1] + r[k+2]) / 2
         ia, ib = rings[k], rings[k+1]
-        for i in range(n_theta):
-            i2 = (i + 1) % n_theta
+        for i in range(n_ray):
+            i2 = (i + 1) % n_ray
             tris.append((ia[i], ib[i], ia[i2]))
             band_of_tri.append(None)  # will classify
             tris.append((ib[i], ib[i2], ia[i2]))

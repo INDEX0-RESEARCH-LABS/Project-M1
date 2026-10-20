@@ -1,0 +1,51 @@
+{
+  "checks": {
+    "K2_finest_two_within_5pct": true,
+    "K3_radius_spread_within_3pct": true,
+    "overall": true
+  },
+  "rows": [
+    {
+      "n_theta": 768,
+      "n_gap_rows": 2,
+      "nelems": 51448,
+      "ndofs": 26161,
+      "converged": true,
+      "k1_region_err_max": 0.001219750351752591,
+      "k1": true,
+      "T_mid": 0.028970265394646623,
+      "radius_spread": 0.45392939413025085,
+      "iters": 32
+    },
+    {
+      "n_theta": 1536,
+      "n_gap_rows": 4,
+      "nelems": 109880,
+      "ndofs": 55761,
+      "converged": true,
+      "k1_region_err_max": 0.00016355833885817184,
+      "k1": true,
+      "T_mid": 0.029410924428678337,
+      "radius_spread": 0.037494404266932985,
+      "iters": 32
+    },
+    {
+      "n_theta": 3072,
+      "n_gap_rows": 4,
+      "nelems": 212792,
+      "ndofs": 107985,
+      "converged": true,
+      "k1_region_err_max": 0.0007548939836041768,
+      "k1": true,
+      "T_mid": 0.03016978886740308,
+      "radius_spread": 0.024410395458697737,
+      "iters": 32
+    }
+  ],
+  "meta": {
+    "steel": "M-19 Steel (PLACEHOLDER, D-006)",
+    "pattern": "p15 (MMF at 15 deg mech)",
+    "deltas_deg": 0.0,
+    "note": "validators shakeout; numbers not for anchors"
+  }
+}

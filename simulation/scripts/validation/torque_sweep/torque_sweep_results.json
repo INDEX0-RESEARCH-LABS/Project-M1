@@ -1,0 +1,84 @@
+{
+  "checks": {
+    "S1_antisymmetry": false,
+    "S2_instrument_agreement": false,
+    "S3_smooth_rise": false,
+    "overall": false
+  },
+  "s2_rows": [
+    {
+      "delta_deg": -4.0,
+      "T_maxwell": 0.003372714862685429,
+      "co_energy_slope": -0.004370339820771457,
+      "rel": 2.2957928549262827
+    },
+    {
+      "delta_deg": -2.0,
+      "T_maxwell": 0.004865706865826328,
+      "co_energy_slope": 0.0012639018363194883,
+      "rel": 0.7402429140981875
+    },
+    {
+      "delta_deg": 2.0,
+      "T_maxwell": -0.0038385505194150713,
+      "co_energy_slope": -0.000655534865166242,
+      "rel": 0.8292233326484566
+    },
+    {
+      "delta_deg": 4.0,
+      "T_maxwell": -0.004653638714866779,
+      "co_energy_slope": 0.0028355580865053872,
+      "rel": 1.609320632787146
+    }
+  ],
+  "rows": [
+    {
+      "delta_deg": -8.0,
+      "T_maxwell": -0.027848402145819552,
+      "W_J": 0.015294824928135565,
+      "converged": true
+    },
+    {
+      "delta_deg": -4.0,
+      "T_maxwell": 0.003372714862685429,
+      "W_J": 0.014801502356941876,
+      "converged": true
+    },
+    {
+      "delta_deg": -2.0,
+      "T_maxwell": 0.004865706865826328,
+      "W_J": 0.01483716401231468,
+      "converged": true
+    },
+    {
+      "delta_deg": 0.0,
+      "T_maxwell": 0.0006957431205724834,
+      "W_J": 0.014889739350804987,
+      "converged": true
+    },
+    {
+      "delta_deg": 2.0,
+      "T_maxwell": -0.0038385505194150713,
+      "W_J": 0.014871861246700755,
+      "converged": true
+    },
+    {
+      "delta_deg": 4.0,
+      "T_maxwell": -0.004653638714866779,
+      "W_J": 0.014843974383769915,
+      "converged": true
+    },
+    {
+      "delta_deg": 8.0,
+      "T_maxwell": 0.018956003136906315,
+      "W_J": 0.01516880019514717,
+      "converged": true
+    }
+  ],
+  "meta": {
+    "steel": "M-19 Steel (PLACEHOLDER, D-006)",
+    "pattern": "d-axis fixed",
+    "stride_deg": 4.0,
+    "note": "rotor-rotation sweep, solver-shakeout only"
+  }
+}

@@ -8,6 +8,14 @@ Checks run here (declared before solving):
     C5  Maxwell torque vs energy method at 15 deg:
             T_maxwell(15) ~= -[W(30) - W(0)] / (30 deg in rad)
         with T(0) ~= T(45) ~= 0 also consistent with dW/dtheta.
+        NOTE: C5 was withdrawn on 2026-10-20 -- the small-stride co-energy
+        instrument sits below its own noise floor (~2% of total W'), and the
+        large central-difference stride averages over a range where dT/dtheta
+        is large. torque_maxwell is instead validated by mesh-refinement
+        convergence plus airgap radius independence in
+        synrm_torque_convergence.py; see validation/torque/RESULT.md.
+        This script keeps C5 printing for the record; its FAIL is expected
+        and not a regression signal.
 
 Steel is M-19 Steel from the FEMM library: a PLACEHOLDER (D-006/D-007 forbid
 using M-19 for any anchor comparison). Loading: 6 A/mm^2 copper at 40% slot
