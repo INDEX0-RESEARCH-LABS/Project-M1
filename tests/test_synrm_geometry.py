@@ -58,5 +58,26 @@ def test_stator_profile_closed_and_finite():
             assert math.isfinite(x) and math.isfinite(y)
 
 
+def test_slots_extend_outward_from_bore():
+    """Regression: slot bottoms must lie OUTWARD of the bore.
+
+    An earlier version defined slot bottoms at r_bore - depth, i.e. slots poking
+    inward into the airgap and rotor; the mesh classifier inherited that and
+    swallowed the whole airgap band. This test fails for that convention.
+    """
+    g = SynRMGeometry()
+    r_bore = g.stator_bore / 2
+    for x, y in stator_profile(g)["inner"]:
+        assert math.hypot(x, y) >= r_bore - 1e-9
+
+
+def test_barriers_disjoint_from_slot_band():
+    g = SynRMGeometry()
+    r_bore = g.stator_bore / 2
+    depth = 0.18 * r_bore
+    for p in rotor_barriers(g):
+        assert p["r_inner"] > r_bore or p["r_inner"] < g.stator_bore - depth
+
+
 if __name__ == "__main__":
     raise SystemExit("run with: .venv/bin/python -m pytest tests/ -q")

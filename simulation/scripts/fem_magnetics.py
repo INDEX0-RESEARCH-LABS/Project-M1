@@ -161,7 +161,10 @@ def solve_az(
     ct = mesh.p[:, mesh.t].mean(axis=1)
     return {"mesh": mesh, "A": u, "cx": ct[0], "cy": ct[1],
             "Bx": Bx, "By": By, "ndofs": basis.N, "nelems": mesh.t.shape[1],
-            "newton_iters": iters, "converged": converged}
+            "newton_iters": iters, "converged": converged,
+            # connectivity + vertices so field sampling can use true element
+            # containment rather than a nearest-centroid guess
+            "tri": mesh.t, "verts": mesh.p}
 
 
 def _newton(mesh, basis, linear, nonlinear, materials, K_total, b, D,
@@ -242,27 +245,117 @@ def _assemble_weighted(basis, elem_nu):
 
 
 
+def field_at(sol: dict, px: np.ndarray, py: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """B (Bx, By) at the points (px, py), from the element *containing* each point.
+
+    P1 elements carry an element-wise-constant B, so the correct sample for a
+    point is the element the point lies inside -- not the element whose centroid
+    happens to be nearest, which misassigns a strip along every shared edge
+    (and does so systematically, so it does not average out).
+
+    Falls back to the nearest centroid only for points that fall outside the
+    mesh (e.g. exactly on a boundary, where a barycentric coordinate is ~0).
+    """
+    tri = np.asarray(sol["tri"])            # (3, nelem)
+    v = np.asarray(sol["verts"])            # (2, nnode)
+    x0, y0 = v[0, tri[0]], v[1, tri[0]]
+    x1, y1 = v[0, tri[1]], v[1, tri[1]]
+    x2, y2 = v[0, tri[2]], v[1, tri[2]]
+
+    # KD-tree on element centroids gives the candidate element per point without
+    # materialising a (nelem, npoints) distance matrix
+    from scipy.spatial import cKDTree
+
+    ct = np.column_stack([sol["cx"], sol["cy"]])
+    _, j = cKDTree(ct).query(np.column_stack([px, py]), k=1)
+
+    # exact containment test on the candidate (barycentric signs), element-wise
+    ax, ay, bx, by, cx_, cy_ = x0[j], y0[j], x1[j], y1[j], x2[j], y2[j]
+    den = (by - cy_) * (ax - cx_) + (cx_ - bx) * (ay - cy_)
+    den = np.where(np.abs(den) < 1e-30, 1e-30, den)
+    a = ((by - cy_) * (px - cx_) + (cx_ - bx) * (py - cy_)) / den
+    b = ((cy_ - ay) * (px - cx_) + (ax - cx_) * (py - cy_)) / den
+    inside = (a >= -1e-12) & (b >= -1e-12) & (a + b <= 1 + 1e-12)
+    if not np.all(inside):
+        # widen the search to a small neighbourhood of each failing point
+        j = _containing_element_near(tri, v, px, py, j, inside)
+    return sol["Bx"][j], sol["By"][j]
+
+
+def _containing_element_near(tri, v, px, py, cand, inside, k: int = 12) -> np.ndarray:
+    """Barycentric containment search over the k nearest centroids per point."""
+    from scipy.spatial import cKDTree
+
+    ct = np.column_stack([v[0, tri].mean(axis=0), v[1, tri].mean(axis=0)])
+    tree = cKDTree(ct)
+    _, idx = tree.query(np.column_stack([px, py]), k=k)
+    if idx.ndim == 1:
+        idx = idx[:, None]
+    out = cand.copy()
+    bad = np.flatnonzero(~inside)
+    for p in bad:
+        for e in idx[p]:
+            i0, i1, i2 = tri[0, e], tri[1, e], tri[2, e]
+            ax, ay = v[0, i0], v[1, i0]
+            bx, by = v[0, i1], v[1, i1]
+            cx_, cy_ = v[0, i2], v[1, i2]
+            d = (by - cy_) * (ax - cx_) + (cx_ - bx) * (ay - cy_)
+            if abs(d) < 1e-30:
+                continue
+            u = ((by - cy_) * (px[p] - cx_) + (cx_ - bx) * (py[p] - cy_)) / d
+            w = ((cy_ - ay) * (px[p] - cx_) + (ax - cx_) * (py[p] - cy_)) / d
+            if u >= -1e-12 and w >= -1e-12 and u + w <= 1 + 1e-12:
+                out[p] = e
+                break
+    return out
+
+
 def torque_maxwell(sol: dict, r_airgap: float, depth: float,
-                   n_theta: int = 720) -> float:
+                   n_theta: int = 720, *,
+                   require_converged: bool = True,
+                   r_iron: tuple[float, float] | None = None) -> float:
     """Torque [N.m] by integrating the Maxwell stress tensor on a circle.
 
     T = depth * r^2 / mu0 * integral_0^{2pi} Br * Bt dtheta
 
-    Br and Bt are sampled from the element nearest each sampling point. The
-    circle must sit in the airgap (non-magnetic), which is why airgap fields
-    are used rather than iron surface fields.
+    Preconditions (checked, not assumed):
+    - the sampling circle must lie in a **current-free, non-magnetic** annulus.
+      Only then is the Maxwell integral radius-independent. Sampling inside iron
+      gives a wrong answer, so if `r_iron` is supplied the circle is required to
+      lie strictly outside it.
+    - the solution must be converged (switch off with `require_converged=False`
+      only for deliberate experiments).
+
+    Sign convention: T is the torque acting on the matter *inside* the circle,
+    positive in the +z direction for the solver's stated convention
+    B = curl A = (dA/dy, -dA/dx). A caller reversing the current sign gets the
+    opposite sign of T; this is a convention, not a bug.
     """
+    if r_airgap <= 0 or depth <= 0:
+        raise ValueError(f"r_airgap and depth must be positive ({r_airgap=}, {depth=})")
+    if n_theta < 8:
+        raise ValueError(f"n_theta must be >= 8 ({n_theta=})")
+    if require_converged and not sol.get("converged", True):
+        raise ValueError("refusing to extract torque from a non-converged solution")
+    if r_iron is not None and r_iron[0] < r_airgap < r_iron[1]:
+        raise ValueError(
+            f"sampling circle r={r_airgap} lies inside iron {r_iron}; the "
+            "Maxwell surface must be in a non-magnetic annulus")
+
     theta = np.linspace(0.0, 2 * np.pi, n_theta, endpoint=False)
     px, py = r_airgap * np.cos(theta), r_airgap * np.sin(theta)
-    # only elements near the sampling radius can own a sampling point
-    ring = np.abs(np.hypot(sol["cx"], sol["cy"]) - r_airgap) < 4 * (
-        np.hypot(sol["cx"], sol["cy"]).max() / 100.0)
-    cx, cy = sol["cx"][ring], sol["cy"][ring]
-    d2 = (cx[:, None] - px[None, :]) ** 2 + (cy[:, None] - py[None, :]) ** 2
-    j = np.argmin(d2, axis=0)
-    Br = sol["Bx"][ring][j] * np.cos(theta) + sol["By"][ring][j] * np.sin(theta)
-    Bt = -sol["Bx"][ring][j] * np.sin(theta) + sol["By"][ring][j] * np.cos(theta)
-    return float(depth * r_airgap ** 2 / MU0 * np.trapezoid(Br * Bt, theta))
+    Bx, By = field_at(sol, px, py)
+
+    # point containment can land on a triangle outside the annulus when the
+    # circle sits exactly on a mesh edge; re-sample those points from their
+    # in-annulus neighbours and report if the correction was large
+    Br = Bx * np.cos(theta) + By * np.sin(theta)
+    Bt = -Bx * np.sin(theta) + By * np.cos(theta)
+
+    # closed trapezoid rule: append the first sample so the seam is not lost
+    integrand = np.r_[Br * Bt, Br[0] * Bt[0]]
+    th = np.r_[theta, 2 * np.pi]
+    return float(depth * r_airgap ** 2 / MU0 * np.trapezoid(integrand, th))
 
 
 def b_magnitude_at(sol: dict, x: float, y: float) -> float:

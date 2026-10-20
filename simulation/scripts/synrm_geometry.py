@@ -70,7 +70,7 @@ def stator_profile(g: SynRMGeometry) -> dict[str, list]:
     for k in range(g.n_slots):
         c = k * pitch
         # tooth tip flanks from opening to slot bottom corners
-        r_bot = r_bore - depth
+        r_bot = r_bore + depth  # slot bottom is OUTWARD of the bore (into iron)
         half_bot = pitch / 2 * 0.55  # slot occupies 55% of pitch at bottom
         inner += _arc(r_bore, c - pitch / 2, c - a_open, 8)          # tooth face left
         inner += [(r_bot * math.cos(c - half_bot), r_bot * math.sin(c - half_bot))]
