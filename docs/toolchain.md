@@ -43,3 +43,17 @@ python3 -m venv .venv
 No simulation output will be produced or claimed until a solver is genuinely installed and run.
 Solver capability limits (e.g. FEMM = 2D magnetics, no thermal/stress) will be documented in
 `simulation/README` when the tool is adopted.
+
+## Solver status (updated 2026-10-20, D-005)
+
+| Tool | Status | Notes |
+|------|--------|-------|
+| scikit-fem 12.0.2 + gmsh 4.15.2 | **primary solver** | pip-only, deterministic, headless; validated 0.066 % vs analytic wire |
+| xfemm 3.0 (xfemm-3.0-1, patched PKGBUILD) | demoted to cross-check | `fmesher` + `.fem` text I/O work; `femmcli` lua hangs nondeterministically; `fsolver` failed to converge in 13 min on a 10 k-node case it should solve in seconds; SIGTERM'd `fsolver` deletes its own mesh files; no `mo_*` solution API in `femmcli` |
+
+xfemm was rebuilt from the AUR tree with `/tmp/opencode/makepkg-noassert.conf`
+(Arch's default `-Wp,-D_GLIBCXX_ASSERTIONS` makes it abort on a latent
+out-of-bounds access in `femmsolver::CMMeshNode`). Even without assertions the
+build is unreliable — hence D-005.
+
+Validation record: `simulation/validation/known_answer/RESULT.md`
