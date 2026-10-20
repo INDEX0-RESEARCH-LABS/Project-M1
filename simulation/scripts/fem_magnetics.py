@@ -67,46 +67,202 @@ def _mass(u, v, _):
     return u * v
 
 
+def load_bh_curve(matname: str, matlib: Path | None = None) -> tuple[np.ndarray, np.ndarray]:
+    """Read a B-H curve from the local FEMM material library.
+
+    Returns (H [A/m], B [T]), ascending in B, H(0)=0. Source is the
+    matlib.dat shipped with xfemm (Aladdin/US Steel handbook data).
+    """
+    matlib = matlib or Path("/usr/local/share/xfemm/release/matlib.dat")
+    text = matlib.read_text()
+    start = text.index(f'<BlockName> = "{matname}"')
+    block = text[start:text.index("<EndBlock>", start)]
+    n = int(block.split("<BHPoints> =")[1].split("\n")[0])
+    rows = block.split("<BHPoints> =")[1].strip().splitlines()[1:1 + n]
+    data = np.array([[float(x) for x in ln.split()] for ln in rows])
+    B, H = data[:, 0], data[:, 1]
+    if B[0] != 0.0:  # ensure a (0,0) anchor
+        B, H = np.r_[0.0, B], np.r_[0.0, H]
+    return H, B
+
+
+def mu_r_from_bh(H: np.ndarray, B: np.ndarray, b_mag: np.ndarray,
+                 b_sat: float = 2.3) -> np.ndarray:
+    """Relative permeability at |B| via linear interpolation on the B-H curve.
+
+    Beyond the tabulated range the curve is linearly extrapolated in H, so mu_r
+    keeps falling instead of being clamped (a clamp inflates torque).
+    """
+    b = np.clip(b_mag, 0.0, None)
+    h = np.interp(b, B, H)
+    slope = (H[-1] - H[-2]) / (B[-1] - B[-2])   # dH/dB at the last point
+    over = b > B[-1]
+    if np.any(over):
+        h = np.where(over, H[-1] + slope * (b - B[-1]), h)
+    mu_r = np.where(b > 0, b / (MU0 * np.maximum(h, 1e-12)), 1.0)
+    return np.maximum(mu_r, 1.0)
+
+
 def solve_az(
     msh_file: Path,
-    materials: dict[str, float],
+    materials: dict[str, float | tuple[np.ndarray, np.ndarray]],
     current_density: dict[str, float],
+    *,
+    max_iter: int = 200,
+    tol: float = 1e-7,
 ) -> dict:
-    """Solve nu-Laplace(A) problem on a gmsh mesh.
+    """Solve the magnetostatic A-z problem on a gmsh mesh.
 
-    materials: physical-group name -> relative permeability mu_r
+    materials: physical-group name -> mu_r (linear) or (H, B) tables (nonlinear)
     current_density: physical-group name -> Jz in A/m^2 (default 0)
-    Returns dict with element-centroid coords, Bx, By, nodal A.
+    Returns mesh, nodal A, element-centroid B, plus Newton diagnostics.
     """
     mesh, cell_sets = load_gmsh_mesh(msh_file)
     basis = Basis(mesh, ElementTriP1())
 
-    A = None
+    # group index per element (air/coil groups are linear, iron is nonlinear)
+    K_total = asm(_diffusion, basis).tocsr()
     b = np.zeros(basis.N)
-    for name, mu_r in materials.items():
+    linear = {}          # group name -> (element indices, nu)
+    nonlinear = {}       # group name -> element indices
+    for name, mat in materials.items():
         cells = np.asarray(cell_sets.get(name, []), dtype=np.int64)
         if cells.size == 0:
             continue
-        sub = Basis(mesh, ElementTriP1(), elements=cells)
-        K = asm(_diffusion, sub).tocsr()
-        A = K * (1.0 / (MU0 * mu_r)) if A is None else A + K * (1.0 / (MU0 * mu_r))
+        if isinstance(mat, tuple):
+            nonlinear[name] = cells
+        else:
+            linear[name] = cells
         J = current_density.get(name, 0.0)
         if J:
+            sub = Basis(mesh, ElementTriP1(), elements=cells)
             b += J * np.asarray(asm(_mass, sub).sum(axis=1)).flatten()
 
-    # outer wall: nodal dofs on the largest-radius boundary circle
     p = mesh.p
     r = np.hypot(p[0], p[1])
     D = np.where(r >= r.max() - 1e-9 * r.max())[0]
-    u = solve(*condense(A, b, D=D))
 
-    # element-wise constant B for P1 elements
+    if not nonlinear:
+        A = None
+        for name, cells in linear.items():
+            sub = Basis(mesh, ElementTriP1(), elements=cells)
+            nu = 1.0 / (MU0 * materials[name])
+            K = asm(_diffusion, sub).tocsr() * nu
+            A = K if A is None else A + K
+        u = solve(*condense(A, b, D=D))
+        iters, converged = 1, True
+    else:
+        u, iters, converged = _newton(mesh, basis, linear, nonlinear, materials,
+                                      K_total, b, D, max_iter, tol)
+
     w = basis.interpolate(u)
     Bx = w.grad[1, :, 0]
     By = -w.grad[0, :, 0]
     ct = mesh.p[:, mesh.t].mean(axis=1)
     return {"mesh": mesh, "A": u, "cx": ct[0], "cy": ct[1],
-            "Bx": Bx, "By": By, "ndofs": basis.N, "nelems": mesh.t.shape[1]}
+            "Bx": Bx, "By": By, "ndofs": basis.N, "nelems": mesh.t.shape[1],
+            "newton_iters": iters, "converged": converged}
+
+
+def _newton(mesh, basis, linear, nonlinear, materials, K_total, b, D,
+            max_iter, tol, relax: float = 0.5, relax_min: float = 0.02):
+    """Picard iteration on nu(|B|) for the iron groups, with adaptive relaxation.
+
+    nu_e = B_e / (mu0 H_e) is recomputed per element each step. A plain
+    substitution update (relax = 1) diverges badly on saturating regions, so nu
+    is under-relaxed; the factor is halved when the residual stops improving.
+
+    Two details that matter in practice:
+    - iron is initialised at its low-field permeability (~1e3), not vacuum:
+      starting from mu_r = 1 injects a first-iteration flux that never recovers;
+    - convergence is judged on the change in the field (max |B| and the A-norm),
+      because the saturation pattern can oscillate element-by-element while the
+      nodal A-norm looks settled.
+    """
+    from numpy.linalg import norm
+
+    def b_field(u_nodal):
+        w = basis.interpolate(u_nodal)
+        return np.hypot(w.grad[1, :, 0], w.grad[0, :, 0])
+
+    # initialise iron at a modest permeability and let the iteration climb.
+    # Starting at the curve's low-field mu_r (~4400) overshoots violently -- the
+    # first iteration produced |B| ~ 200 T, which the relaxation then had to
+    # crawl back from over dozens of steps.
+    elem_nu = np.full(mesh.t.shape[1], 1.0 / (MU0 * 1.0))
+    for name, cells in linear.items():
+        elem_nu[cells] = 1.0 / (MU0 * float(materials[name]))
+    for name, cells in nonlinear.items():
+        elem_nu[cells] = 1.0 / (MU0 * 100.0)
+
+    u = solve(*condense(_assemble_weighted(basis, elem_nu).tocsr(), b, D=D))
+    prev_res = np.inf
+    for it in range(1, max_iter + 1):
+        b_old = b_field(u)
+        target = elem_nu.copy()
+        for name, cells in nonlinear.items():
+            H, Btab = materials[name]
+            target[cells] = 1.0 / (MU0 * mu_r_from_bh(H, Btab, b_old[cells]))
+
+        elem_nu = relax * target + (1.0 - relax) * elem_nu
+        u_new = solve(*condense(_assemble_weighted(basis, elem_nu).tocsr(), b, D=D))
+
+        res = norm(u_new - u) / max(norm(u_new), 1e-30)
+        b_new = b_field(u_new)
+        db = float(np.max(np.abs(b_new - b_old)) / max(np.max(b_new), 1e-30))
+        u = u_new
+        if res < tol and db < 1e-5:
+            return u, it, True
+        # cut relaxation only when progress clearly stalls; a 0.9 test is too
+        # eager and throttles the iteration before it can settle
+        if res > prev_res * 0.95:
+            relax = max(relax * 0.7, relax_min)
+        prev_res = res
+    return u, max_iter, False
+
+
+def _assemble_weighted(basis, elem_nu):
+    """Assemble sum_e nu_e * integral grad(u).grad(v) over all elements."""
+    from skfem import BilinearForm
+
+    @BilinearForm
+    def form(u, v, w):
+        from skfem.helpers import dot, grad
+        return w["nu"] * dot(grad(u), grad(v))
+
+    # scikit-fem 12 interpolates nodal fields; map element-wise nu to nodes
+    mesh = basis.mesh
+    nodal = np.zeros(basis.N)
+    counts = np.zeros(basis.N)
+    for c in range(3):
+        np.add.at(nodal, mesh.t[c], elem_nu)
+        np.add.at(counts, mesh.t[c], 1.0)
+    nodal = nodal / np.maximum(counts, 1.0)
+    return asm(form, basis, nu=basis.interpolate(nodal))
+
+
+
+def torque_maxwell(sol: dict, r_airgap: float, depth: float,
+                   n_theta: int = 720) -> float:
+    """Torque [N.m] by integrating the Maxwell stress tensor on a circle.
+
+    T = depth * r^2 / mu0 * integral_0^{2pi} Br * Bt dtheta
+
+    Br and Bt are sampled from the element nearest each sampling point. The
+    circle must sit in the airgap (non-magnetic), which is why airgap fields
+    are used rather than iron surface fields.
+    """
+    theta = np.linspace(0.0, 2 * np.pi, n_theta, endpoint=False)
+    px, py = r_airgap * np.cos(theta), r_airgap * np.sin(theta)
+    # only elements near the sampling radius can own a sampling point
+    ring = np.abs(np.hypot(sol["cx"], sol["cy"]) - r_airgap) < 4 * (
+        np.hypot(sol["cx"], sol["cy"]).max() / 100.0)
+    cx, cy = sol["cx"][ring], sol["cy"][ring]
+    d2 = (cx[:, None] - px[None, :]) ** 2 + (cy[:, None] - py[None, :]) ** 2
+    j = np.argmin(d2, axis=0)
+    Br = sol["Bx"][ring][j] * np.cos(theta) + sol["By"][ring][j] * np.sin(theta)
+    Bt = -sol["Bx"][ring][j] * np.sin(theta) + sol["By"][ring][j] * np.cos(theta)
+    return float(depth * r_airgap ** 2 / MU0 * np.trapezoid(Br * Bt, theta))
 
 
 def b_magnitude_at(sol: dict, x: float, y: float) -> float:
