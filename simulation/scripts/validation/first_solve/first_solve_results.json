@@ -1,0 +1,51 @@
+{
+  "checks": {
+    "C1_converged": true,
+    "C2_d_axis_small": true,
+    "C3_q_axis_small": true,
+    "C4_antisymmetry": true,
+    "C5_energy_cross_check": false,
+    "overall": false
+  },
+  "energy_vs_maxwell": {
+    "t_energy_Nm": 0.006365981366416583,
+    "rel_diff": 0.8380319955488597
+  },
+  "per_case": {
+    "d": {
+      "converged": true,
+      "iters": 31,
+      "torque_Nm": -0.0006871157031527744,
+      "Bmax_T": 0.42553897647052474,
+      "W_J_per_m": 0.2326521773563279
+    },
+    "p15": {
+      "converged": true,
+      "iters": 33,
+      "torque_Nm": 0.039303943936266496,
+      "Bmax_T": 0.4030436800002957,
+      "W_J_per_m": 0.2808021307243482
+    },
+    "m15": {
+      "converged": true,
+      "iters": 34,
+      "torque_Nm": -0.0420074179095423,
+      "Bmax_T": 0.6070849664058746,
+      "W_J_per_m": 0.28473374062097334
+    },
+    "q": {
+      "converged": true,
+      "iters": 36,
+      "torque_Nm": -0.001961122960385046,
+      "Bmax_T": 0.5371334722327339,
+      "W_J_per_m": 0.46598124369500216
+    }
+  },
+  "meta": {
+    "steel": "M-19 Steel (PLACEHOLDER, D-006)",
+    "J_cu_A_per_mm2": 6.0,
+    "fill": 0.4,
+    "stack_m": 0.064,
+    "note": "solver shakeout only, NOT anchor-comparison data"
+  }
+}

@@ -111,13 +111,31 @@ def solve_az(
     max_iter: int = 200,
     tol: float = 1e-7,
 ) -> dict:
-    """Solve the magnetostatic A-z problem on a gmsh mesh.
+    """Solve the magnetostatic A-z problem on a gmsh mesh file.
 
     materials: physical-group name -> mu_r (linear) or (H, B) tables (nonlinear)
     current_density: physical-group name -> Jz in A/m^2 (default 0)
     Returns mesh, nodal A, element-centroid B, plus Newton diagnostics.
     """
     mesh, cell_sets = load_gmsh_mesh(msh_file)
+    return solve_az_core(mesh, cell_sets, materials, current_density,
+                         max_iter=max_iter, tol=tol)
+
+
+def solve_az_core(
+    mesh: MeshTri,
+    cell_sets: dict[str, np.ndarray],
+    materials: dict[str, float | tuple[np.ndarray, np.ndarray]],
+    current_density: dict[str, float],
+    *,
+    max_iter: int = 200,
+    tol: float = 1e-7,
+) -> dict:
+    """Solve the A-z problem on an in-memory mesh with named element groups.
+
+    Same inputs as :func:`solve_az` except the mesh and its physical-group
+    element indices are passed directly (as produced by synrm_mesh.build_mesh).
+    """
     basis = Basis(mesh, ElementTriP1())
 
     # group index per element (air/coil groups are linear, iron is nonlinear)
@@ -133,10 +151,18 @@ def solve_az(
             nonlinear[name] = cells
         else:
             linear[name] = cells
-        J = current_density.get(name, 0.0)
-        if J:
-            sub = Basis(mesh, ElementTriP1(), elements=cells)
-            b += J * np.asarray(asm(_mass, sub).sum(axis=1)).flatten()
+
+    # current loading is independent of the material classification (a slot
+    # group split into per-slot regions must get its J even though it shares
+    # one material entry)
+    for name, J in current_density.items():
+        if not J:
+            continue
+        cells = np.asarray(cell_sets.get(name, []), dtype=np.int64)
+        if cells.size == 0:
+            continue
+        sub = Basis(mesh, ElementTriP1(), elements=cells)
+        b += J * np.asarray(asm(_mass, sub).sum(axis=1)).flatten()
 
     p = mesh.p
     r = np.hypot(p[0], p[1])
@@ -243,6 +269,42 @@ def _assemble_weighted(basis, elem_nu):
     nodal = nodal / np.maximum(counts, 1.0)
     return asm(form, basis, nu=basis.interpolate(nodal))
 
+
+
+def co_energy_density(b_mag: np.ndarray, H: np.ndarray, B: np.ndarray,
+                      mu_r: np.ndarray = None) -> np.ndarray:
+    """Co-energy density w' = int_0^{H(b)} B(H') dH'  [J/m^3] per element.
+
+    With currents prescribed (magnetostatic, current-driven), the torque is the
+    derivative of the co-energy, NOT of the field energy. For a saturated
+    element B^2/(2 mu0 mu_r(B)) is the tangent-triangle area and undercounts
+    w' badly; the integral along the B-H curve is the correct density.
+
+    Elements with mu_r supplied (e.g. 1.0 for air/slot/barrier) use the linear
+    density b^2/(2 mu0 mu_r) instead of the curve (mu_r=None -> apply the
+    curve everywhere).
+    """
+    from numpy import cumsum
+
+    out = np.zeros_like(b_mag, dtype=float)
+    # cumulative co-energy w.r.t. H along the curve [J/m^3]; T*A/m == J/m^3,
+    # so no mu0 scaling anywhere in this integral
+    cB = np.concatenate([[0.0], np.cumsum(0.5 * (B[1:] + B[:-1]) * np.diff(H))])
+    curve = mu_r is None
+    iron = np.ones(b_mag.shape, dtype=bool) if curve else np.asarray(mu_r) <= 0
+    lin = ~iron if not curve else np.zeros(b_mag.shape, dtype=bool)
+    if curve:
+        h = np.interp(np.clip(b_mag, 0.0, None), B, H)
+        out[:] = np.interp(h, H, cB)
+    else:
+        if np.any(lin):
+            m = lin
+            out[m] = b_mag[m] ** 2 / (2 * MU0 * np.asarray(mu_r)[m])
+        if np.any(iron):
+            m = iron
+            h = np.interp(np.clip(b_mag[m], 0.0, None), B, H)
+            out[m] = np.interp(h, H, cB)
+    return out
 
 
 def field_at(sol: dict, px: np.ndarray, py: np.ndarray) -> tuple[np.ndarray, np.ndarray]:

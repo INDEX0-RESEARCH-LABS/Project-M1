@@ -81,10 +81,17 @@ def stator_profile(g: SynRMGeometry) -> dict[str, list]:
 
 
 def rotor_barriers(g: SynRMGeometry) -> list[dict]:
-    """Flux barriers: one list of polygons per barrier, repeated on all 4 poles.
+    """Flux barriers: one polygon per barrier layer, repeated on all 4 poles.
 
-    Each barrier is an annular sector (constant radial thickness) centered on the
-    pole-pitch quarter positions, with a surface bridge gap to the rotor surface.
+    Each barrier is an annular sector (constant radial thickness) centered on
+    the **q-axis** of each pole (k*90 deg + 45 deg), spanning
+    barrier_angle_frac of the pole pitch around it. The free-iron wedge that
+    remains is centered on the pole axis, so d-flux crosses solid iron at the
+    pole body while q-flux is blocked by the barrier stack -- the standard
+    SynRM topology. (An earlier version centered the barriers on the pole axes
+    themselves, which blocks d-flux and frees q-flux: an inverted machine.
+    Found by comparing the polygons against the mesh classifier on 2026-10-20;
+    the mesh classifier was already q-centered.)
     """
     r_ro = g.rotor_od / 2
     zone_out = r_ro - g.bridge
@@ -94,8 +101,8 @@ def rotor_barriers(g: SynRMGeometry) -> list[dict]:
 
     half_span = (g.barrier_angle_frac * g.pole_pitch) / 2
     polys = []
-    for k in range(4):  # 4 poles, centered on 0, pi/2, pi, 3pi/2
-        center = k * math.pi / 2
+    for k in range(4):  # barrier set centred on the q-axis of each pole
+        center = k * math.pi / 2 + math.pi / 4
         for j in range(g.n_barriers):
             r_o = zone_out - j * (t + gap)
             r_i = r_o - t
