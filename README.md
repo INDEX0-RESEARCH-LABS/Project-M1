@@ -9,7 +9,7 @@ India-first electric traction motor R&D initiative.
 | Phase | Description | Status |
 |---|---|---|
 | 0 | Workspace initialization | ✅ Done |
-| 1 | Literature review & prior art | 🔄 In progress |
+| 1 | Literature review & prior art | ✅ Gate A research done (verification of numbers pending full texts) |
 | 2 | Baseline architecture selection | ⬜ Not started |
 | 3 | Simulation workflow | ⬜ Not started |
 | 4 | AI-assisted optimization | ⬜ Not started |
