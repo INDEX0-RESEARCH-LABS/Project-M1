@@ -35,3 +35,17 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **Decision:** Primary Gate B/C solver = in-house linear A-z magnetostatics on scikit-fem + triangle (pip-only, fully scriptable, validated against an analytic straight-wire answer + mesh-convergence study). xfemm kept as secondary/independent cross-check where it works — H3 re-verification needs an independent model anyway. Elmer remains a second-opinion candidate.
 - **Alternatives:** Keep debugging xfemm UB (rejected — nondeterministic); wine + FEMM 4.2 (rejected — heavy, unscriptable).
 - **Status:** APPROVED (self)
+
+## D-006 — Nonlinear saturation is in the critical path; M-19 is a validation-only material
+- **Date:** 2026-10-20
+- **Context:** Linear-μ torque curves would be a relative-only comparison: at 0.5–1 kW in a 66 mm-bore frame, the SynRM rotor bridges and stator teeth sit well above 1.5 T, so μr is not constant along the flux path and a linear curve would mis-rank candidate geometries. A nonlinear path also had to be built before any anchor comparison, since both Gate B anchors ran nonlinear material.
+- **Decision:** Saturation (Picard-on-ν with a tabulated B-H curve) is implemented and validated **before** the first torque-vs-current curve. Validated against Ampère's law on a deeply saturated toroid: 0.49% / 0.18% error, iron at 1.92 T mean. M-19 from the local FEMM library is a **solver-validation material only** and must not be used for anchor comparisons — the anchor grades are 35A300 and M1000-65A (see `research/material_grades.md`), and neither curve is in the local library.
+- **Alternatives:** Linear-μ curve first for relative comparison (rejected — would produce a curve that cannot be defended and would need redoing; the extra cost was one iteration scheme).
+- **Status:** APPROVED (self). Evidence: `simulation/validation/known_answer/RESULT_NONLINEAR.md`
+
+## D-007 — Gate B torque validation is per-anchor, with that anchor's own steel
+- **Date:** 2026-10-20
+- **Context:** Full texts confirm the two anchors use materially different steel: Kachapornkul 2022 uses 35A300 (0.35 mm, low-loss, JIS ≡ AISI 36F168 / DIN V300-35A); Rajini 2024 uses M1000-65A (0.65 mm CRNO, 2.1 T assumed saturation). These differ ~3× in loss class and 2× in thickness, so a single steel curve cannot validate both machines.
+- **Decision:** The ≤5% Gate B torque-match criterion is applied **per anchor, using that anchor's steel curve**. Primary anchor = Rajini 2024 (1.2 kW, same power class, Indian context); secondary = Kachapornkul 2022 (3.5 kW, above our band, SRM). Where an anchor's own curve cannot be sourced, the comparison is reported as *relative* and the gate is **not** marked passed on it.
+- **Consequence:** Sourcing citable B-H curves for 35A300 and M1000-65A is now on the critical path ahead of the torque curve — ahead of, not parallel to, because a curve run on M-19 compares materials rather than machines.
+- **Status:** PROPOSED — needs founder confirmation of the primary-anchor choice.
