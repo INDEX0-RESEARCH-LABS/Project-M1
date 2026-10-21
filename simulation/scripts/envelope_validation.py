@@ -27,18 +27,21 @@ DELTAS = (22.5, 26.25, 30.0)
 TARGET_T_PER_M = 1.6 / 0.074          # 21.6 N.m/m
 
 
-def build(delta_deg: float) -> SynRMGeometry:
+def build(delta_deg: float, bore: float = BORE) -> SynRMGeometry:
+    """Self-similar frame: the 150 mm proportions scale with the bore."""
+    k = bore / BORE
     return SynRMGeometry(
-        stator_od=STATOR_OD, stator_bore=BORE, n_slots=A.N_SLOTS,
-        airgap=A.AIRGAP, shaft_od=SHAFT_OD,
-        barrier_radial_span=SPAN,
+        stator_od=STATOR_OD * k, stator_bore=bore, n_slots=A.N_SLOTS,
+        airgap=A.AIRGAP, shaft_od=SHAFT_OD * k,
+        barrier_radial_span=SPAN * k,
         barrier_angle_frac=0.62, bridge=0.0006,
         barrier_center_angle=math.pi / 4 + math.radians(delta_deg),
     )
 
 
-def run(delta_deg: float, n_theta: int, rows: int, H, B) -> dict:
-    g = build(delta_deg)
+def run(delta_deg: float, n_theta: int, rows: int, H, B,
+        bore: float = BORE) -> dict:
+    g = build(delta_deg, bore)
     mesh, sub, _ = build_mesh(g, n_theta=n_theta, n_gap_rows=rows)
     sg = A.split_slots(mesh, sub)
     areas = A.tri_areas(mesh)
@@ -50,7 +53,7 @@ def run(delta_deg: float, n_theta: int, rows: int, H, B) -> dict:
         if n in sub and len(sub[n]) > 0 and e > 0:
             err[n] = abs(areas[sub[n]].sum() / e - 1.0)
     c = A.solve_case(g, mesh, sub, sg, slot_area, H, B)
-    return {"delta": delta_deg, "T_per_m": abs(c["T_per_m"]),
+    return {"delta": delta_deg, "bore": bore, "T_per_m": abs(c["T_per_m"]),
             "Bmax": c["Bmax_T"], "iters": c["iters"],
             "conv": c["converged"], "area_err": max(err.values()),
             "slot_area_mm2": float(np.mean(list(slot_area.values())) * 1e6)}
