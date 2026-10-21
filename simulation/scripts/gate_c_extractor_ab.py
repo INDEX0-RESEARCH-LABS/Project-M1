@@ -18,7 +18,6 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
 from fem_magnetics import load_bh_curve, solve_az_core, torque_maxwell
-from fem_magnetics import load_bh_curve as _lb
 from rajini_anchor import (AIRGAP, BORE, FILL, J_CU, N_SLOTS, SHAFT_OD, STATOR_OD,
                            d_pattern, split_slots, tri_areas)
 from synrm_geometry import SynRMGeometry
