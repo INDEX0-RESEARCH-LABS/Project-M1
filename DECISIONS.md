@@ -188,8 +188,9 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **Thermal:** at the exact 1.6 N.m target (J ~ 4.8) ~97 W copper, ~37 K rise enclosed,
   ~84% copper-only efficiency -> viable. At the 2.0 N.m margin point (J=6) 151 W / 57 K ->
   needs forced air. Still air is not viable at J=6.
-- **System-level finding:** kT ~ 0.018 N.m/A -> ~87 A phase at 0.5 kW, **PF ~0.25,
-  ~4 kVA inverter**. This is the product-level gap, not torque or thermal.
+- **System-level finding (ESTIMATE, upper bound on VA):** kT ~ 0.018 N.m/A -> ~87 A
+  phase at 0.5 kW, **PF ~0.25, ~4 kVA inverter**. This is the product-level gap, not
+  torque or thermal. A proper PF needs the dq model (Ld, Lq, EMF) - next analysis.
 - **Lever falsified:** bridge thickness 0.3-1.0 mm changes torque by <2% -> the 0.6 mm
   bridge is not the limiter; consistent with the Gate C family ceiling. This family is
   intrinsically low-density; fixing it is a topology research task.

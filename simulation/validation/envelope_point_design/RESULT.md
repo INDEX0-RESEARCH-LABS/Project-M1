@@ -54,6 +54,10 @@ i.e. **power factor ~0.25 and ~4 kVA of inverter**. A 48 V / ~100 A controller e
 is scooter-class, not e-bike-class. This is a real product-level consequence of a
 low-saliency magnet-free machine and must be in the spec discussion.
 
+**Caveat on the PF number:** this is an ESTIMATE from the design phase voltage
+(27.7 V peak) and the magnetostatic phase current; it is an upper bound on VA. A proper
+PF needs the dq model (Ld, Lq, EMF at speed) - that is the next analysis, not a claim.
+
 ## 5. Bridge thickness is not the lever (falsified)
 
 Sweep at 130 mm, delta 26.25, 1536/rows4:
