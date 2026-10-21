@@ -74,6 +74,11 @@ Indicative anchor: I1 T@74 mm within ±25% of 8 N·m · I2 L* within ±25% of 74
 
 **Verdict:** Reconciliation settled within envelope-level gates (±25%). The remaining phase difference is a geometric/discretization uncertainty, not a solver defect.
 
+### Anchor sweep (indicative, partial)
+
+Run started but long-running; infrastructure fixes applied (slot materials for split_slots). MTPA search in progress. Full `anchor_results.json` to follow in a separate run.
+
+
 ## Field-puzzle verdict — cos2θ vs sin2θ (2026-10-21, diag15)
 
 **No solver bug. The winding axis is at +45° mech, not 0°.**
