@@ -46,6 +46,11 @@ Still air (h=10) is not viable at J=6 (131-137 K rise); enclosed (h=25) and forc
 ~37 K rise, copper-only efficiency ~84%. **The target is thermally viable; the margin
 point is not, without airflow.** Hotspot is higher than this lumped number.
 
+**CORRECTION (D-012 addendum 5):** the J ~ 4.8 line assumed T proportional to J. The
+measured torque scales as J^2 over 4.8-6 A/mm2, so 1.6 N.m sits at **J = 5.34**:
+**~119 W copper, ~45 K rise, ~81% copper-only**. Still viable enclosed; 8 K hotter.
+See `../dq_model/RESULT.md`.
+
 ## 4. System-level number (recorded because it drives inverter cost)
 
 At 130/50, J=6: N_ph = 15.1, phase current ~109 A for 2.0 N.m -> **kT ~ 0.018 N.m/A**.
@@ -54,9 +59,11 @@ i.e. **power factor ~0.25 and ~4 kVA of inverter**. A 48 V / ~100 A controller e
 is scooter-class, not e-bike-class. This is a real product-level consequence of a
 low-saliency magnet-free machine and must be in the spec discussion.
 
-**Caveat on the PF number:** this is an ESTIMATE from the design phase voltage
-(27.7 V peak) and the magnetostatic phase current; it is an upper bound on VA. A proper
-PF needs the dq model (Ld, Lq, EMF at speed) - that is the next analysis, not a claim.
+**WITHDRAWN (D-012 addendum 5):** the PF/turns numbers in this section are not
+admissible. The dq model that was meant to replace them failed its own gate (3.1x
+torque error), so no PF is published. Survivors: the ~100 A phase current at this
+winding, and the ~6-8 V terminal voltage against a 26.3 V ceiling (the winding is
+under-turned ~3x). See `../dq_model/RESULT.md`.
 
 ## 5. Bridge thickness is not the lever (falsified)
 

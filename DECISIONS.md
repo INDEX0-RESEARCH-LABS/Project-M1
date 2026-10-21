@@ -198,3 +198,33 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   planning; record efficiency/PF as the open product gap; next zero-budget step = iron
   loss + PF from the same solution, then the 48 V vs 96 V architecture question.
 - **Status:** PROPOSED.
+
+## D-012 — addendum 5: torque corroborated; two-parameter dq falsified; PF withdrawn; J for 1.6 N.m corrected
+- **Date:** 2026-10-21
+- **Evidence:** `simulation/validation/dq_model/{PLAN,RESULT}.md`; `dq_model.py`.
+- **Torque is corroborated**: at the MTPA point the Maxwell torque (40.12 N.m/m) and the
+  co-energy derivative T = dW'/d(delta) (36.08 N.m/m) agree within **10%** (the extractor's
+  known re-mesh floor). The envelope result does not depend on the dq model.
+- **Two-parameter dq model FAILED**: `1.5p(Ld-Lq)id iq` = 0.643 N.m vs 2.022 N.m from the
+  solve (**-68%**, factor 3.1, systematic at both current levels). The measured apparent
+  inductances are converged (+0.0% / +0.1% from 1536 to 3072/rows10), so this is a **model
+  class failure**, not a numerical one: the co-energy is dominated by saturated iron, not
+  airgap saliency. Torque does not vanish at either alignment axis; the co-energy has a
+  minimum at the torque peak.
+- **PF WITHDRAWN**: the `PF ~0.25 / ~4 kVA` figure from addendum 4 is not admissible and is
+  withdrawn. What survives: phase current ~115 A (J=6) / ~102 A (1.6 N.m point) at the
+  current winding; `omega*lambda` = 6-8 V against a 26.3 V ceiling, so the winding is
+  **under-turned ~3x** - rewinding to N_c ~3.7 (a=1) cuts the phase current to ~35 A at
+  **identical copper loss**. That is the inverter-cost lever, independent of the failed model.
+- **Measurement correction**: torque scales as **J^2** between 4.8 and 6 A/mm2 (ratio 1.581
+  vs 1.5625). The 1.6 N.m target sits at **J = 5.34**, not 4.8 -> **~119 W copper, ~45 K
+  rise, ~81% copper-only efficiency** (previously reported 97 W / 37 K / 84%). The thermal
+  verdict is unchanged in kind; the target point is 8 K hotter.
+- **Method limitation recorded**: the phase-flux probe is not mirror-symmetric (L at
+  +18.75 deg from d = 0.0862 mH vs 0.1016 at the mirror point, -18%). The barrier polygons
+  are symmetric by construction, so the cause is the discrete single-layer winding; future
+  inductance claims need a symmetric excitation.
+- **Open**: Maxwell vs co-energy disagree at the alignment axes (and Maxwell varies 47% per
+  degree at delta=45) -> no cogging/ripple claim near the axes. A real PF needs a saturated
+  dq model (lambda_d = dW'/di_d, lambda_q = dW'/di_q at the operating point, ~4 solves).
+- **Status:** PROPOSED.
