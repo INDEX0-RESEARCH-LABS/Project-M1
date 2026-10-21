@@ -1,3 +1,21 @@
+AMENDMENT 3 (2026-10-21, after amendment 2's smoke runs):
+the phase-A winding was all-poles-same-polarity; classic 12/8 wiring is N,S,N,S per
+phase (flux closes pole -> rotor -> opposite pole). Fixed before any comparison too.
+Also, the precomputed "aligned at 37.5 deg" phase bookkeeping was wrong (half a rotor
+pole off); aligned/unaligned are now defined EMPIRICALLY as argmax/argmin of the
+measured phase flux-linkage curve lambda(phi) over one 90 deg period, and gate G3 is
+re-declared as |T(phi_lmax)| <= 20% peak and |T(phi_lmin)| <= 20% peak. The full
+coarse-mesh lambda+torque scan (0..90 deg, 5 deg steps) runs BEFORE the fine sweeps;
+the fine multi-ring runs happen only at the empirically located peak and zeros.
+
+AMENDMENT 2 (2026-10-21, after the 12 mm re-run ALSO produced ~zero torque):
+root cause diagnosed from the field map + flux linkage: the declared 2 mm rotor pole tip
+(bridge) is a CONTINUOUS iron sleeve around the whole rotor surface (the barrier band
+starts below it), which shunts the flux laterally — the rotor saw from the gap is a smooth
+iron cylinder; lambda varies by ~1e-4 with rotor angle. For an SRM the rotor slots must
+open AT the surface: pole-tip bridge removed (bridge=0), slot depth 12 mm kept. Both
+failed sweeps are kept on record; nothing from them is used in the comparison.
+
 AMENDMENT (2026-10-21, made after the first sweep, BEFORE any comparison was drawn):
 the declared rotor slot depth 5 mm produced negligible saliency (peak 0.0201 N·m/m —
 shallow slots barely perturb the rotor flux path, so L_a ≈ L_u). Amended to 12 mm
@@ -38,8 +56,8 @@ our declared designs; the comparison ratio is the deliverable, not absolute torq
   - stator slot half-angle at bottom: 0.55·pitch (same slot code as SynRM).
   - stator slot depth: solved so TOTAL slot (copper) area = SynRM's total slot area
     ⇒ equal installed copper per 74 mm stack. Declared, not tuned after results.
-  - rotor slots: arc 25° (frac 0.556 of 45° pitch), depth 12 mm (amended from the
-    declared 5 mm — see AMENDMENT above), pole tip (bridge) 2 mm.
+  - rotor slots: arc 25° (frac 0.556 of 45° pitch), depth 12 mm, slots OPEN at the
+    rotor surface (pole-tip bridge removed; amendment 2 above).
   - excitation: ONE phase (4 stator poles, slots (0,1),(3,4),(6,7),(9,10)) energized,
     ±J_CU·FILL in 8 of 12 slots — the true instantaneous SRM snapshot.
 - **Declared caveat (thermal):** the SRM runs this excitation 1/3 duty in continuous

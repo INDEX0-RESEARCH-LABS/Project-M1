@@ -30,7 +30,8 @@ SRM_N_SLOTS = 12
 SRM_POLE_TIP_MM = 12.0        # slot-opening arc at bore -> stator pole tip ~15 deg
 ROTOR_SLOT_FRAC = 25.0 / 45.0  # rotor slot arc / rotor pitch (45 deg)
 ROTOR_SLOT_DEPTH = 0.012   # amended from 0.005: 5mm gave negligible saliency (see PLAN)
-ROTOR_TIP = 0.002             # rotor "bridge" = pole tip height
+ROTOR_TIP = 0.0             # amended from 0.002: continuous 2mm surface sleeve shunted
+                            # the flux (amendment 2 in PLAN)
 TORQUE_NTHETA = 2880
 N_RINGS = 9
 SWEEP_DEG = [15.0, 20.0, 25.0, 30.0, 35.0, 37.5, 40.0, 45.0, 52.5, 60.0]
@@ -83,12 +84,15 @@ def srm_geometry(phi_rad: float) -> SynRMGeometry:
 
 
 def srm_pattern() -> dict[str, float]:
-    """Phase A on: 4 stator poles (slots (0,1),(3,4),(6,7),(9,10)), +/- conductors."""
+    """Phase A on, classic 12/8 wiring: 4 stator poles per phase alternate N,S,N,S
+    (diametrically opposite poles reversed) so the phase flux closes pole -> rotor
+    -> opposite pole. Poles at 15+90p deg; slots (3p, 3p+1); +currents for N."""
     jcx = J_CU * FILL
     jz = {f"slot_{k:02d}": 0.0 for k in range(SRM_N_SLOTS)}
-    for base in (0, 3, 6, 9):
-        jz[f"slot_{base:02d}"] = jcx
-        jz[f"slot_{base + 1:02d}"] = -jcx
+    for p, base in enumerate((0, 3, 6, 9)):
+        s = +1 if p % 2 == 0 else -1          # N,S,N,S
+        jz[f"slot_{base:02d}"] = s * jcx
+        jz[f"slot_{base + 1:02d}"] = -s * jcx
     return jz
 
 
