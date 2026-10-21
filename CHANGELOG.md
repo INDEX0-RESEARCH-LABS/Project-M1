@@ -46,6 +46,11 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (D-013)** - **winding turns decided: k = 2** (10 turns/coil at a=4, 2 x 1.2 mm
+  per turn). 51 A peak, 12.9 V at 3000 rpm, R_ph 6.12 mOhm, copper loss unchanged (24-26 W),
+  PF 0.53-0.58, S ~0.99 kVA; speed ceiling ~6,130 rpm without field weakening (was ~12,300).
+  Exact scaling from the FEM reference state (N_c = 1.247), no new solves. Reopens only if
+  the final gearing needs more than ~6,100 rpm.
 - **2026-10-21 (winding spec v1)** - `prototype/design/winding_spec_v1.md` for the 130/50
   frame: documents that the **solved winding is single-layer** (6 coils/phase, `N_ph = 6*N_c`),
   correcting v0's double-layer description (a double-layer build would need torque

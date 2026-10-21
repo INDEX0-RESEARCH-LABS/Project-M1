@@ -351,3 +351,27 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   against the superseded 53 W copper loss; the gate's intent is answered (iron costs ~2.4
   efficiency points) and the stale branch is recorded in `iron_loss/RESULT.md` s.4.
 - **Status:** PROPOSED.
+
+## D-013 - Winding turns: k = 2 (10 turns/coil at a=4), 51 A, ~6,130 rpm ceiling
+- **Date:** 2026-10-21
+- **Context:** D-012 left the turns count open because it trades current against speed
+  headroom at constant torque, copper loss and apparent power. The application case is a
+  2W drivetrain with a 5-6:1 reduction and a 45-60 km/h top speed, i.e. ~5,000-6,000 rpm
+  at the motor.
+- **Decision:** double the series turns relative to the FEM reference state
+  (`N_c = 1.247` -> `2.494`, i.e. **10 physical turns/coil at a = 4**, 2 strands of 1.2 mm
+  per turn). Phase current **51 A** peak, terminal voltage **12.9 V** peak at 3000 rpm,
+  R_ph 6.12 mOhm, copper loss unchanged at 24-26 W, PF 0.53-0.58, S ~0.99 kVA.
+- **Why scaling is exact, not a new solve:** at constant slot ampere-turns the torque and
+  the field are unchanged; `lambda ~ N_c`, `R ~ N_c^2`, `I ~ 1/N_c`, so `V ~ N_c` and
+  `P_cu = 3 I^2 R` is invariant. The field solutions stay at the reference state and remain
+  the certification basis.
+- **Trade made:** the no-field-weakening speed ceiling falls from ~12,300 rpm to
+  **~6,130 rpm** (26.33 V / 12.9 V x 3000 rpm). At 5,600 rpm the winding uses 91% of the
+  48 V envelope. Current halves, kVA does not change - the gain is controller and harness
+  current rating, not silicon.
+- **Does not change:** torque (1.592 N.m), envelope (130/50), iron loss, efficiency
+  (92.7%), thermal (~15 K), PF bracket.
+- **Revisit trigger:** the final gear ratio. If the motor must exceed ~6,100 rpm, k = 2
+  fails on voltage and the choice returns to k = 1 (102 A) or k = 1.5 with field weakening.
+- **Status:** PROPOSED (founder confirmation), implemented in `prototype/design/winding_spec_v1.md`.
