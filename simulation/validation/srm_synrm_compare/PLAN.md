@@ -1,3 +1,9 @@
+AMENDMENT (2026-10-21, made after the first sweep, BEFORE any comparison was drawn):
+the declared rotor slot depth 5 mm produced negligible saliency (peak 0.0201 N·m/m —
+shallow slots barely perturb the rotor flux path, so L_a ≈ L_u). Amended to 12 mm
+(typical for a 45.5 mm rotor). The failed-declaration sweep is kept on record in
+`first_sweep shallow5mm.log`; nothing from it is used in the comparison below.
+
 # SRM vs SynRM — same-envelope indicative comparison
 
 Status: plan declared BEFORE running (house rule). Results will be written to RESULT.md
@@ -32,7 +38,8 @@ our declared designs; the comparison ratio is the deliverable, not absolute torq
   - stator slot half-angle at bottom: 0.55·pitch (same slot code as SynRM).
   - stator slot depth: solved so TOTAL slot (copper) area = SynRM's total slot area
     ⇒ equal installed copper per 74 mm stack. Declared, not tuned after results.
-  - rotor slots: arc 25° (frac 0.556 of 45° pitch), depth 5 mm, pole tip (bridge) 2 mm.
+  - rotor slots: arc 25° (frac 0.556 of 45° pitch), depth 12 mm (amended from the
+    declared 5 mm — see AMENDMENT above), pole tip (bridge) 2 mm.
   - excitation: ONE phase (4 stator poles, slots (0,1),(3,4),(6,7),(9,10)) energized,
     ±J_CU·FILL in 8 of 12 slots — the true instantaneous SRM snapshot.
 - **Declared caveat (thermal):** the SRM runs this excitation 1/3 duty in continuous

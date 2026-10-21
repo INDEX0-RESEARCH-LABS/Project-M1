@@ -29,7 +29,7 @@ from rajini_anchor import (AIRGAP, BARRIER_SPAN, BORE, FILL, J_CU, L_STACK,
 SRM_N_SLOTS = 12
 SRM_POLE_TIP_MM = 12.0        # slot-opening arc at bore -> stator pole tip ~15 deg
 ROTOR_SLOT_FRAC = 25.0 / 45.0  # rotor slot arc / rotor pitch (45 deg)
-ROTOR_SLOT_DEPTH = 0.005
+ROTOR_SLOT_DEPTH = 0.012   # amended from 0.005: 5mm gave negligible saliency (see PLAN)
 ROTOR_TIP = 0.002             # rotor "bridge" = pole tip height
 TORQUE_NTHETA = 2880
 N_RINGS = 9
@@ -157,18 +157,21 @@ def main() -> None:
                      "curve": sweep("M-43 Steel", mesh_kw)}
 
     peak = max((abs(v["T_pmm"]) for v in results["curve"].values()))
+    peak_phi = max(results["curve"], key=lambda d: abs(results["curve"][d]["T_pmm"]))
     aligned = results["curve"][37.5]["T_pmm"]
     unaligned = results["curve"][15.0]["T_pmm"]
     g1 = all(v["conv"] for v in results["curve"].values())
     g2 = max(v["area_err"] for v in results["curve"].values()) <= 0.01
     g3 = (abs(aligned) <= 0.2 * peak) and (abs(unaligned) <= 0.2 * peak)
     results["peak_T_pmm"] = peak
+    results["peak_phi_deg"] = peak_phi
 
-    # G4 refinement at aligned position
-    fine = sweep("M-43 Steel", mesh_kw_fine, phases_deg=[37.5])
-    t_fine = abs(fine[37.5]["T_pmm"])
-    g4 = abs(t_fine - peak) / peak if peak else 1.0
-    results["fine_T_pmm"] = fine[37.5]["T_pmm"]
+    # G4 refinement: same rotor position, fine mesh
+    fine = sweep("M-43 Steel", mesh_kw_fine, phases_deg=[peak_phi])
+    t_ref = abs(results["curve"][peak_phi]["T_pmm"])
+    t_fine = abs(fine[peak_phi]["T_pmm"])
+    g4 = abs(t_fine - t_ref) / t_ref if t_ref else 1.0
+    results["fine_T_pmm"] = fine[peak_phi]["T_pmm"]
 
     # C1 comparison (anchor numbers from the completed sweep, N.m per meter)
     synrm_T_pmm = 7.6911
