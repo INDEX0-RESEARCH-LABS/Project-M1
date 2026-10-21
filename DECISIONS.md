@@ -158,3 +158,21 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   gate at J = 6. No envelope freeze until both land.
 - **Status:** PROPOSED (amended). Founder direction still required only for the spec-level
   question (continuous rating defined thermally vs by J = 6).
+
+## D-012 — addendum 3: 150 mm-bore 4-pole envelope FEM-validated (target met with ~3x margin)
+- **Date:** 2026-10-21
+- **Evidence:** `simulation/validation/envelope_validation/{PLAN,RESULT}.md`;
+  `simulation/scripts/envelope_validation.py`, `envelope_certify.py`.
+- **Result:** 4-pole, 36 slots, bore 150 mm, stator OD 217 mm, L 74 mm, span 12/nb2/frac
+  0.62/bridge 0.6, J = 6 A/mm2, M-43: **68.49 N.m/m at rows40 = 5.07 N.m @ 74 mm**
+  (1006 Steel bound 4.90); target 1.6 N.m met with ~3x margin. Bracket spread 3%.
+  Winding ~4 turns/coil with a = 6 parallel paths.
+- **Limitations (recorded):** rows sequence non-monotone (63.9 -> 68.9 -> 74.9 -> 68.5,
+  last step -8.5%) so the number is INDICATIVE, not certified; local Bmax ~3 T is outside
+  the BH bracket (torque insensitive, 3% spread); delta = 23.5 deg outlier is a
+  mesh/barrier-edge artifact.
+- **Decision:** 2-pole topology is not required for the target; the 4-pole 150 mm route is
+  the validated direction and is over-sized for 1.6 N.m (~5 N.m at J=6), so the next task
+  is a point design at bore 110-130 mm + certified rows40 + copper-loss/PF/thermal gate.
+  No envelope freeze yet.
+- **Status:** PROPOSED.

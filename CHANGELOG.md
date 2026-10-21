@@ -46,6 +46,12 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (D-012 addendum 3)** — **150 mm-bore 4-pole envelope FEM validation**
+  (`simulation/validation/envelope_validation/`, `simulation/scripts/envelope_validation.py`,
+  `envelope_certify.py`): 68.49 N.m/m at rows40 = **5.07 N.m @ 74 mm** (1006 bound 4.90),
+  ~3x the 1.6 N.m target, bracket spread 3%. Recorded limitations: non-monotone rows
+  sequence (INDICATIVE, not certified) and local Bmax ~3 T beyond the BH bracket. 2-pole
+  topology no longer required; frame is over-sized, next = point design at 110-130 mm bore.
 - **2026-10-21 (D-012 addendum 2)** — **torque-density audit** (`simulation/validation/torque_density_audit/`,
   `simulation/scripts/torque_density_audit.py`): one certified-point solve + MMF/gap-field
   spectra + textbook sizing. Dominant MMF harmonic = p=2 (excitation convention confirmed);

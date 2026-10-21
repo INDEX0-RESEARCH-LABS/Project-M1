@@ -50,17 +50,20 @@ torque from the certified anchor shear (642 Pa at 242.6 AT/slot, linear in AT):
 
 ## Recommendation
 
-1. **Envelope direction: 130 mm-class 2-pole, L ~ 74 mm, a = 2-4 winding ~3.4-6.8 turns/coil.**
-   Fallback if a 2-pole rotor is judged impractical: 4-pole, bore ~150 mm, L ~ 74 mm,
-   a = 6, ~4 turns/coil.
-2. **Next validation (zero budget, existing machinery):** add 2-pole rotor support to
-   `synrm_geometry` (barrier sets every 180 deg), run the certified chain
-   (areas -> 1536/3072 -> single-ring rows=40) and confirm the scaled shear on the real
-   geometry rather than the linear model. Same for the 4-pole 150 mm fallback.
-3. **Thermal gate before spec freeze:** first-order copper-loss/lumped-thermal estimate at
-   the chosen J; if natural convection cannot hold J = 6, the continuous rating drops and
-   the spec must be written as thermal-limited.
-4. No envelope freeze until (2) and (3) land.
+1. **Envelope: 4-pole, bore 150 mm, L = 74 mm is FEM-validated** at J = 6 A/mm2
+   (5.07 N.m @ 74 mm rows40, ~3x the 1.6 N.m target; bracket spread 3%). Winding:
+   ~4 turns/coil with a = 6 parallel paths. See
+   `simulation/validation/envelope_validation/RESULT.md`.
+2. **The frame is over-sized for the target** (~5 N.m at J=6 = ~1.6 kW). Next task is a
+   point design at bore 110 and 130 mm with the same proportions; pick the smallest frame
+   holding >= 1.6 N.m cont with >= 25% margin.
+3. The 2-pole 130/74 point from the scan stays available as an option to reduce OD, but
+   it is no longer needed: it would require a new 2-pole rotor topology, and the 4-pole
+   150 mm route is already validated.
+4. **Gates before spec freeze:** (a) certified rows40 extraction with a monotone trace at
+   the chosen bore, (b) first-order copper-loss/PF/thermal estimate at the operating J,
+   (c) BH-extrapolation note for local Bmax ~3 T in the bridges.
+5. No envelope freeze until (1)-(4) land.
 
 ## Caveats (unchanged)
 
