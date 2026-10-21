@@ -306,7 +306,17 @@ def main() -> int:
           "(pass = infrastructure + indicative gate; steel+geometry still "
           "unvalidated per D-006 / unpublished-anchor-geometry)")
 
-    (OUT / "anchor_results.json").write_text(json.dumps({
+    # numpy scalars (np.bool_, np.float64) are not JSON serializable
+    def _py(o):
+        if isinstance(o, np.generic):
+            return o.item()
+        if isinstance(o, dict):
+            return {k: _py(v) for k, v in o.items()}
+        if isinstance(o, (list, tuple)):
+            return [_py(v) for v in o]
+        return o
+
+    (OUT / "anchor_results.json").write_text(json.dumps(_py({
         "gates": {"overall": ok, "R3_refinement": r3, "R4_converged": r4},
         "results": results,
         "meta": {
@@ -326,7 +336,7 @@ def main() -> int:
             "label": "INDICATIVE -- not a D-004 5% replication "
                      "(rotor geometry unpublished)",
         },
-    }, indent=2))
+    }), indent=2))
     return 0 if ok else 1
 
 
