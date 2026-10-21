@@ -21,7 +21,7 @@ GAP, STATOR, SLOTS, AIR = "airgap", "stator_iron", "slots", "air"
 
 def slot_angles(g: SynRMGeometry):
     r_bore = g.stator_bore / 2
-    depth = 0.18 * r_bore
+    depth = 0.18 * r_bore if g.slot_depth is None else g.slot_depth
     a_open = math.asin(min(1.0, (g.slot_opening / 2) / r_bore))
     half_bot = (2 * math.pi / g.n_slots) / 2 * 0.55
     return r_bore, depth, a_open, half_bot
@@ -42,11 +42,12 @@ def barrier_bands(g: SynRMGeometry):
 
 def _in_barrier(g: SynRMGeometry, x: float, y: float) -> bool:
     r = math.hypot(x, y)
-    pole_pitch = math.pi / 2
-    a = math.atan2(y, x) % pole_pitch
-    centre = g.barrier_center_angle
-    half_span = (g.barrier_angle_frac * g.pole_pitch) / 2
-    if abs(a - centre) > half_span:
+    pole_pitch = 2 * math.pi / g.rotor_n_poles   # rotor-period basis for BOTH the
+    a = math.atan2(y, x) % pole_pitch            # period and barrier width, so a
+    c = g.barrier_center_angle % pole_pitch      # wrapped centre dist handles
+    half_span = (g.barrier_angle_frac * pole_pitch) / 2  # centres in any window
+    d = abs(a - c) % pole_pitch                  # barrier may straddle a=0 seam
+    if min(d, pole_pitch - d) > half_span:
         return False
     for r_i, r_o in barrier_bands(g):
         if r_i < r <= r_o:
@@ -115,10 +116,10 @@ def expected_areas(g: SynRMGeometry) -> dict[str, float]:
     rs = np.linspace(r_bore, r_bore + depth, 4000)
     frac = (rs - r_bore) / depth
     slot = g.n_slots * np.trapezoid(2 * (a_open + (half_bot - a_open) * frac) * rs, rs)
-    half_span = (g.barrier_angle_frac * g.pole_pitch) / 2
+    half_span = (g.barrier_angle_frac * 2 * math.pi / g.rotor_n_poles) / 2
     bar = 0.0
     for r_i, r_o in barrier_bands(g):
-        bar += 2 * half_span * (r_o ** 2 - r_i ** 2) * 2
+        bar += 2 * half_span * (r_o ** 2 - r_i ** 2) * (g.rotor_n_poles / 2)
     return {
         SHAFT: math.pi * r_sh ** 2,
         ROTOR: math.pi * (r_ro ** 2 - r_sh ** 2) - bar,
@@ -158,9 +159,9 @@ def build_mesh(g: SynRMGeometry, *, n_r=30, n_theta=768, n_gap_rows=2):
     for k in range(g.n_slots):
         c = k * pitch
         extra += [c - a_open, c + a_open, c - half_bot, c + half_bot]
-    for k in range(4):
-        c = k * math.pi / 2 + g.barrier_center_angle
-        hs = (g.barrier_angle_frac * g.pole_pitch) / 2
+    for k in range(g.rotor_n_poles):
+        c = k * 2 * math.pi / g.rotor_n_poles + g.barrier_center_angle
+        hs = (g.barrier_angle_frac * 2 * math.pi / g.rotor_n_poles) / 2
         extra += [c - hs, c + hs]
     th_ray = np.unique(np.concatenate([base, np.mod(np.array(extra), 2 * math.pi)]))
     th_ray = th_ray[np.r_[True, np.diff(th_ray) > 1e-4]]

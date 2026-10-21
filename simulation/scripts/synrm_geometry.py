@@ -40,6 +40,11 @@ class SynRMGeometry:
     # nonzero value equals rotating the rotor relative to the stator MMF frame.
     barrier_angle_frac: float = 0.62  # barrier angular width as fraction of pole pitch
     bridge: float = 0.0006            # thin iron bridge at rotor surface [m]
+    rotor_n_poles: int = 4            # rotor periodicity for barriers/rotor slots
+                                      # (4 = standard 4-pole SynRM; 8 = 12/8 SRM
+                                      # where "barriers" model the rotor slots)
+    slot_depth: float | None = None   # stator slot depth [m]; None -> 0.18*r_bore
+                                      # (anchor behavior)
 
     @property
     def rotor_od(self) -> float:
@@ -102,10 +107,10 @@ def rotor_barriers(g: SynRMGeometry) -> list[dict]:
     t = g.barrier_radial_span * (1 - g.barrier_gap_frac) / g.n_barriers  # barrier thickness
     gap = g.barrier_radial_span * g.barrier_gap_frac / (g.n_barriers - 1) if g.n_barriers > 1 else 0.0
 
-    half_span = (g.barrier_angle_frac * g.pole_pitch) / 2
+    half_span = (g.barrier_angle_frac * 2 * math.pi / g.rotor_n_poles) / 2
     polys = []
-    for k in range(4):  # barrier set centred on the q-axis of each pole
-        center = k * math.pi / 2 + g.barrier_center_angle
+    for k in range(g.rotor_n_poles):  # barrier set centred on the q-axis of each pole
+        center = k * 2 * math.pi / g.rotor_n_poles + g.barrier_center_angle
         for j in range(g.n_barriers):
             r_o = zone_out - j * (t + gap)
             r_i = r_o - t

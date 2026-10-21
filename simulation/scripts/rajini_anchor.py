@@ -128,12 +128,14 @@ def d_pattern() -> dict[int, float]:
     return out
 
 
-def split_slots(mesh, subdomains) -> dict[str, np.ndarray]:
+def split_slots(mesh, subdomains, n_slots: int | None = None) -> dict[str, np.ndarray]:
+    n = n_slots if n_slots is not None else N_SLOTS
+    pitch = 2 * math.pi / n
     cells = subdomains["slots"]
     ct = mesh.p[:, mesh.t].mean(axis=1)
     th = np.mod(np.arctan2(ct[1][cells], ct[0][cells]), 2 * math.pi)
-    k = np.mod(np.floor(th / PITCH).astype(int), N_SLOTS)
-    return {f"slot_{i:02d}": cells[k == i] for i in range(N_SLOTS)}
+    k = np.mod(np.floor(th / pitch).astype(int), n)
+    return {f"slot_{i:02d}": cells[k == i] for i in range(n)}
 
 
 def tri_areas(mesh) -> np.ndarray:
