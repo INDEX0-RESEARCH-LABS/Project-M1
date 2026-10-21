@@ -46,6 +46,12 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (D-012 addendum 4)** — **envelope point design + thermal/bridge checks**
+  (`simulation/validation/envelope_point_design/`): 130 mm bore / 50 mm stack gives
+  **2.00 N.m at J=6 (1.25x margin)**, 120/74 gives 1.99 N.m (174 mm OD); certification
+  drift +2.9/+3.0%. At the exact 1.6 N.m target (J~4.8): ~97 W copper, ~37 K rise enclosed,
+  ~84% copper-only efficiency. **PF ~0.25 / ~4 kVA inverter / ~87 A phase** is the real
+  product gap. **Bridge thickness falsified as a lever** (0.3-1.0 mm flat within 2%).
 - **2026-10-21 (D-012 addendum 3)** — **150 mm-bore 4-pole envelope FEM validation**
   (`simulation/validation/envelope_validation/`, `simulation/scripts/envelope_validation.py`,
   `envelope_certify.py`): 68.49 N.m/m at rows40 = **5.07 N.m @ 74 mm** (1006 bound 4.90),

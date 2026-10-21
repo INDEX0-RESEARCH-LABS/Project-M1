@@ -176,3 +176,24 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   is a point design at bore 110-130 mm + certified rows40 + copper-loss/PF/thermal gate.
   No envelope freeze yet.
 - **Status:** PROPOSED.
+
+## D-012 — addendum 4: envelope point design (130/50) meets the target; PF/efficiency is the real gap
+- **Date:** 2026-10-21
+- **Evidence:** `simulation/validation/envelope_point_design/{PLAN,RESULT}.md`;
+  `envelope_point_design.py`, `thermal_first_order.py`, `bridge_sweep.py`.
+- **Point design:** bore screen 100-140 mm -> 120 and 130 mm certified at 3072 rows 4/20/40
+  (drift +2.9% / +3.0%). **130 mm bore / 50 mm stack: 2.00 N.m at J=6 (1.25x margin)**,
+  188 mm OD; **120/74 mm: 1.99 N.m**, 174 mm OD (take if OD is the constraint).
+  Windability a=4 -> 5.0 turns/coil (130/50), 3.7 (120/74).
+- **Thermal:** at the exact 1.6 N.m target (J ~ 4.8) ~97 W copper, ~37 K rise enclosed,
+  ~84% copper-only efficiency -> viable. At the 2.0 N.m margin point (J=6) 151 W / 57 K ->
+  needs forced air. Still air is not viable at J=6.
+- **System-level finding:** kT ~ 0.018 N.m/A -> ~87 A phase at 0.5 kW, **PF ~0.25,
+  ~4 kVA inverter**. This is the product-level gap, not torque or thermal.
+- **Lever falsified:** bridge thickness 0.3-1.0 mm changes torque by <2% -> the 0.6 mm
+  bridge is not the limiter; consistent with the Gate C family ceiling. This family is
+  intrinsically low-density; fixing it is a topology research task.
+- **Decision:** adopt 130/50 (fallback 120/74) as the validated envelope for Phase 1
+  planning; record efficiency/PF as the open product gap; next zero-budget step = iron
+  loss + PF from the same solution, then the 48 V vs 96 V architecture question.
+- **Status:** PROPOSED.
