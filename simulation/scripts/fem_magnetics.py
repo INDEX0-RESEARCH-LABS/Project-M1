@@ -509,10 +509,12 @@ def _containing_element_near(tri, v, px, py, cand, inside, k: int = 12) -> np.nd
 def torque_maxwell(sol: dict, r_airgap: float, depth: float,
                    n_theta: int = 720, *,
                    require_converged: bool = True,
-                   r_iron: tuple[float, float] | None = None) -> float:
+                   r_iron: tuple[float, float] | None = None,
+                   n_rings: int = 1,
+                   r_spread: float = 0.0) -> float:
     """Torque [N.m] by integrating the Maxwell stress tensor on a circle.
 
-    T = depth * r^2 / mu0 * integral_0^{2pi} Br * Bt dtheta
+    T = depth * <r^2 / mu0 * integral_0^{2pi} Br * Bt dtheta>_rings
 
     Preconditions (checked, not assumed):
     - the sampling circle must lie in a **current-free, non-magnetic** annulus.
@@ -521,6 +523,12 @@ def torque_maxwell(sol: dict, r_airgap: float, depth: float,
       lie strictly outside it.
     - the solution must be converged (switch off with `require_converged=False`
       only for deliberate experiments).
+    - with `n_rings > 1` the integral is averaged over n_rings radii spread
+      across `r_airgap ± r_spread`: the element-wise-constant-B sampling noise
+      (material-boundary jumps) de-correlates between rings while the physical
+      torque is radius-independent in the annulus. Caller chooses `r_spread`
+      small enough that all rings stay strictly inside the non-magnetic annulus
+      (this is checked). Default r_spread=0 keeps the classic single circle.
 
     Sign convention: T is the torque acting on the matter *inside* the circle,
     positive in the +z direction for the solver's stated convention
@@ -531,27 +539,30 @@ def torque_maxwell(sol: dict, r_airgap: float, depth: float,
         raise ValueError(f"r_airgap and depth must be positive ({r_airgap=}, {depth=})")
     if n_theta < 8:
         raise ValueError(f"n_theta must be >= 8 ({n_theta=})")
+    if n_rings < 1:
+        raise ValueError(f"n_rings must be >= 1 ({n_rings=})")
+    if r_spread < 0:
+        raise ValueError(f"r_spread must be >= 0 ({r_spread=})")
     if require_converged and not sol.get("converged", True):
         raise ValueError("refusing to extract torque from a non-converged solution")
-    if r_iron is not None and r_iron[0] < r_airgap < r_iron[1]:
+    if r_iron is not None and r_airgap + r_spread > r_iron[0] and r_airgap - r_spread < r_iron[1]:
         raise ValueError(
-            f"sampling circle r={r_airgap} lies inside iron {r_iron}; the "
+            f"ring band r={r_airgap}±{r_spread} overlaps iron {r_iron}; the "
             "Maxwell surface must be in a non-magnetic annulus")
 
     theta = np.linspace(0.0, 2 * np.pi, n_theta, endpoint=False)
-    px, py = r_airgap * np.cos(theta), r_airgap * np.sin(theta)
-    Bx, By = field_at(sol, px, py)
-
-    # point containment can land on a triangle outside the annulus when the
-    # circle sits exactly on a mesh edge; re-sample those points from their
-    # in-annulus neighbours and report if the correction was large
-    Br = Bx * np.cos(theta) + By * np.sin(theta)
-    Bt = -Bx * np.sin(theta) + By * np.cos(theta)
+    c, s = np.cos(theta), np.sin(theta)
 
     # closed trapezoid rule: append the first sample so the seam is not lost
-    integrand = np.r_[Br * Bt, Br[0] * Bt[0]]
     th = np.r_[theta, 2 * np.pi]
-    return float(depth * r_airgap ** 2 / MU0 * np.trapezoid(integrand, th))
+    values = []
+    rings = r_airgap + np.linspace(-r_spread, r_spread, n_rings)
+    for r in rings:
+        Bx, By = field_at(sol, r * c, r * s)
+        Br = Bx * c + By * s
+        Bt = -Bx * s + By * c
+        values.append(depth * r ** 2 / MU0 * np.trapezoid(np.r_[Br * Bt, Br[0] * Bt[0]], th))
+    return float(np.mean(values))
 
 
 def b_magnitude_at(sol: dict, x: float, y: float) -> float:
