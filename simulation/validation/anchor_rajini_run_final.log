@@ -1,0 +1,36 @@
+=== bracket steel: M-43 Steel ===
+  delta=  0.0deg  T/m=-1.2866  Bmax=2.32T  iters=16  conv=True
+  delta= 15.0deg  T/m=+4.1015  Bmax=2.39T  iters=18  conv=True
+  delta= 30.0deg  T/m=+6.6555  Bmax=2.45T  iters=14  conv=True
+  delta= 45.0deg  T/m=+4.2047  Bmax=2.31T  iters=15  conv=True
+  delta= 60.0deg  T/m=+1.9347  Bmax=1.62T  iters=10  conv=True
+  delta= 75.0deg  T/m=+1.6083  Bmax=1.21T  iters=5  conv=True
+  delta= 90.0deg  T/m=+1.9080  Bmax=1.21T  iters=5  conv=True
+  refine delta=22.50deg  T/m=+2.4321
+  refine delta=26.25deg  T/m=+7.6911
+  refine delta=30.00deg  T/m=+6.6555
+  refine delta=33.75deg  T/m=+3.6852
+  refine delta=37.50deg  T/m=+6.8567
+  MTPA delta=26.25  T/m=7.6911  T@74mm=0.569 N.m (target 8)  L*=1040.2 mm (theirs 74)
+=== bracket steel: 1006 Steel ===
+  delta=  0.0deg  T/m=-1.2450  Bmax=2.39T  iters=12  conv=True
+  delta= 15.0deg  T/m=+4.1471  Bmax=2.46T  iters=12  conv=True
+  delta= 30.0deg  T/m=+6.5241  Bmax=2.52T  iters=13  conv=True
+  delta= 45.0deg  T/m=+4.1527  Bmax=2.37T  iters=12  conv=True
+  delta= 60.0deg  T/m=+1.9232  Bmax=1.67T  iters=8  conv=True
+  delta= 75.0deg  T/m=+1.5917  Bmax=1.21T  iters=3  conv=True
+  delta= 90.0deg  T/m=+1.8884  Bmax=1.21T  iters=3  conv=True
+  refine delta=22.50deg  T/m=+2.5682
+  refine delta=26.25deg  T/m=+7.6411
+  refine delta=30.00deg  T/m=+6.5241
+  refine delta=33.75deg  T/m=+3.7811
+  refine delta=37.50deg  T/m=+6.7607
+  MTPA delta=26.25  T/m=7.6411  T@74mm=0.565 N.m (target 8)  L*=1047.0 mm (theirs 74)
+=== R3 refinement (M-43 Steel at MTPA) ===
+  T(1536)=7.6911  T(3072)=7.0919  diff=7.8% -> False
+  T(1536)=7.6911  T(3072)=7.0919  diff=7.8% -> False
+GATES:
+  M-43 Steel: R1=True R2=False R5=False I1=False (T74=0.569 N.m, L*=1040.2 mm)
+  1006 Steel: R1=True R2=False R5=False I1=False (T74=0.565 N.m, L*=1047.0 mm)
+  R3 (refinement) = False, R4 (convergence) = True
+OVERALL: FAIL (pass = infrastructure + indicative gate; steel+geometry still unvalidated per D-006 / unpublished-anchor-geometry)

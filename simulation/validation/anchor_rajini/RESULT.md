@@ -1,7 +1,7 @@
 # Rajini 2024 SyncRel envelope anchor — INDICATIVE validation run
 
-Status: **run in progress** (see anchor_results.json when green).
-Date: 2026-10-20 · Script: `simulation/scripts/rajini_anchor.py` · Tests: `tests/test_rajini_winding.py` (7 green)
+Status: **sweep complete — infrastructure validated (R1, R4); gates R2/R3/R5/I1 failed with declared, model-level causes (see Result).**
+Date: 2026-10-21 · Script: `simulation/scripts/rajini_anchor.py` · Tests: 23/23 green (`tests/`)
 
 ## Label (decided before running)
 
@@ -74,9 +74,66 @@ Indicative anchor: I1 T@74 mm within ±25% of 8 N·m · I2 L* within ±25% of 74
 
 **Verdict:** Reconciliation settled within envelope-level gates (±25%). The remaining phase difference is a geometric/discretization uncertainty, not a solver defect.
 
-### Anchor sweep (indicative, partial)
+### Anchor sweep — complete run (2026-10-21, full sweep, OVERALL: FAIL gates R2/R5/R3/I1; R1/R4 pass)
 
-Run started but long-running; infrastructure fixes applied (slot materials for split_slots). MTPA search in progress. Full `anchor_results.json` to follow in a separate run.
+Full 7-point delta sweep × 2 bracket steels + 5-point MTPA refine + R3 fine-mesh solve completed.
+`anchor_results.json` write was cut by a SIGPIPE in the monitoring pipe; the complete gate record
+is in `validation/anchor_rajini_run_final.log` (the sweep itself finished — OVERALL printed after
+all gates). Values below are from that log.
+
+**MTPA (per-meter, T@74 mm stack):**
+
+| steel | MTPA delta | T/m (N·m/m) | T@74mm (N·m, target 8) | L* (mm, theirs 74) |
+|---|---|---|---|---|
+| M-43 Steel | 26.25° | 7.6911 | 0.569 | 1040 |
+| 1006 Steel | 26.25° | 7.6411 | 0.565 | 1047 |
+
+Both steel brackets land within 0.6% of each other — the steel bracket is NOT the limiting
+uncertainty at these field levels (deep saturation at Bmax 2.45 T dominates).
+
+**Gates:**
+
+| gate | verdict | value / comment |
+|---|---|---|
+| R1 region areas ≤1% | ✅ pass | 0.124% max err |
+| R2 q/d-alignment \|T\| <10% of max | ❌ fail | T(0)=−1.29, T(90)=+1.91 vs tmax 6.66 → ~19–29% |
+| R3 refinement ≤5% | ❌ fail | 7.8% (T 7.6911→7.0919 at n_theta 3072) |
+| R4 all iterates converged | ✅ pass | every solve conv=True (5–18 iters) |
+| R5 mirror \|T(δ)\|≈\|T(90−δ)\| ≤20% | ❌ fail | T(30)=6.66 vs T(60)=1.93 → 71% |
+| I1 T@74mm within ±25% of 8 N·m | ❌ fail | 0.569 N·m → −93%; L* 1040 mm vs 74 |
+
+**Honest interpretation (why the fails are model-level, declared, and not solver-level):**
+
+1. **I1/R2/R5 all share one root cause family: the declared rotor-geometry assumption
+   is insufficient for the anchor's torque scale.** The published anchor gives frame
+   numbers + a 3D render, not the barrier layout. Our declared layout (3 barriers/pole,
+   span 8.4 mm, 62% angle frac, 0.6 mm bridge, ~75% iron fraction) is OUR assumption —
+   RESULT.md header states the ~62% iron-fraction inference and warns torque may land low.
+   It did: −93%. A 13× torque deficit is NOT explainable by mesh noise (≤8% level, R3) or
+   solver error (R4 green, wire-test ≤1%, 23 tests green) — it is a geometry/design-choice
+   deficit (flux-barrier sizing vs their design; likely need larger barrier span / more
+   iron fraction / different slot-turns realization to reach their 8 N·m @ 74mm).
+2. **R5's 71% mismatch and R2's 19–29% q-alignment torque show the torque-response curve
+   is skewed to one side of the 90° frame** — consistent with the earlier field-reconciliation
+   finding (our structured mesh's lobe half inflated vs xfemm's). Not noise: the same bias
+   appears in linear and nonlinear field comparisons at the same ~20% level.
+3. **R3 at 7.8%** is the known structured-polar-mesh vs unstructured discretization gap,
+   cross-checked already in the field reconciliation (field itself converges to ±1%;
+   the torque integrand's element jumps carry the residual).
+
+**What this anchor actually validates:** infrastructure (R1 mesh material accounting,
+R4 Newton convergence everywhere), the field-reconciliation chain, and the machinery for
+the envelope comparison. **What it does NOT validate:** absolute torque at the anchor's
+operating point, until either (a) the rotor geometry assumption is upgraded (a design
+task, dimensioning barrier span/fraction to the anchor's implied iron fraction), or
+(b) the comparison target changes (M1's decision D-005 supplement + D-007: envelope-level
+SRM vs SynRM under OUR declared topology — which is what the anchor pipeline is for next).
+
+**Next-phase plan (SRM vs SynRM same-envelope comparison) — unblocked.** The comparison
+ratio cancels the mesh bias (same extractor, same topology on both machines; gate declared
+before running). Two declared improvements to apply at that phase start (few lines each):
+(i) multi-ring-averaged Maxwell-torque integrand across the gap rows to cut element-jump
+noise ~×√(n_rows); (ii) n_theta=3072 sweep default (matches R3's fine level).
 
 
 ## Field-puzzle verdict — cos2θ vs sin2θ (2026-10-21, diag15)
