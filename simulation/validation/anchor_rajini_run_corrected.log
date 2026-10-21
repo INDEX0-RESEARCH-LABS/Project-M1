@@ -1,0 +1,156 @@
+SRM slot depth (equal-Cu): 7.39 mm
+  total slot area: synrm=1213.3 mm^2  srm=1213.3 mm^2
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 15.0  T=-0.0176 N.m/m  conv=True  area_err=0.001%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 20.0  T=-0.0201 N.m/m  conv=True  area_err=0.001%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 25.0  T=-0.0184 N.m/m  conv=True  area_err=0.001%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 30.0  T=-0.0130 N.m/m  conv=True  area_err=0.001%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 35.0  T=-0.0080 N.m/m  conv=True  area_err=0.001%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 37.5  T=-0.0059 N.m/m  conv=True  area_err=0.001%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 40.0  T=-0.0050 N.m/m  conv=True  area_err=0.001%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 45.0  T=-0.0073 N.m/m  conv=True  area_err=0.001%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 52.5  T=-0.0128 N.m/m  conv=True  area_err=0.001%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 60.0  T=-0.0176 N.m/m  conv=True  area_err=0.001%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  M-43 Steel phi= 37.5  T=-0.0364 N.m/m  conv=True  area_err=0.003%
+GATES: {'G1_converged': True, 'G2_areas<=1%': np.True_, 'G3_zeros<=20%peak': False, 'G4_refine<=10%': False}
+C1: SRM peak 0.0201 N.m/m (0.001 N.m @74mm) vs SynRM 7.6911 N.m/m (0.569 N.m) -> ratio +0.003 (+/-25% band per PLAN)
+OVERALL: FAIL
+Traceback (most recent call last):
+  File "/home/darion-dev/project-m1/simulation/scripts/srm_model.py", line 217, in <module>
+    main()
+    ~~~~^^
+  File "/home/darion-dev/project-m1/simulation/scripts/srm_model.py", line 203, in main
+    json.dumps(results, indent=1, default=_np))
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/darion-dev/.local/share/mise/installs/python/latest/lib/python3.14/json/__init__.py", line 242, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "/home/darion-dev/.local/share/mise/installs/python/latest/lib/python3.14/json/encoder.py", line 202, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "/home/darion-dev/.local/share/mise/installs/python/latest/lib/python3.14/json/encoder.py", line 263, in iterencode
+    return _iterencode(o, 0)
+  File "/home/darion-dev/project-m1/simulation/scripts/srm_model.py", line 201, in _np
+    raise TypeError(repr(o))
+TypeError: np.True_
+when serializing dict item 'G2_areas<=1%'
+when serializing dict item 'gates'
+bore derived = 92.102 mm ; rotor_od = 91.062 mm
+geometry sanity: {'stator_fits_envelope': True, 'rotor_bore_clearance_ok': True, 'n_slots_even': True, 'barrier_count_plausible': True, 'bridge_positive': True, 'airgap_positive': True, 'all_pass': True}
+
+=== bracket steel: M-43 Steel ===
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+R1 region err max = 0.124% -> True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta=  0.0deg  T/m=-1.2866  Bmax=2.32T  iters=16  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 15.0deg  T/m=+4.1015  Bmax=2.39T  iters=18  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 30.0deg  T/m=+7.1073  Bmax=2.45T  iters=14  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 45.0deg  T/m=+3.6353  Bmax=2.31T  iters=16  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 60.0deg  T/m=-3.6963  Bmax=2.43T  iters=18  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 75.0deg  T/m=-5.3251  Bmax=2.49T  iters=17  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 90.0deg  T/m=-1.2866  Bmax=2.32T  iters=16  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  refine delta=22.50deg  T/m=+2.8281
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  refine delta=26.25deg  T/m=+8.1235
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  refine delta=30.00deg  T/m=+7.1073
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  refine delta=33.75deg  T/m=+4.1328
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  refine delta=37.50deg  T/m=+7.2855
+  MTPA delta=26.25  T/m=8.1235  T@74mm=0.601 N.m (target 8)  L*=984.8 mm (theirs 74)
+
+=== bracket steel: 1006 Steel ===
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+R1 region err max = 0.124% -> True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta=  0.0deg  T/m=-1.2450  Bmax=2.39T  iters=12  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 15.0deg  T/m=+4.1471  Bmax=2.46T  iters=12  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 30.0deg  T/m=+6.9918  Bmax=2.52T  iters=12  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 45.0deg  T/m=+3.6331  Bmax=2.37T  iters=10  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 60.0deg  T/m=-3.5491  Bmax=2.50T  iters=10  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 75.0deg  T/m=-5.3321  Bmax=2.56T  iters=15  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  delta= 90.0deg  T/m=-1.2450  Bmax=2.39T  iters=12  conv=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  refine delta=22.50deg  T/m=+2.9750
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  refine delta=26.25deg  T/m=+8.0839
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  refine delta=30.00deg  T/m=+6.9918
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  refine delta=33.75deg  T/m=+4.2477
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  refine delta=37.50deg  T/m=+7.1979
+  MTPA delta=26.25  T/m=8.0839  T@74mm=0.598 N.m (target 8)  L*=989.6 mm (theirs 74)
+
+=== R3 refinement (M-43 Steel at MTPA) ===
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  T(1536)=8.1235  T(3072)=7.5248  diff=7.4% -> False
+  T(1536)=8.1235  T(3072)=7.5248  diff=7.4% -> False
+
+GATES:
+  M-43 Steel: R1=True R2=False R5=False I1=False (T74=0.601 N.m, L*=984.8 mm)
+  1006 Steel: R1=True R2=False R5=False I1=False (T74=0.598 N.m, L*=989.6 mm)
+  R3 (refinement) = False, R4 (convergence) = True
+OVERALL: FAIL (pass = infrastructure + indicative gate; steel+geometry still unvalidated per D-006 / unpublished-anchor-geometry)
+DONE rc=1
