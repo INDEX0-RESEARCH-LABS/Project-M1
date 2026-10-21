@@ -56,6 +56,14 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   remains valid (smooth gap, +0.6% agreement). §Result: RESULT.md incl. cost record
   (71–258 s/solve, up to 803k elements). Phase 0 summary unchanged except labels now
   certification-based rather than spread-based.
+- **2026-10-21 (Gate-D prep)** — first zero-spend Gate-D deliverable: **rotor
+  mechanical check** (`prototype/rotor_stress/`, PLAN frozen before run + script
+  `rotor_stress_check.py`): continuous surface-ring hoop + spoke models with Kt band
+  1.5–3, σ_y=230 MPa conservative. **PASS**: SF≥2 to ~15,000 rpm (5× the declared
+  peak envelope; ≥12× headroom at 6000 rpm); bridge-thickness-independent margins →
+  winner-family 0.4 mm bridge carries no mechanical penalty; airgap closure
+  negligible (~9 µm @15k). Out-of-scope flags recorded (corner radii → spin test
+  stays a Gate E acceptance item; SRM open-slot fins out of scope with D-008).
 
 ## [2026-10-21]
 
