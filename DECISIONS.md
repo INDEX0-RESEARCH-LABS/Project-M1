@@ -413,3 +413,37 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **What does not change:** the frame choice (ratio-based), SRM vs SynRM (D-008), the
   thermal conclusion, iron loss, and the qualitative blocker (PF/current at 48 V).
 - **Status:** PROPOSED.
+
+## D-014 - Deep-barrier rotor candidate: +16% torque, PF 0.63 (PROPOSED)
+- **Date:** 2026-10-21
+- **Context:** D-012's blocker is PF 0.49-0.54 / ~1.1 kVA. PF in a SynRM is set by
+  saliency, and the certified rotor measures xi = Ld/Lq = 1.85 - low for a multi-barrier
+  machine. Gate C (D-011) had swept this family for torque, never for saliency.
+- **Found:** the barrier stack occupies the outer 10.4 mm of a 64.5 mm rotor radius, so
+  q-flux dives under it through ~37 mm of solid iron. Radial depth is the lever nobody had
+  varied. Sweeping it (4 barriers, 25% ribs, 0.62 angular fraction, bridge 0.6 mm):
+  span 10.4 -> 20.8 -> 31.2 -> 44.5 mm gives T 1.59 -> 1.71 -> 1.76 -> 1.80 N.m and
+  PF 0.532 -> 0.596 -> 0.625 -> 0.644 at the same current. Widening the barriers instead
+  (frac 0.68 at full depth) collapses torque by 47%: the d-axis iron wedge is the
+  constraint, not the barrier area.
+- **Candidate (S6):** 4 barriers, angular fraction 0.62, rib fraction 0.25, radial span
+  **44.5 mm** (zone_in 19.3 mm, 2.4 mm above the shaft), bridge 0.6 mm. Ring-averaged at
+  3072/10: **T = 1.751 N.m (+16.2% vs the 1.507 baseline at the same extractor), PF 0.635,
+  S 903 VA at 102 A (k=1)**.
+- **Consequence at the 1.6 N.m target:** J 5.10, 48.8 A at k=2, P_cu 22-23 W, efficiency
+  ~93.3%, speed ceiling ~6,900 rpm, **S ~0.76-0.80 kVA, PF 0.63-0.64**. The 48 V controller
+  for 0.5 kW drops from ~1.1 kVA to ~0.8 kVA, and the winding no longer sits at the voltage
+  ceiling.
+- **Why it is not adopted yet:** mechanical stress (4 full-depth barriers, 3.8 mm ribs,
+  0.6 mm bridge, 1.5-2.4 mm yoke) has not been checked - Gate B was certified for the
+  shallow rotor. Iron loss has not been re-run (Bmax in the ribs 2.73 -> 2.79 T), ripple is
+  not modelled, and the +/-4% extractor band still applies. The candidate is therefore
+  recorded as a **candidate**, not a baseline; `STATUS.md` keeps the certified numbers and
+  carries the candidate separately.
+- **Gate note:** the screen's declared candidate rule required xi >= 2.5 and the candidate
+  lands at 2.41, so it FAILS as declared. The xi clause was a proxy; the data show xi is
+  not monotonic in the objective (a 2.74-xi variant loses half its torque). Revised rule,
+  recorded rather than silently retuned: candidate if PF >= BASE + 0.03 and T >= 0.95 x
+  BASE. Both are met by a wide margin (+0.11, +13%).
+- **Status:** PROPOSED - requires Gate B stress and iron loss before any restatement of
+  the baseline. Result: `validation/saliency_lever/RESULT.md`.

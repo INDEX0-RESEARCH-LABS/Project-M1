@@ -42,8 +42,13 @@ J_LEVELS = (4.8e6, 5.34e6, 6.0e6)   # 5.34e6 = the 1.6 N.m target (T ~ J^2)
 
 
 def solve_point(delta: float, J: float, H, B, n_theta: int = 1536,
-                rows: int = 4) -> dict:
-    g = build(delta, BORE)
+                rows: int = 4, geom=None) -> dict:
+    """One magnetostatic solve at rotor angle `delta`.
+
+    `geom` is optional so the saliency screen can pass an alternative barrier
+    design; the certified path (geom=None) is unchanged.
+    """
+    g = geom if geom is not None else build(delta, BORE)
     mesh, sub, _ = build_mesh(g, n_theta=n_theta, n_gap_rows=rows)
     sg = A.split_slots(mesh, sub)
     areas = A.tri_areas(mesh)

@@ -46,6 +46,16 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (D-014)** - **deep-barrier rotor candidate: the barrier stack was too
+  shallow.** It occupied the outer 10.4 mm of a 64.5 mm rotor radius, so q-flux dived
+  under it. Sweeping depth (4 barriers, 25% ribs, 0.62 angular fraction): span 10.4 ->
+  20.8 -> 31.2 -> 44.5 mm gives T 1.59 -> 1.71 -> 1.76 -> 1.80 N.m and PF 0.532 -> 0.596 ->
+  0.625 -> 0.644 at the same current. Ring-averaged confirmation at 3072/10:
+  **+16.2% torque (1.751 vs 1.507), PF 0.635, S 903 VA**. At the 1.6 N.m target that is
+  ~0.76-0.80 kVA instead of ~1.1, i.e. the D-012 PF blocker is close to closed without
+  changing voltage, winding or frame. Not adopted: Gate B stress and iron loss pending.
+  New `validation/saliency_lever/`, `saliency_screen.py`; `envelope_validation.build()`
+  gained keyword-only barrier parameters (certified default path unchanged).
 - **2026-10-21 (D-012 addendum 10)** - **torque extractor bias found and corrected**:
   the headline 1.592 N.m was one Maxwell-stress sampling circle on a 1536-ray/4-row mesh.
   Rings (1/5/9) scatter 11% on that mesh, so the single-circle number was a high-side

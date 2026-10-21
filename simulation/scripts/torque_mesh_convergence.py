@@ -41,9 +41,10 @@ MESHES = ((1536, 4), (3072, 10), (4096, 10))
 R_SPREAD = 0.00016          # 0.16 mm each side of r_gap, inside the 0.52 mm gap
 
 
-def solve_raw(delta: float, J: float, H, B, n_theta: int, rows: int) -> dict:
+def solve_raw(delta: float, J: float, H, B, n_theta: int, rows: int,
+              geom=None) -> dict:
     """Same solve as dq_model.solve_point, but keeps the geometry for r_gap."""
-    g = build(delta, BORE)
+    g = geom if geom is not None else build(delta, BORE)
     mesh, sub, _ = build_mesh(g, n_theta=n_theta, n_gap_rows=rows)
     sg = A.split_slots(mesh, sub)
     areas = A.tri_areas(mesh)
@@ -60,7 +61,19 @@ def solve_raw(delta: float, J: float, H, B, n_theta: int, rows: int) -> dict:
         raise RuntimeError("no convergence")
     r_gap = (g.stator_bore / 2 + g.rotor_od / 2) / 2
     a_slot = float(np.mean([areas[c].sum() for c in sg.values()]))
-    return {"sol": sol, "r_gap": r_gap, "a_slot": a_slot, "mesh": mesh}
+    # phase A flux linkage from the slot stream function (same as dq_model)
+    ae = sol["A"][mesh.t].mean(axis=0)
+    abar = {k: float((ae[c] * areas[c]).sum() / areas[c].sum())
+            for k, c in sg.items()}
+    lam = {}
+    for ph in ("A", "B", "C"):
+        p = [k for k in range(A.N_SLOTS) if A.slot_phase36(k) == (ph, 1)]
+        n = [k for k in range(A.N_SLOTS) if A.slot_phase36(k) == (ph, -1)]
+        lam[ph] = L_STACK * (sum(abar[f"slot_{k:02d}"] for k in p)
+                             - sum(abar[f"slot_{k:02d}"] for k in n))
+    lam_alpha = (2.0 / 3.0) * (lam["A"] - 0.5 * lam["B"] - 0.5 * lam["C"])
+    return {"sol": sol, "r_gap": r_gap, "a_slot": a_slot, "mesh": mesh,
+            "lam_alpha": lam_alpha}
 
 
 def torque_at(res: dict, n_rings: int, n_theta: int = 2880) -> float:

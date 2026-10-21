@@ -28,14 +28,23 @@ TARGET_T_PER_M = 1.6 / 0.074          # 21.6 N.m/m
 
 
 def build(delta_deg: float, bore: float = BORE,
-          bridge: float = 0.0006) -> SynRMGeometry:
-    """Self-similar frame: the 150 mm proportions scale with the bore."""
+          bridge: float = 0.0006, *, n_barriers: int = 3,
+          barrier_angle_frac: float = 0.62,
+          barrier_gap_frac: float = 0.40,
+          barrier_span: float | None = None) -> SynRMGeometry:
+    """Self-similar frame: the 150 mm proportions scale with the bore.
+
+    The barrier count / angular fraction / rib fraction / radial span are
+    keyword-only so the certified default call is unchanged; the saliency screen
+    (validation/saliency_lever) is the only caller that overrides them.
+    """
     k = bore / BORE
     return SynRMGeometry(
         stator_od=STATOR_OD * k, stator_bore=bore, n_slots=A.N_SLOTS,
         airgap=A.AIRGAP, shaft_od=SHAFT_OD * k,
-        barrier_radial_span=SPAN * k,
-        barrier_angle_frac=0.62, bridge=bridge,
+        barrier_radial_span=barrier_span if barrier_span is not None else SPAN * k,
+        barrier_angle_frac=barrier_angle_frac, bridge=bridge,
+        n_barriers=n_barriers, barrier_gap_frac=barrier_gap_frac,
         barrier_center_angle=math.pi / 4 + math.radians(delta_deg),
     )
 

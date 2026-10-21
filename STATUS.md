@@ -18,6 +18,11 @@ founder call, and neither is torque: **PF 0.49-0.54** at the current that delive
 bias** found on 2026-10-21 (absolute torque is 1.45 N.m, not 1.592; +/-4% band). The
 voltage question is closed: 96 V does not change apparent power.
 
+**Candidate that may close the PF blocker (D-014, not yet certified):** the barrier stack
+is too shallow. Deepening it from 10.4 to 44.5 mm gives +16% torque and PF 0.635 at the
+same current, i.e. ~0.8 kVA at the target instead of ~1.1. It is waiting on Gate B stress
+and an iron-loss re-run before it can replace the baseline.
+
 ## 2. The design, in numbers
 
 | quantity | value | label | source |
@@ -48,7 +53,8 @@ oversized: 8.9 kg of iron for 0.5 kW is what buys the 92.3%.
 | item | status | what unblocks it |
 |---|---|---|
 | Winding turns | **DECIDED (D-013): k=2, 51 A**, ceiling ~5,860 rpm at the 1.6 N.m target (was ~6,130) | reopens if the final gear ratio pushes the motor past ~5,800 rpm |
-| **PF 0.49-0.54 at 48 V** | OPEN - founder call (D-012) | accept ~1.1 kVA / 54 A, hold 51 A and accept 454 W, or rework the rotor for saliency (option C in `voltage_and_angle/RESULT.md` s.4) |
+| **Deep-barrier rotor (D-014)** | **CANDIDATE**: +16.2% torque, PF 0.635, S 903 VA at 102 A; ~0.76-0.80 kVA at the target | Gate B stress on 3.8 mm ribs / 0.6 mm bridge; iron-loss re-run; then certification. `saliency_lever/RESULT.md` |
+| **PF 0.49-0.54 at 48 V** | OPEN - founder call (D-012) | accept ~1.1 kVA / 54 A, hold 51 A and accept 454 W, or certify the deep-barrier rotor (D-014), which screens at PF 0.635 / ~0.8 kVA |
 | **Torque extractor convergence** | ABSORBED - 1.45 N.m +/-4%, single-circle torque retired | one fully converged certification point (4096/20, rings 9 + co-energy) would restore a point value; ~15 min compute |
 | True MTPA angle | NOT ESTABLISHED | a ring-averaged angle sweep with continuation between angles |
 | Rotor slot-harmonic loss (~1800 Hz) | NOT MODELLED | a time-domain eddy solve; scoping bound 0.8-3.3 W (ASSUMED ripple, `iron_loss/RESULT.md` s.5) |
@@ -101,6 +107,9 @@ copies carried the same error. The three routes are now tied by
     .venv/bin/python -u simulation/scripts/pf_angle_sweep.py        # ~10 min, 10 solves
     .venv/bin/python -u simulation/scripts/pf_angle_sweep.py --angle-check
     .venv/bin/python -u simulation/scripts/torque_mesh_convergence.py  # ~12 min
+    .venv/bin/python -u simulation/scripts/saliency_screen.py          # ~14 min, 5 configs
+    .venv/bin/python -u simulation/scripts/saliency_screen.py --span   # ~14 min
+    .venv/bin/python -u simulation/scripts/saliency_screen.py --confirm  # candidate, ~3 min
     .venv/bin/python -m pytest -q
 
 Logs from the current runs: `/tmp/opencode/m1/{dq_fix,dq_pfcheck_fix,thermal_fix,iron_loss_fix,pf_angle,angle_check,torque_mesh}.log`.
