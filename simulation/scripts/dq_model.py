@@ -33,6 +33,11 @@ RPM, P_POLES = 3000.0, 2
 V_CEIL = 48.0 / math.sqrt(3) * 0.95      # peak phase ceiling, same as the winding model
 MTL = 2 * L_STACK + 1.2 * math.pi * BORE / 4
 RHO = 1.75e-8
+# A turn spans TWO slots, so the per-phase conductor length is N_ph*(MTL/2):
+#   R_ph = rho * 6 * N_c^2 * MTL / (FILL*A_slot),  N_ph = 6*N_c (one coil/slot pair)
+# Consistent with V_cu = 36*FILL*A_slot*(MTL/2).  The old 12* coefficient and the
+# matching 36*MTL volume were both 2x high (addendum 9).
+
 J_LEVELS = (4.8e6, 5.34e6, 6.0e6)   # 5.34e6 = the 1.6 N.m target (T ~ J^2)
 
 
@@ -122,20 +127,24 @@ def pf_check(H, B) -> int:
           f"(gap {(lam_beta/lam_perp_torque-1):+.1%})")
     print(f"  |lam| geometry={lam_mag_geo*1e3:.2f} mWb  vs torque route="
           f"{lam_mag_torque*1e3:.2f} mWb")
-    r_ph = RHO * 12 * n_c1**2 * MTL / (A.FILL * r["a_slot"])
+    r_ph = RHO * 6 * n_c1**2 * MTL / (A.FILL * r["a_slot"])
     w_e = 2 * math.pi * (RPM / 60) * P_POLES
     w_m = 2 * math.pi * (RPM / 60)
     p_cu = 1.5 * r_ph * i * i
+    pf_by_route = {}
     for name, lb_ in (("geometry", lam_beta), ("torque", lam_perp_torque)):
         vhat = math.hypot(r_ph * i - w_e * lb_, w_e * lam_alpha)
         pf = (p_cu + r["T"] * L_STACK * w_m) / (1.5 * vhat * i)
-        print(f"  PF ({name:8s}): Vhat={vhat:.2f} V  PF={pf:.3f}")
+        pf_by_route[name] = pf
+        print(f"  PF ({name:8s}): Vhat={vhat:.2f} V  PF={pf:.3f}  "
+              f"S={1.5*vhat*i:.0f} VA")
     print(f"\n  Two routes disagree by {(lam_beta/lam_perp_torque-1):+.1%} in the "
           f"perpendicular component.")
     print("  Maxwell and co-energy agree at -10%, so the TORQUE stands; the flux-linkage")
     print("  alpha-beta route is an interpretation-limited bound (discrete winding +")
     print("  harmonic torque), not a measurement. Record PF as a bracket, not a point:")
-    print(f"    PF 0.55 (torque route, conservative) .. 0.60 (flux-linkage route)")
+    print(f"    PF {min(pf_by_route.values()):.2f} (torque route, conservative) .. "
+          f"{max(pf_by_route.values()):.2f} (flux-linkage route)")
     print("  CHECK: bracket recorded (agreement within 10% not achieved -> reason above)")
     return 0
 
@@ -143,7 +152,7 @@ def pf_check(H, B) -> int:
 def main() -> int:
     H, B = load_bh_curve("M-43 Steel")
     n_c1 = turns(BORE, L_STACK, 1)           # turns/coil for a=1 at 48 V design
-    n_ph = 12 * n_c1
+    n_ph = 6 * n_c1
     print(f"design winding: N_c(a=1)={n_c1:.3f}  N_ph={n_ph:.2f}  "
           f"MTL={MTL*1e3:.1f} mm  V_ceil={V_CEIL:.2f} V peak")
 
@@ -170,7 +179,7 @@ def main() -> int:
         ihat = op["i"]
         i_d, i_q = ihat * math.cos(beta), ihat * math.sin(beta)
         t_dq = 1.5 * P_POLES * (Ld - Lq) * i_d * i_q
-        r_ph = RHO * 12 * n_c1**2 * MTL / (A.FILL * op["a_slot"])
+        r_ph = RHO * 6 * n_c1**2 * MTL / (A.FILL * op["a_slot"])
         w_m = 2 * math.pi * (RPM / 60)          # mechanical rad/s
         w_e = w_m * P_POLES                     # electrical rad/s (voltage only)
         # L-based (two-parameter) voltage: DIAGNOSTIC ONLY, this model failed D2

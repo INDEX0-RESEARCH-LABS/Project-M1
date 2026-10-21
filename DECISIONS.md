@@ -317,3 +317,37 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **Decision:** adopt **~88% (87-89%)** as the working efficiency, label it ESTIMATE, and
   keep the rotor-harmonic term as the one open loss item. No envelope or BOM change.
 - **Status:** PROPOSED.
+
+## D-012 - addendum 9: copper-loss factor-2 (half-turn volume) corrected; efficiency 92.7%, PF 0.53-0.58
+- **Date:** 2026-10-21
+- **Evidence:** `simulation/validation/dq_model/RESULT.md` s.9,
+  `simulation/validation/envelope_point_design/RESULT.md` s.3/s.4,
+  `simulation/validation/iron_loss/RESULT.md`, `tests/test_copper_loss_routes.py`;
+  logs `/tmp/opencode/m1/{thermal_fix,iron_loss_fix,dq_fix,dq_pfcheck_fix}.log`.
+- **Defect:** one turn spans **two slots**, so the copper volume that the mean turn length
+  multiplies is a *half-turn* volume. Both the thermal model and `dq_model`'s resistance
+  used `MTL` directly (and `R_ph = rho*12*N_c^2*MTL/(FILL*A_slot)`), each exactly 2x high.
+  Correct: `V_cu = 36*FILL*A_slot*(MTL/2)` = 91.9 cm3 / **0.82 kg**, and
+  `R_ph = rho*6*N_c^2*MTL/(FILL*A_slot)` with `N_ph = 6*N_c` (the single-layer 36-slot
+  pattern already recorded in dq RESULT s.8).
+- **Why the old cross-check missed it:** the thermal volume route and the dq resistance
+  route agreed with each other because both carried the same 2x. A cross-check between two
+  copies of one error is not a check. Now pinned by a three-route test (volume,
+  terminal 3I^2R, slot-fill identity) at 1e-12.
+- **Corrected numbers (130/50, enclosed h=25):**
+  - P_cu hot **25.6 W** at the target (was 53), **32.6 W** at J=6 (was 68).
+  - Winding rise **9.7 K** (was 20), 12.3 K at J=6. Still air at J=6 is 25 K.
+  - Copper-only efficiency **95.1%**; with iron loss (13.5 W median) **92.7%
+    (91.1-93.7%)**, total ~39 W / ~15 K at the target.
+  - Terminal: Vhat 6.44 V, i 102 A, S 986 VA, **PF 0.532** (torque route) .. 0.576
+    (flux-linkage route) -> **bracket 0.53-0.58**, S 0.91-0.99 kVA. At J=6: 1.24 kVA.
+- **Unchanged:** torque (1.592 N.m), envelope 130/50, iron loss, the 33% flux-route gap,
+  the D2 dq-model failure, and the "voltage is not the constraint, current is" conclusion.
+- **Process note:** this is the third factor-2 on the same extensive quantity (addendum 6:
+  peak vs RMS; addendum 9: turn vs half-turn). Rule adopted: any change to a copper-loss
+  or copper-volume expression must pass the three-route test, and no absolute loss number
+  is quoted without it.
+- **F4 gate note (iron loss):** the ratio branch text in `iron_loss/PLAN.md` was written
+  against the superseded 53 W copper loss; the gate's intent is answered (iron costs ~2.4
+  efficiency points) and the stale branch is recorded in `iron_loss/RESULT.md` s.4.
+- **Status:** PROPOSED.

@@ -116,6 +116,10 @@ falsification and the Gate C family ceiling are untouched.
 
 ## 7. CORRECTION (D-012 addendum 6): two unit errors; PF = 0.55; thermal halved
 
+> **SUPERSEDED by section 9 (D-012 addendum 9).** A third factor-2 was found in the
+> copper path (mean turn length applied to a half-turn volume). The PF values below are
+> ~0.02 high and the copper losses are exactly 2x high. Kept for the audit trail.
+
 Found by checking the energy balance `P_elec = P_cu + T*w_mech` instead of trusting the
 printed PF. It did not close (PF > 1), which traced to **two independent factor-2 errors**:
 
@@ -193,6 +197,9 @@ log `/tmp/opencode/m1/pf_check3.log`.
 **The two routes disagree by 33% in the component that matters for the angle**, so PF is
 quoted as **0.55-0.60** (S ~1.0-1.1 kVA at the target, 1.15-1.25 kVA at J=6).
 
+> **SUPERSEDED by section 9:** corrected bracket **0.53-0.58** (S 0.91-0.99 kVA at the
+> target, 1.24 kVA at J=6). The 33% structural gap is unchanged.
+
 Why the flux-linkage route is the weaker one, and why the torque stands:
 
 - The torque implied by the alpha-beta linkages, `1.5 p (lam_alpha i_beta - lam_beta i_alpha)`,
@@ -218,3 +225,50 @@ it is recorded here rather than deleted.
 the terminal voltage without any winding-distribution assumption. It is the only clean way
 to close the 33% gap, and it is not on the critical path for the envelope or the 48 V
 decision (both PF bounds leave the ~1.2 kVA conclusion intact).
+
+## 9. CORRECTION (D-012 addendum 9): third factor-2 in the copper path; PF 0.53-0.58
+
+**Root cause: one turn spans two slots.** The mean turn length `MTL = 2L + 1.2*tau_p` is the
+length of ONE complete turn. Multiplying `MTL` by the copper cross-section of ONE SLOT
+counts the end winding twice:
+
+    V_cu = N_SLOTS * FILL * A_slot * (MTL/2)        # 91.9 cm3, 0.82 kg at 130/50
+    R_ph = rho * 6 * N_c^2 * MTL / (FILL * A_slot)  # N_ph = 6*N_c (single-layer)
+
+Both the thermal volume and `dq_model`'s resistance had used `MTL` and `12*N_c^2`, each 2x
+high, and they agreed with each other - which is why the earlier route cross-check passed.
+The check was comparing two copies of the same error. The three routes are now tied by
+`tests/test_copper_loss_routes.py` (25 tests total), which builds the volume, the terminal
+resistance and the slot-fill identity independently and asserts they agree to 1e-12.
+
+> Note the pattern: addendum 6 fixed peak-vs-RMS, addendum 9 fixes turn-vs-half-turn. Both
+> were factor-2 errors on the same extensive quantity. Any future change to copper loss must
+> go through the three-route test, not through a printed cross-check.
+
+### Corrected terminal state (torque route; geometry route in brackets)
+
+| J [A/mm2] | T [N.m] | i [A] | Vhat | S | PF |
+|---|---|---|---|---|---|
+| 4.8 | 1.279 | 91.7 | 5.82 V | 801 VA | 0.526 |
+| **5.34 (target)** | **1.592** | **102.1** | **6.44 V** | **986 VA** | **0.532** |
+| 6.0 (margin) | 2.022 | 114.7 | 7.19 V | 1237 VA | 0.538 |
+
+`--pf-check` at J=5.34: PF **0.532** (torque route) .. **0.576** (flux-linkage route),
+S 910-986 VA (log `/tmp/opencode/m1/dq_pfcheck_fix.log`). Bracket **0.53-0.58**.
+
+Voltage is still not the constraint (6.4 V against 26.3 V ceiling); current is (~102 A at
+this winding).
+
+### Corrected thermal (enclosed h=25, copper only)
+
+| point | P_cu hot | rise | copper-only efficiency |
+|---|---|---|---|
+| J=6 (2.0 N.m) | 32.6 W | 12.3 K | 95.1% |
+| J=5.34 (1.6 N.m) | 25.6 W | 9.7 K | 95.1% |
+| J=6, still air | 34.1 W | 24.9 K | - |
+
+(`dq_model` prints 23.9 W at J=5.3 and 30.2 W at J=6 because it uses the mesh's mean slot
+area, 4% larger than the 150 mm scaling used by the thermal script. Quote 24-26 W.)
+
+With iron loss (section 8 of `../iron_loss/RESULT.md`, 13.5 W median) charged to the winding:
+target ~39 W, **~15 K**, **efficiency 92.7% (91.1-93.7%)**.

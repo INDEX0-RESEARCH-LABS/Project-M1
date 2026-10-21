@@ -35,36 +35,38 @@ constraint is OD (174 mm) rather than axial length.
 
 ## 3. Thermal / efficiency at the chosen frame (130/50, first-order lumped)
 
-**Values below are post-correction (D-012 addendum 6).** The original table used the FEM
-peak slot current density as RMS and was 2x high on copper loss.
+**Values below are post-correction (D-012 addendum 9).** Two factor-2 copper errors were
+found in sequence: peak-vs-RMS (addendum 6) and mean-turn-length vs half-turn volume
+(addendum 9). The copper loss is 4x lower than the first published table.
 
 | J (peak) | P_cu (enclosed, hot) | winding rise | note |
 |---|---|---|---|
-| 6.0 (2.0 N.m margin point) | 68 W | 26 K | viable enclosed |
-| **5.34 (1.6 N.m target)** | **53 W** | **20 K** | comfortable |
-| 3.0 | 16 W | 6 K | large margin |
+| 6.0 (2.0 N.m margin point) | 32.6 W | 12.3 K | viable enclosed |
+| **5.34 (1.6 N.m target)** | **25.6 W** | **9.7 K** | comfortable |
+| 3.0 | 7.9 W | 3.0 K | large margin |
 
-Still air (h=10) at J=6 is 75 W / 55 K: marginal but not the 131 K previously reported.
-Enclosed (h=25) and forced air (h=50, 14 K) are comfortable. At the exact target torque
-the machine runs ~53 W copper, ~20 K rise. Hotspot is higher than this lumped number.
+Still air (h=10) at J=6 is 34.1 W / 25 K: fine. Enclosed (h=25) and forced air (h=50,
+7 K) are comfortable. At the exact target torque the machine runs ~26 W copper, ~10 K
+rise. Hotspot is higher than this lumped number.
 
 **Iron loss (D-012 addendum 8, `../iron_loss/RESULT.md`):** first-order estimate from the
 grade guarantee, 100 Hz electrical: **8.4-23.4 W, median 13.5 W** (stator 8.4 W, rotor 5.0 W
-upper bound). With iron charged to the winding the target is ~66 W, **~25 K**, and
-**efficiency ~88% (86.7-89.0%)** including iron. Copper-only remains 90.4%.
+upper bound). With iron charged to the winding the target is ~39 W, **~15 K**, and
+**efficiency 92.7% (91.1-93.7%)** including iron; copper-only 95.1%.
 
-**Correction history:** addendum 5 moved the target from J=4.8 to J=5.34 (`T ~ J^2`).
-Addendum 6 fixed the peak-vs-RMS copper-loss error. Net effect versus the original table:
-the target point went from 97 W / 37 K / 84% to **53 W / 20 K / ~90%**.
+**Correction history:** addendum 5 moved the target from J=4.8 to J=5.34 (`T ~ J^2`);
+addendum 6 fixed peak-vs-RMS; addendum 9 fixed the half-turn volume and the matching
+`R_ph`. Net effect: the target went from 97 W / 37 K / 84% to **26 W / 10 K / 95%**
+copper-only (92.7% with iron).
 
 ## 4. System-level number (recorded because it drives inverter cost)
 
-**PUBLISHED (D-012 addendum 6) - model-independent, from measured flux linkage + torque:**
+**PUBLISHED (D-012 addendum 9) - model-independent, from measured flux linkage + torque:**
 
 | point | i phase | Vhat | S | PF |
 |---|---|---|---|---|
-| 1.6 N.m (J=5.34) | 102 A | 6.0-6.5 V | 1.0-1.1 kVA | 0.55-0.60 |
-| 2.0 N.m (J=6) | 115 A | 6.5-7.3 V | 1.13-1.25 kVA | 0.56-0.62 |
+| 1.6 N.m (J=5.34) | 102 A | 5.9-6.4 V | 0.91-0.99 kVA | 0.53-0.58 |
+| 2.0 N.m (J=6) | 115 A | 7.2 V | 1.24 kVA | 0.54-0.58 |
 
 Bracket = two flux routes that disagree by 33% in the perpendicular component (torque vs
 alpha-beta linkages); see `../dq_model/RESULT.md` s.8. The torque route is the lower bound
@@ -101,11 +103,13 @@ task.
 ## 6. Consequences for D-012
 
 - **Envelope: 130 mm bore / 50 mm stack** (or 120/74 if OD is the constraint), 4-pole,
-  36 slots, ~5 turns/coil at a=4. Delivers 1.6 N.m at J=5.34 with ~25 K rise (iron included).
-- **Efficiency ~88% including iron** (86.7-89.0% band; copper-only 90.4%), bought with size:
-  8.9 kg of active iron = 56 W/kg. **PF 0.55-0.60 and the ~100 A phase current at the 48 V
-  design winding** are the product-level constraints. A ~1.2 kVA controller covers it; the
-  ~3x turns increase is the lever that drops current to ~35 A at identical copper loss.
-- Remaining zero-budget work: iron loss from the same field solution (no new physics),
-  then a spec decision on whether PF 0.55 / ~100 A is acceptable for the 2W product or
-  whether the winding (turns) or pack voltage (96 V) should change.
+  36 slots, ~5 turns/coil at a=4. Delivers 1.6 N.m at J=5.34 with ~15 K rise (iron included).
+- **Efficiency 92.7% including iron** (91.1-93.7% band; copper-only 95.1%), bought with size:
+  8.9 kg of active iron = 56 W/kg. **PF 0.53-0.58 and the ~100 A phase current at the 48 V
+  design winding** are the product-level constraints. A ~1 kVA controller covers it.
+- The turns lever is a *speed* trade, not a free win: at constant copper loss, doubling the
+  series turns halves the current (51 A) and halves the no-field-weakening speed headroom
+  (~6,100 rpm instead of ~12,250). Low-turns is right for a wide speed range; 2x turns is
+  right only if the application tops out near 5,000-6,000 rpm.
+- Remaining zero-budget work: rotor slot-harmonic loss (the one open efficiency term), and
+  the turns/speed decision once the application's maximum speed is fixed.

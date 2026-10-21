@@ -3,6 +3,9 @@
 Declared assumptions (lumped, conservative-in-the-right-direction):
   * copper only (iron loss not included -> efficiency is an upper bound)
   * mean turn length MTL = 2*L + 1.2*tau_p  (end-winding allowance)
+  * ONE TURN SPANS TWO SLOTS, so the copper volume that MTL multiplies is a
+    HALF-turn volume: V_cu = N_SLOTS*FILL*A_slot*(MTL/2). Using MTL directly
+    double-counts the end winding (factor-2 loss error; fixed in addendum 9).
   * slot area self-similar: A_slot(bore) = A_slot(150) * (bore/150)^2
   * housing convective area = cylindrical OD surface + both end caps
   * heat transfer: h_conv (still air 10, enclosed 25, forced air 50 W/m2K)
@@ -35,7 +38,7 @@ def estimate(bore: float, L: float, J: float, h_conv: float) -> dict:
     a_slot = A_SLOT_150 * k * k
     tau_p = math.pi * bore / 4.0
     mtl = 2.0 * L + 1.2 * tau_p
-    v_cu = N_SLOTS * FILL * a_slot * mtl
+    v_cu = N_SLOTS * FILL * a_slot * (mtl / 2.0)   # one turn = two slots
     r_th = 1.0 / (h_conv + 6.0)               # 6 W/m2K radiation, fixed first pass
     d_out = bore * OD_RATIO
     area = math.pi * d_out * L + 2 * math.pi / 4 * d_out**2
@@ -74,12 +77,13 @@ def main() -> None:
                   f"rise={r['rise']:5.1f} K")
 
     # self-check: the copper-loss route used here must equal 3*Irms^2*R_ph.
-    #   rho*(J^2/2)*V_cu  ==  18*rho*J^2*FILL*A_slot*MTL   (identical algebra)
+    #   rho*(J^2/2)*V_cu  ==  9*rho*J^2*FILL*A_slot*MTL
+    # with V_cu = 36*FILL*A_slot*(MTL/2)  (a turn spans two slots)
     a_slot = A_SLOT_150 * (0.120 / 0.150) ** 2
     tau_p = math.pi * 0.120 / 4.0
     mtl = 2.0 * 0.074 + 1.2 * tau_p
-    p_thermal = RHO20 * 0.5 * (6e6) ** 2 * N_SLOTS * FILL * a_slot * mtl
-    p_winding = 18 * RHO20 * (6e6) ** 2 * FILL * a_slot * mtl
+    p_thermal = RHO20 * 0.5 * (6e6) ** 2 * N_SLOTS * FILL * a_slot * (mtl / 2)
+    p_winding = 9 * RHO20 * (6e6) ** 2 * FILL * a_slot * mtl
     assert abs(p_thermal - p_winding) / p_winding < 1e-12, "loss routes disagree"
     print(f"\ncross-check J=6, 120/74: rho*J_rms^2*V_cu = {p_thermal:.2f} W "
           f"== 3*Irms^2*R_ph route = {p_winding:.2f} W")

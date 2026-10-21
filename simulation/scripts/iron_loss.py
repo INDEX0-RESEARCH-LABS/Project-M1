@@ -33,6 +33,7 @@ sys.path.insert(0, str(HERE))
 import rajini_anchor as A  # noqa: E402
 from dq_model import BORE, DELTA_OP, L_STACK, solve_point  # noqa: E402
 from fem_magnetics import load_bh_curve  # noqa: E402
+from thermal_first_order import estimate as thermal_estimate  # noqa: E402
 
 RHO_ST = 7650.0          # kg/m3, non-oriented electrical steel
 B_REF, F_REF = 1.5, 50.0
@@ -40,7 +41,6 @@ F_ELEC = 100.0           # p=2 pole pairs at 3000 rpm: 2*3000/60 = 100 Hz
 P_REF = (3.3, 4.0, 5.3)  # W/kg at 1.5 T / 50 Hz: M350-50A / M400-50A / M530-50A
 EXPONENTS = (1.6, 1.8, 2.0)   # hysteresis-dominated .. eddy-dominated
 EDDY_SPLIT = (0.3, 0.45, 0.6)  # eddy fraction at 50 Hz (declared band, not fitted)
-P_CU_HOT = {5.34: 53.1, 6.0: 68.3}   # from thermal_first_order.py, enclosed h=25
 TARGET = 5.34
 
 
@@ -113,7 +113,8 @@ def main() -> int:
         p_ro = 4.0 * f_mid * tot[("rotor_iron", 1.8)]
         print(f"  split at 4.0 W/kg, n=1.8, s=0.45 (f x{f_mid:.2f}): stator {p_st:.1f} W  "
               f"rotor {p_ro:.1f} W (rotor = UPPER BOUND, fundamental only)")
-        p_cu = P_CU_HOT[j_mm2]
+        # single source of truth for copper loss (enclosed, h=25), not a copy
+        p_cu = thermal_estimate(BORE, L_STACK, j_mm2 * 1e6, 25.0)["p_cu"]
         p_mech = r["T"] * L_STACK * 2 * math.pi * 50
         eff_cu = p_mech / (p_mech + p_cu)
         for label, p_fe in (("min", ps[0]), ("median", med[3]), ("max", ps[-1])):

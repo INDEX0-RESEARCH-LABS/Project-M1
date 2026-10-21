@@ -46,11 +46,18 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (D-012 addendum 9)** - **third factor-2 in the copper path fixed**: the mean
+  turn length was multiplied by a *half-turn* copper volume (`V_cu = 36*FILL*A_slot*(MTL/2)`,
+  `R_ph = rho*6*N_c^2*MTL/(FILL*A_slot)`). Copper volume 0.82 kg (was 1.65), P_cu **25.6 W**
+  at the target (was 53), rise **9.7 K** (was 20). Copper-only efficiency **95.1%**, with
+  iron **92.7% (91.1-93.7%)**. PF re-derived: **0.53-0.58**, S 0.91-0.99 kVA. New
+  `tests/test_copper_loss_routes.py` pins volume / 3I^2R / slot-fill identities (25 tests).
+  Iron-loss s.4 gate note: the F4 ratio branch was written against the superseded 53 W.
 - **2026-10-21 (D-012 addendum 8)** - **first-order iron loss** (`simulation/validation/iron_loss/`,
   `iron_loss.py`): anchored on the *grade guarantee* (M400-50A = 4.0 W/kg at 1.5 T/50 Hz),
   per-element B from the certified solve, **100 Hz electrical** (a first pass at 50 Hz was
   discarded before publishing). Result: **8.4-23.4 W, median 13.5 W** at the 1.6 N.m point;
-  **efficiency 88.2% (86.7-89.0%)** including iron vs 90.4% copper-only; thermal ~66 W /
+  **efficiency 88.2% (86.7-89.0%; superseded by addendum 9 -> 92.7%)** including iron vs 90.4% copper-only; thermal ~66 W /
   ~25 K enclosed. Stator is lightly fluxed (B mean 0.46 T); 8.9 kg of active iron = 56 W/kg,
   i.e. the efficiency is bought with size. Open: rotor slot-harmonic loss (1800 Hz).
 - **2026-10-21 (D-012 addendum 7)** - **PF cross-check**: the perpendicular flux was

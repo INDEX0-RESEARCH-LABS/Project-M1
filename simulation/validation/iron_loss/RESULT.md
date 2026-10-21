@@ -10,7 +10,7 @@
 | F1 stator volume vs (annulus - slots) | **PASS**, -0.0% (both current levels) |
 | F2 B^n scaling of the functional | **PASS**, exact for n = 1.6 / 1.8 / 2.0 |
 | F3 report min/max band, not a point | **PASS** (27 combos) |
-| F4 interpretation rule declared in PLAN | **first branch**: P_fe < 0.5 P_cu -> efficiency > 85% with iron, thermal conclusion stands |
+| F4 interpretation rule declared in PLAN | ratio lands in the **second** branch (0.33-0.91) after the addendum-9 copper correction; see s.4 note - the branch's "80-85%" text was written against the superseded 53 W copper loss |
 
 ## 2. Field state (130 mm bore, 50.4 mm stack, delta = 26.25, M-43 bracket)
 
@@ -32,8 +32,8 @@ n 1.6 / 1.8 / 2.0, eddy fraction at 50 Hz 0.30 / 0.45 / 0.60.
 
 | point | min | median | max | P_fe/P_cu |
 |---|---|---|---|---|
-| 1.6 N.m (J=5.34) | 8.4 W | **13.5 W** | 23.4 W | 0.16-0.44 |
-| 2.0 N.m (J=6.0) | 10.4 W | 16.7 W | 27.9 W | 0.15-0.41 |
+| 1.6 N.m (J=5.34) | 8.4 W | **13.5 W** | 23.4 W | 0.33-0.91 |
+| 2.0 N.m (J=6.0) | 10.4 W | 16.7 W | 27.9 W | 0.32-0.85 |
 
 Central combo (4.0 W/kg, n=1.8, s=0.45): **13.3 W**, split stator 8.4 W / rotor 5.0 W.
 
@@ -41,12 +41,19 @@ Central combo (4.0 W/kg, n=1.8, s=0.45): **13.3 W**, split stator 8.4 W / rotor 
 
 | point | copper-only | + iron (median) | band |
 |---|---|---|---|
-| 1.6 N.m | 90.4% | **88.2%** | 86.7-89.0% |
-| 2.0 N.m | 90.3% | 88.2% | 86.9-89.0% |
+| 1.6 N.m | 95.1% | **92.7%** | 91.1-93.7% |
+| 2.0 N.m | 95.1% | 92.8% | 91.3-93.7% |
 
 Adding iron loss to the lumped thermal model (all loss charged to the winding, which is
-conservative because iron loss is distributed in the core): target **~66 W total, ~25 K**
-enclosed; margin point ~85 W, ~32 K. The "comfortable enclosed" conclusion stands.
+conservative because iron loss is distributed in the core): target **~39 W total, ~15 K**
+enclosed; margin point ~49 W, ~19 K. The "comfortable enclosed" conclusion stands.
+
+> **Note on F4 (post hoc).** The declared rule described the ratio branches using the then
+> current copper loss (53 W). After addendum 9 corrected the copper loss to 25.6 W the ratio
+> is 0.33-0.91, i.e. iron is comparable to copper, but the efficiency consequence the rule
+> predicted for that branch (80-85%) does not follow - it assumes the superseded baseline.
+> The *intent* of the gate (does iron loss break the efficiency story?) is answered: no,
+> it costs ~2.4 points from 95.1% copper-only. Recorded rather than retro-fitted.
 
 ## 5. What this does NOT include (declared, not hidden)
 
@@ -63,7 +70,7 @@ enclosed; margin point ~85 W, ~32 K. The "comfortable enclosed" conclusion stand
 
 ## 6. Conclusion
 
-Efficiency with iron is **~88% (86.7-89.0%)** at the target, not 90.4% copper-only.
+Efficiency with iron is **92.7% (91.1-93.7%)** at the target, not 95.1% copper-only.
 That is good for a 0.5 kW machine, but it is bought with size: the frame carries 8.9 kg of
 iron (56 W/kg of active iron), consistent with the certified 0.43 torque utilization.
 The efficiency gap is closed to within the steel-uncertainty band; the remaining
@@ -74,4 +81,5 @@ unquantified term is rotor harmonic loss.
 The first run used 50 Hz as the electrical frequency (it is the *mechanical* frequency at
 3000 rpm; f_e = 100 Hz) and produced 3.2-7.3 W. That log is kept and the run is discarded;
 the plan was corrected before any number was published. Effect: iron loss is ~2.9x the
-first pass and the efficiency claim moved 90.4% -> 88.2%.
+first pass and the efficiency claim moved 95.1% -> 92.7% (addendum 9 then cut the copper
+loss in half, so both of those figures replaced an earlier 90.4% / 88.2% pair).
