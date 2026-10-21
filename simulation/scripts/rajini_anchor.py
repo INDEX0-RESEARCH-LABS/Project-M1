@@ -285,8 +285,12 @@ def main() -> int:
         r3, t_fine = refinement_check(g, results, brackets["M-43 Steel"])
     results["M-43 Steel"]["r3"] = r3
     results["M-43 Steel"]["T_fine_mesh"] = t_fine
-    print(f"  T(1536)={t_coarse:.4f}  T(3072)={t_fine:.4f}  "
-          f"diff={abs(t_fine-t_coarse)/t_coarse:.1%} -> {r3}")
+    if t_fine is not None and r3 is not None:
+        tc = results["M-43 Steel"]["T_per_m"]
+        print(f"  T(1536)={tc:.4f}  T(3072)={t_fine:.4f}  "
+              f"diff={abs(t_fine-tc)/tc:.1%} -> {r3}")
+    else:
+        print(f"  R3 refinement: {r3}")
 
     r4 = all(v["converged"] for r in results.values()
              for v in list(r["sweep15"].values()) + list(r["refine"].values()))
