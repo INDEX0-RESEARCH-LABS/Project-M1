@@ -1,0 +1,296 @@
+baseline to beat (1536): 9.0950 N.m/m -> gate 10.0045
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.6 delta=10.00 T/m=+2.5476 Bmax=2.36 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.6 delta=17.50 T/m=+5.9048 Bmax=2.46 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.6 delta=25.00 T/m=+7.5940 Bmax=2.51 it=17 conv=True err=0.104%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.6 delta=32.50 T/m=+3.8019 Bmax=2.32 it=16 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.6 delta=40.00 T/m=+7.2298 Bmax=2.45 it=20 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.6 refine delta=21.25 T/m=+4.1540
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.6 refine delta=28.75 T/m=+8.5816
+  -> span12_frac0.62_bridge0.6 best 8.5816 @ 28.75deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.4 delta=10.00 T/m=+2.5779 Bmax=2.44 it=12 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.4 delta=17.50 T/m=+6.0162 Bmax=2.56 it=17 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.4 delta=25.00 T/m=+8.0819 Bmax=2.62 it=16 conv=True err=0.104%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.4 delta=32.50 T/m=+3.7813 Bmax=2.38 it=23 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.4 delta=40.00 T/m=+7.5923 Bmax=2.59 it=17 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.4 refine delta=21.25 T/m=+4.1021
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.62_bridge0.4 refine delta=28.75 T/m=+9.0157
+  -> span12_frac0.62_bridge0.4 best 9.0157 @ 28.75deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.6 delta=10.00 T/m=+2.9229 Bmax=2.42 it=16 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.6 delta=17.50 T/m=+3.5531 Bmax=2.38 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.6 delta=25.00 T/m=+3.9844 Bmax=2.39 it=16 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.6 delta=32.50 T/m=+8.6537 Bmax=2.59 it=20 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.6 delta=40.00 T/m=+7.7110 Bmax=2.56 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.6 refine delta=28.75 T/m=+8.3032
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.6 refine delta=36.25 T/m=+3.7875
+  -> span12_frac0.70_bridge0.6 best 8.6537 @ 32.50deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.4 delta=10.00 T/m=+2.9058 Bmax=2.45 it=19 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.4 delta=17.50 T/m=+3.4311 Bmax=2.41 it=17 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.4 delta=25.00 T/m=+3.8750 Bmax=2.42 it=16 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.4 delta=32.50 T/m=+9.1133 Bmax=2.61 it=19 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.4 delta=40.00 T/m=+7.3046 Bmax=2.59 it=22 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.4 refine delta=28.75 T/m=+8.8137
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span12_frac0.70_bridge0.4 refine delta=36.25 T/m=+3.3191
+  -> span12_frac0.70_bridge0.4 best 9.1133 @ 32.50deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.6 delta=10.00 T/m=+2.5932 Bmax=2.37 it=15 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.6 delta=17.50 T/m=+6.0498 Bmax=2.47 it=19 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.6 delta=25.00 T/m=+7.8021 Bmax=2.52 it=19 conv=True err=0.104%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.6 delta=32.50 T/m=+3.9028 Bmax=2.33 it=14 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.6 delta=40.00 T/m=+7.4268 Bmax=2.46 it=19 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.6 refine delta=21.25 T/m=+4.3033
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.6 refine delta=28.75 T/m=+8.8254
+  -> span16_frac0.62_bridge0.6 best 8.8254 @ 28.75deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.4 delta=10.00 T/m=+2.6261 Bmax=2.45 it=11 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.4 delta=17.50 T/m=+6.1665 Bmax=2.58 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.4 delta=25.00 T/m=+8.3031 Bmax=2.63 it=17 conv=True err=0.104%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.4 delta=32.50 T/m=+3.8946 Bmax=2.39 it=21 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.4 delta=40.00 T/m=+7.8181 Bmax=2.60 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.4 refine delta=21.25 T/m=+4.2674
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.62_bridge0.4 refine delta=28.75 T/m=+9.2726
+  -> span16_frac0.62_bridge0.4 best 9.2726 @ 28.75deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.6 delta=10.00 T/m=+2.9675 Bmax=2.43 it=17 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.6 delta=17.50 T/m=+3.6271 Bmax=2.38 it=20 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.6 delta=25.00 T/m=+4.1324 Bmax=2.40 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.6 delta=32.50 T/m=+8.9000 Bmax=2.59 it=21 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.6 delta=40.00 T/m=+7.9245 Bmax=2.57 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.6 refine delta=28.75 T/m=+8.5307
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.6 refine delta=36.25 T/m=+3.8867
+  -> span16_frac0.70_bridge0.6 best 8.9000 @ 32.50deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.4 delta=10.00 T/m=+2.9512 Bmax=2.45 it=14 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.4 delta=17.50 T/m=+3.5053 Bmax=2.42 it=19 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.4 delta=25.00 T/m=+4.0364 Bmax=2.43 it=21 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.4 delta=32.50 T/m=+9.3750 Bmax=2.62 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.4 delta=40.00 T/m=+7.5013 Bmax=2.60 it=19 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.4 refine delta=28.75 T/m=+9.0551
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span16_frac0.70_bridge0.4 refine delta=36.25 T/m=+3.4281
+  -> span16_frac0.70_bridge0.4 best 9.3750 @ 32.50deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.6 delta=10.00 T/m=+2.6212 Bmax=2.38 it=16 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.6 delta=17.50 T/m=+6.1409 Bmax=2.48 it=19 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.6 delta=25.00 T/m=+7.9299 Bmax=2.52 it=18 conv=True err=0.104%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.6 delta=32.50 T/m=+3.9657 Bmax=2.33 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.6 delta=40.00 T/m=+7.5493 Bmax=2.46 it=20 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.6 refine delta=21.25 T/m=+4.3993
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.6 refine delta=28.75 T/m=+8.9784
+  -> span20_frac0.62_bridge0.6 best 8.9784 @ 28.75deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.4 delta=10.00 T/m=+2.6555 Bmax=2.46 it=10 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.4 delta=17.50 T/m=+6.2613 Bmax=2.58 it=17 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.4 delta=25.00 T/m=+8.4387 Bmax=2.64 it=17 conv=True err=0.104%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.4 delta=32.50 T/m=+3.9654 Bmax=2.40 it=19 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.4 delta=40.00 T/m=+7.9616 Bmax=2.61 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.4 refine delta=21.25 T/m=+4.3742
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.62_bridge0.4 refine delta=28.75 T/m=+9.4338
+  -> span20_frac0.62_bridge0.4 best 9.4338 @ 28.75deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.6 delta=10.00 T/m=+2.9938 Bmax=2.43 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.6 delta=17.50 T/m=+3.6712 Bmax=2.39 it=17 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.6 delta=25.00 T/m=+4.2289 Bmax=2.41 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.6 delta=32.50 T/m=+9.0546 Bmax=2.59 it=19 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.6 delta=40.00 T/m=+8.0588 Bmax=2.56 it=19 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.6 refine delta=28.75 T/m=+8.6713
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.6 refine delta=36.25 T/m=+3.9482
+  -> span20_frac0.70_bridge0.6 best 9.0546 @ 32.50deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.4 delta=10.00 T/m=+2.9783 Bmax=2.46 it=12 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.4 delta=17.50 T/m=+3.5495 Bmax=2.42 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.4 delta=25.00 T/m=+4.1422 Bmax=2.44 it=21 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.4 delta=32.50 T/m=+9.5396 Bmax=2.62 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.4 delta=40.00 T/m=+7.6257 Bmax=2.60 it=18 conv=True err=0.124%
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.4 refine delta=28.75 T/m=+9.2044
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  span20_frac0.70_bridge0.4 refine delta=36.25 T/m=+3.4989
+  -> span20_frac0.70_bridge0.4 best 9.5396 @ 32.50deg
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+
+WINNER span20_frac0.70_bridge0.4 delta=32.50  T(3072 single)=+9.2534  T(3072 multi9)=+12.2935 -> C3=True C4=False
+Traceback (most recent call last):
+  File "/home/darion-dev/project-m1/simulation/scripts/gate_c_search.py", line 195, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/darion-dev/project-m1/simulation/scripts/gate_c_search.py", line 168, in main
+    "C2_areas<=1%": max(cc["area_err"] for r in results.values()
+                    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        for cc in r["rows"].values()) <= 0.01 and err_max <= 0.01,
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/darion-dev/project-m1/simulation/scripts/gate_c_search.py", line 168, in <genexpr>
+    "C2_areas<=1%": max(cc["area_err"] for r in results.values()
+                        ~~^^^^^^^^^^^^
+KeyError: 'area_err'
+DONE rc=1

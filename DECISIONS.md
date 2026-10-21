@@ -70,3 +70,10 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **Decision:** Gate C baseline = stator unchanged; rotor = barrier_radial_span 12 mm, n_barriers 2, barrier_angle_frac 0.62, bridge 0.6 mm. Measured at declared excitation: 9.0950 N·m/m (1536, delta 26.25) / 8.5265 (3072) — +5% torque at equal Cu, J, fill, envelope, for free.
 - **Alternatives:** Keep v0 as Gate C baseline (rejected — we would optimize around a known-inferior point); adopt an iron-rich frac 0.30–0.50 layout (rejected — measured inferior in every member family).
 - **Status:** APPROVED (self, data-backed; founder ratification rides along with D-004 sign-off).
+
+## D-011 — Gate C as declared fails: extractor uncertainty dominates; family exhausted
+- **Date:** 2026-10-21
+- **Context:** The declared Gate C search (12 configs, C1–C5 gates) passed C1–C3 but the winner's multi-ring torque read +24.7% above its single-ring value (C4 ≤15% failed). Per the PLAN's no-post-hoc-swap clause, both baseline and winner were re-extracted under ONE extractor each (arbiter `gate_c_extractor_ab.py`): improvement = +8.5% (single-consistent) / +1.2% (multi-consistent) — inside the ±25–30% estimator spread, below the frozen +10% decision gate. The barrier family saturates at ~9.2–9.5 N·m/m (1536, single-ring), with bridge 0.4 mm / arc 0.70 / span ≥16 mm the winning direction.
+- **Decision:** No winner declared. D-010 baseline unchanged (no candidate beats it beyond extractor uncertainty). Gate C is BLOCKED on the declared follow-up: settle the torque extractor (co-energy `T = −∂W′/∂δ` cross-check on one configuration, then re-label all absolute numbers with the standardized extractor). Before that, no absolute torque claims from this toolchain carry meaning beyond same-extractor ratios.
+- **Alternatives:** Declare split20/0.70/0.4 the winner on the single-consistent +8.5% (rejected — inside the uncertainty the gate exists to catch); re-run the search with extra configs inside the exhausted family (rejected — mapped neighborhood is flat, cost without information).
+- **Status:** APPROVED (self). Result: `validation/gate_c_search/RESULT.md`.

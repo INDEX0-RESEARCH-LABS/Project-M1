@@ -90,8 +90,7 @@ def main() -> int:
                 for deg in DELTAS:
                     g = make_g(span, frac, bridge, deg)
                     p = prep_c(g, MESH, H, B)
-                    c = solve_c(g, p, H, B)
-                    rows[deg] = {**c, "area_err": p["err"]}
+                    rows[deg] = {**solve_c(g, p, H, B), "area_err": p["err"]}
                     print(f"  {key} delta={deg:5.2f} T/m={c['T_per_m']:+.4f} "
                           f"Bmax={c['Bmax_T']:.2f} it={c['iters']} "
                           f"conv={c['converged']} err={p['err']:.3%}", flush=True)
@@ -101,7 +100,7 @@ def main() -> int:
                         continue
                     g = make_g(span, frac, bridge, deg)
                     p = prep_c(g, MESH, H, B)
-                    rows[deg] = solve_c(g, p, H, B)
+                    rows[deg] = {**solve_c(g, p, H, B), "area_err": p["err"]}
                     print(f"  {key} refine delta={deg:5.2f} "
                           f"T/m={rows[deg]['T_per_m']:+.4f}", flush=True)
                 cbest = max(rows, key=lambda d: abs(rows[d]["T_per_m"]))
