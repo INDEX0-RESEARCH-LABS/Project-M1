@@ -188,7 +188,10 @@ def prep(g: SynRMGeometry, H, B) -> dict:
     areas = tri_areas(mesh)
     slot_area = {n: areas[c].sum() for n, c in sg.items()}
     exp = expected_areas(g)
-    err = {n: abs(areas[sub[n]].sum() / e - 1.0) for n, e in exp.items()}
+    err = {}
+    for n, e in exp.items():
+        if n in sub and len(sub[n]) > 0 and e > 0:
+            err[n] = abs(areas[sub[n]].sum() / e - 1.0)
     return {"g": g, "mesh": mesh, "sub": sub, "sg": sg, "areas": areas,
             "slot_area": slot_area, "err": err}
 
