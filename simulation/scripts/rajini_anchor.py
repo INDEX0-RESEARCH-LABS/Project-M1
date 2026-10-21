@@ -148,8 +148,10 @@ def solve_case(g: SynRMGeometry, mesh, sub, slot_groups, slot_area,
     loading = {k: J_CU * FILL * slot_area[f"slot_{k:02d}"] for k in range(N_SLOTS)}
     jz = {f"slot_{k:02d}": pattern[k] * loading[k] / slot_area[f"slot_{k:02d}"]
           for k in range(N_SLOTS)}
-    materials = {"air": 1.0, "airgap": 1.0, "barriers": 1.0, "slots": 1.0,
+    materials = {"air": 1.0, "airgap": 1.0, "barriers": 1.0,
                  "rotor_iron": (H, B), "stator_iron": (H, B), "shaft": (H, B)}
+    for k in range(N_SLOTS):
+        materials[f"slot_{k:02d}"] = 1.0
     cell_sets = {**{n: c for n, c in sub.items() if n != "slots"}, **slot_groups}
     sol = solve_az_core(mesh, cell_sets, materials, jz)
     r_gap = (g.stator_bore / 2 + g.rotor_od / 2) / 2
