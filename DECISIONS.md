@@ -98,3 +98,23 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   certified number; the multi column (0.33) downgraded to uncertified.
   E3's frozen mean-rule verdict remains FAIL (no adoption through that path) — the
   certification finding above is evidence-based, recorded in RESULT findings.
+
+## D-012 — committed envelope vs target spec: winding infeasibility; envelope revision proposed
+- **Date:** 2026-10-21
+- **Context:** Winding spec v0 (`prototype/design/winding_spec_v0.md`) computes the
+  48 V EMF budget against the committed anchor envelope (R_ro 45.5 mm, τ_p 71.9 mm,
+  ψ₁ = 2.4–3.2 mWb/series-turn): a manufacturable 2W-class winding is impossible at
+  the 3000 rpm target spec (1–2 turn bar coils at ~200 A/coil), hub-direct at ~750
+  rpm is windable but 13–20× short on torque (0.62 N·m continuous thermal vs ~8–12
+  N·m wheel demand), and a geared 1500 rpm variant stays bar-coil territory. Torque
+  is turn-invariant at fixed slot AT (validated machinery property), so turns only
+  trade the EMF window, not torque — the mismatch is geometric, not winding skill.
+- **Options (owner: founder):** (1) envelope redesign to a 2W-sized frame (recommended;
+  requires a fresh Gate-B-style validation pass on the new envelope); (2) revise the
+  target spec (slower base speed + gearing, or higher bus voltage — marginal);
+  (3) keep envelope with accepted torque deficit (not viable for a real 2W).
+- **Decision:** PROPOSED — awaiting founder choice. In the interim, the belt/connection
+  topology, k_w, ψ₁–turns–EMF formulas and the AT↔torque ledger are recorded as
+  envelope-independent design tools; no Phase-0 validation artifact is invalidated
+  (D-009 always framed Phase 0 as methodology, not marketability).
+- **Status:** PROPOSED

@@ -64,6 +64,14 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   winner-family 0.4 mm bridge carries no mechanical penalty; airgap closure
   negligible (~9 µm @15k). Out-of-scope flags recorded (corner radii → spin test
   stays a Gate E acceptance item; SRM open-slot fins out of scope with D-008).
+- **2026-10-21 (Gate-D prep)** — **winding spec v0** (`prototype/design/winding_spec_v0.md`):
+  36/4/3 topology table final (q=3, double layer, full pitch, k_w≈0.95); ψ₁–turns–EMF
+  budget computed against the 48 V window. **Finds the envelope/spec mismatch**: at
+  3000 rpm the frame demands 1–2 turn bar coils ~200 A/coil (impractical), hub-direct
+  is windable but 13–20× torque-starved, geared paths stay bar-coil territory. The scalars are
+  geometry-only (ψ₁ ∝ R²) — mismatch is structural, not winding skill.
+  **D-012 PROPOSED for founder: envelope redesign (recommended) vs target-spec revision.**
+  Envelope-independent pieces (belt table, formulas, AT↔torque ledger) recorded.
 
 ## [2026-10-21]
 
