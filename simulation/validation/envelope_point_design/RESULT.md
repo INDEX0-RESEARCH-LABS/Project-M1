@@ -46,8 +46,12 @@ peak slot current density as RMS and was 2x high on copper loss.
 
 Still air (h=10) at J=6 is 75 W / 55 K: marginal but not the 131 K previously reported.
 Enclosed (h=25) and forced air (h=50, 14 K) are comfortable. At the exact target torque
-the machine runs ~53 W copper, ~20 K rise, **~90% copper-only efficiency**. Hotspot is
-higher than this lumped number, and iron loss is excluded (efficiency is an upper bound).
+the machine runs ~53 W copper, ~20 K rise. Hotspot is higher than this lumped number.
+
+**Iron loss (D-012 addendum 8, `../iron_loss/RESULT.md`):** first-order estimate from the
+grade guarantee, 100 Hz electrical: **8.4-23.4 W, median 13.5 W** (stator 8.4 W, rotor 5.0 W
+upper bound). With iron charged to the winding the target is ~66 W, **~25 K**, and
+**efficiency ~88% (86.7-89.0%)** including iron. Copper-only remains 90.4%.
 
 **Correction history:** addendum 5 moved the target from J=4.8 to J=5.34 (`T ~ J^2`).
 Addendum 6 fixed the peak-vs-RMS copper-loss error. Net effect versus the original table:
@@ -97,11 +101,11 @@ task.
 ## 6. Consequences for D-012
 
 - **Envelope: 130 mm bore / 50 mm stack** (or 120/74 if OD is the constraint), 4-pole,
-  36 slots, ~5 turns/coil at a=4. Delivers 1.6 N.m at J=5.34 with ~20 K rise.
-- **Efficiency is not the gap** (~90% copper-only, iron loss still to be added); **PF 0.55
-  and the ~100 A phase current at the 48 V design winding** are the product-level
-  constraints. A ~1.2 kVA controller covers it; the ~3x turns increase is the lever that
-  drops current to ~35 A at identical copper loss.
+  36 slots, ~5 turns/coil at a=4. Delivers 1.6 N.m at J=5.34 with ~25 K rise (iron included).
+- **Efficiency ~88% including iron** (86.7-89.0% band; copper-only 90.4%), bought with size:
+  8.9 kg of active iron = 56 W/kg. **PF 0.55-0.60 and the ~100 A phase current at the 48 V
+  design winding** are the product-level constraints. A ~1.2 kVA controller covers it; the
+  ~3x turns increase is the lever that drops current to ~35 A at identical copper loss.
 - Remaining zero-budget work: iron loss from the same field solution (no new physics),
   then a spec decision on whether PF 0.55 / ~100 A is acceptable for the 2W product or
   whether the winding (turns) or pack voltage (96 V) should change.

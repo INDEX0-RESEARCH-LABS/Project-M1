@@ -82,7 +82,10 @@ def solve_point(delta: float, J: float, H, B, n_theta: int = 1536,
     return {"delta": delta, "T": abs(T), "lam_per_turn": lam_per_turn,
             "lam_alpha": lam_alpha, "lam_phase": lam_phase,
             "Wp": Wp, "a_slot": float(np.mean(list(slot_area.values()))),
-            "Bmax": float(np.hypot(sol["Bx"], sol["By"]).max())}
+            "Bmax": float(np.hypot(sol["Bx"], sol["By"]).max()),
+            # per-element field + areas + region map, for downstream loss integrals
+            "Belem": np.hypot(sol["Bx"], sol["By"]), "areas": areas,
+            "regions": sub}
 
 
 def pf_check(H, B) -> int:

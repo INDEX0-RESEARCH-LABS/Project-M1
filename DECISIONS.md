@@ -287,3 +287,33 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   ~1.2 kVA, not 4 kVA, and the ~100 A design-winding current remains the cost driver.
   The only clean closure is a rotating-field (time-domain) solution at fixed current angle.
 - **Status:** PROPOSED.
+
+## D-012 — addendum 8: iron loss quantified (~13 W median); efficiency ~88%, not 90%
+- **Date:** 2026-10-21
+- **Evidence:** `simulation/validation/iron_loss/{PLAN,RESULT}.md`;
+  `simulation/scripts/iron_loss.py`, log `/tmp/opencode/m1/iron_loss.log`.
+- **Method without fabricated coefficients:** the loss anchor is the *grade guarantee*
+  (M400-50A = 4.00 W/kg at 1.5 T / 50 Hz by EN 10106), which the repo's material survey
+  confirms is the one loss datum public catalogs do publish. Per-element B comes from the
+  same certified solve as the torque; no new physics and no purchased data.
+- **Frequency correction:** the machine runs at **100 Hz electrical** (3000 rpm is 50 Hz
+  mechanical, p=2). The first pass used 50 Hz and is discarded (kept in the log); the plan
+  was corrected before publishing any loss number. Scaling needs the hysteresis/eddy
+  split, declared as a band (eddy fraction 0.30-0.60 at 50 Hz -> factor 2.6-3.2).
+- **Result (130/50, J=5.34):** P_fe = **8.4-23.4 W, median 13.5 W** (27 combos of
+  p_ref 3.3/4.0/5.3 W/kg, n 1.6/1.8/2.0, eddy split). Stator 8.4 W, rotor 5.0 W.
+  At J=6: 10.4-27.9 W, median 16.7 W.
+- **Efficiency:** **88.2% (86.7-89.0%)** including iron at the target; copper-only 90.4%.
+  Thermal with iron charged to the winding: ~66 W, **~25 K** enclosed (was 20 K).
+  The "thermally comfortable enclosed" conclusion stands, and F4's first branch applies
+  (P_fe < 0.5 P_cu -> efficiency > 85%).
+- **Physical reading:** the stator is lightly fluxed (B mean 0.46 T, max 1.42 T), so iron
+  loss is small; the frame is oversized, and the 88% is bought with 8.9 kg of active iron
+  (56 W/kg). This is consistent with the certified 0.43 torque utilization.
+- **Open:** rotor **slot-harmonic** loss at 1800 Hz is not modelled (the 5.0 W rotor figure
+  is a 100 Hz fundamental upper bound); with f^2 eddy scaling it is the dominant remaining
+  efficiency uncertainty (order +/-5 W). Excess loss and the lamination building factor
+  (+20-40% typical) are absent, so the band is a lower bound on the assembled core.
+- **Decision:** adopt **~88% (87-89%)** as the working efficiency, label it ESTIMATE, and
+  keep the rotor-harmonic term as the one open loss item. No envelope or BOM change.
+- **Status:** PROPOSED.
