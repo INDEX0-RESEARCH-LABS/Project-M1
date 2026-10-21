@@ -49,3 +49,9 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **Decision:** The ≤5% Gate B torque-match criterion is applied **per anchor, using that anchor's steel curve**. Primary anchor = Rajini 2024 (1.2 kW, same power class, Indian context); secondary = Kachapornkul 2022 (3.5 kW, above our band, SRM). Where an anchor's own curve cannot be sourced, the comparison is reported as *relative* and the gate is **not** marked passed on it.
 - **Consequence:** Sourcing citable B-H curves for 35A300 and M1000-65A is now on the critical path ahead of the torque curve — ahead of, not parallel to, because a curve run on M-19 compares materials rather than machines.
 - **Status:** PROPOSED — needs founder confirmation of the primary-anchor choice.
+
+## D-008 — D-004 flip criterion evaluated: SynRM baseline stands
+- **Date:** 2026-10-21
+- **Context:** D-004 set a flip trigger: if same-envelope FEM showed SRM beating SynRM on torque density by >15% at equal J, the baseline flips. The declared same-envelope comparison (`simulation/validation/srm_synrm_compare/RESULT.md`, all gates pass) found the opposite: SRM peak torque = 0.43× the SynRM's MTPA torque (equal installed Cu, equal fill, equal J; ±25% indicative band ⇒ 0.32–0.53), and SRM continuous duty (1/3 phase conduction) ranks it lower still.
+- **Decision:** No flip. SynRM baseline stands for Gate C optimization. The SRM remains on record as the comparison architecture with the strongest same-toolchain evidence yet produced.
+- **Status:** APPROVED (self) — the ±25% indicative label applies; a >2.3× SRM redesign would be needed to reverse the ordering.
