@@ -1,0 +1,278 @@
+target T/m for 8 N.m @74 mm = 108.1 N.m/m
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=8.4mm nb=3 delta=22.50  T/m=+2.8281  Bmax=2.25T  it=17 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=8.4mm nb=3 delta=26.25  T/m=+8.1235  Bmax=2.48T  it=17 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=8.4mm nb=3 delta=30.00  T/m=+7.1073  Bmax=2.45T  it=14 conv=True U2=True
+  -> best |T|=8.1235 N.m/m  iron=86.8%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=8.4mm nb=2 delta=22.50  T/m=+3.0184  Bmax=2.27T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=8.4mm nb=2 delta=26.25  T/m=+8.6979  Bmax=2.50T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=8.4mm nb=2 delta=30.00  T/m=+7.6500  Bmax=2.48T  it=14 conv=True U2=True
+  -> best |T|=8.6979 N.m/m  iron=86.8%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=6.0mm nb=3 delta=22.50  T/m=+2.6791  Bmax=2.23T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=6.0mm nb=3 delta=26.25  T/m=+7.5700  Bmax=2.45T  it=15 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=6.0mm nb=3 delta=30.00  T/m=+6.5968  Bmax=2.43T  it=14 conv=True U2=True
+  -> best |T|=7.5700 N.m/m  iron=90.3%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=6.0mm nb=2 delta=22.50  T/m=+2.8613  Bmax=2.26T  it=18 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=6.0mm nb=2 delta=26.25  T/m=+8.2327  Bmax=2.48T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=6.0mm nb=2 delta=30.00  T/m=+7.2084  Bmax=2.46T  it=14 conv=True U2=True
+  -> best |T|=8.2327 N.m/m  iron=90.3%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=12.0mm nb=3 delta=22.50  T/m=+2.9953  Bmax=2.27T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=12.0mm nb=3 delta=26.25  T/m=+8.6305  Bmax=2.50T  it=18 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=12.0mm nb=3 delta=30.00  T/m=+7.5849  Bmax=2.47T  it=15 conv=True U2=True
+  -> best |T|=8.6305 N.m/m  iron=82.0%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=12.0mm nb=2 delta=22.50  T/m=+3.1581  Bmax=2.29T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=12.0mm nb=2 delta=26.25  T/m=+9.0950  Bmax=2.52T  it=17 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.62 span=12.0mm nb=2 delta=30.00  T/m=+8.0407  Bmax=2.49T  it=15 conv=True U2=True
+  -> best |T|=9.0950 N.m/m  iron=82.0%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=8.4mm nb=3 delta=22.50  T/m=+7.2859  Bmax=2.47T  it=15 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=8.4mm nb=3 delta=26.25  T/m=+3.7531  Bmax=2.28T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=8.4mm nb=3 delta=30.00  T/m=+7.4475  Bmax=2.44T  it=17 conv=True U2=True
+  -> best |T|=7.4475 N.m/m  iron=89.4%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=8.4mm nb=2 delta=22.50  T/m=+7.7861  Bmax=2.49T  it=18 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=8.4mm nb=2 delta=26.25  T/m=+4.0257  Bmax=2.30T  it=17 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=8.4mm nb=2 delta=30.00  T/m=+7.9543  Bmax=2.46T  it=15 conv=True U2=True
+  -> best |T|=7.9543 N.m/m  iron=89.4%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=6.0mm nb=3 delta=22.50  T/m=+6.7970  Bmax=2.44T  it=14 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=6.0mm nb=3 delta=26.25  T/m=+3.5084  Bmax=2.26T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=6.0mm nb=3 delta=30.00  T/m=+6.9499  Bmax=2.42T  it=14 conv=True U2=True
+  -> best |T|=6.9499 N.m/m  iron=92.2%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=6.0mm nb=2 delta=22.50  T/m=+7.3817  Bmax=2.47T  it=18 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=6.0mm nb=2 delta=26.25  T/m=+3.8023  Bmax=2.28T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=6.0mm nb=2 delta=30.00  T/m=+7.5432  Bmax=2.44T  it=18 conv=True U2=True
+  -> best |T|=7.5432 N.m/m  iron=92.2%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=12.0mm nb=3 delta=22.50  T/m=+7.7275  Bmax=2.49T  it=19 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=12.0mm nb=3 delta=26.25  T/m=+3.9928  Bmax=2.30T  it=17 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=12.0mm nb=3 delta=30.00  T/m=+7.8942  Bmax=2.46T  it=18 conv=True U2=True
+  -> best |T|=7.8942 N.m/m  iron=85.5%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=12.0mm nb=2 delta=22.50  T/m=+8.1304  Bmax=2.51T  it=18 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=12.0mm nb=2 delta=26.25  T/m=+4.2266  Bmax=2.32T  it=15 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.50 span=12.0mm nb=2 delta=30.00  T/m=+8.3013  Bmax=2.48T  it=17 conv=True U2=True
+  -> best |T|=8.3013 N.m/m  iron=85.5%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=8.4mm nb=3 delta=22.50  T/m=+2.2503  Bmax=2.36T  it=14 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=8.4mm nb=3 delta=26.25  T/m=+7.1765  Bmax=2.61T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=8.4mm nb=3 delta=30.00  T/m=+6.5384  Bmax=2.56T  it=15 conv=True U2=True
+  -> best |T|=7.1765 N.m/m  iron=91.5%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=8.4mm nb=2 delta=22.50  T/m=+2.3432  Bmax=2.39T  it=15 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=8.4mm nb=2 delta=26.25  T/m=+7.6473  Bmax=2.62T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=8.4mm nb=2 delta=30.00  T/m=+6.9751  Bmax=2.58T  it=14 conv=True U2=True
+  -> best |T|=7.6473 N.m/m  iron=91.5%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=6.0mm nb=3 delta=22.50  T/m=+2.1710  Bmax=2.34T  it=13 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=6.0mm nb=3 delta=26.25  T/m=+6.7126  Bmax=2.59T  it=14 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=6.0mm nb=3 delta=30.00  T/m=+6.1153  Bmax=2.54T  it=15 conv=True U2=True
+  -> best |T|=6.7126 N.m/m  iron=93.7%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=6.0mm nb=2 delta=22.50  T/m=+2.2676  Bmax=2.37T  it=14 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=6.0mm nb=2 delta=26.25  T/m=+7.2665  Bmax=2.61T  it=15 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=6.0mm nb=2 delta=30.00  T/m=+6.6220  Bmax=2.56T  it=14 conv=True U2=True
+  -> best |T|=7.2665 N.m/m  iron=93.7%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=12.0mm nb=3 delta=22.50  T/m=+2.3307  Bmax=2.39T  it=15 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=12.0mm nb=3 delta=26.25  T/m=+7.5914  Bmax=2.62T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=12.0mm nb=3 delta=30.00  T/m=+6.9230  Bmax=2.58T  it=17 conv=True U2=True
+  -> best |T|=7.5914 N.m/m  iron=88.4%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=12.0mm nb=2 delta=22.50  T/m=+2.4094  Bmax=2.41T  it=19 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=12.0mm nb=2 delta=26.25  T/m=+7.9678  Bmax=2.63T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.40 span=12.0mm nb=2 delta=30.00  T/m=+7.2755  Bmax=2.58T  it=12 conv=True U2=True
+  -> best |T|=7.9678 N.m/m  iron=88.4%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=8.4mm nb=3 delta=22.50  T/m=+6.4936  Bmax=2.43T  it=17 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=8.4mm nb=3 delta=26.25  T/m=+4.4707  Bmax=2.35T  it=19 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=8.4mm nb=3 delta=30.00  T/m=+3.3056  Bmax=2.28T  it=14 conv=True U2=True
+  -> best |T|=6.4936 N.m/m  iron=93.6%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=8.4mm nb=2 delta=22.50  T/m=+6.8717  Bmax=2.45T  it=15 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=8.4mm nb=2 delta=26.25  T/m=+4.7582  Bmax=2.37T  it=15 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=8.4mm nb=2 delta=30.00  T/m=+3.4323  Bmax=2.30T  it=15 conv=True U2=True
+  -> best |T|=6.8717 N.m/m  iron=93.6%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=6.0mm nb=3 delta=22.50  T/m=+6.1122  Bmax=2.41T  it=14 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=6.0mm nb=3 delta=26.25  T/m=+4.1977  Bmax=2.33T  it=15 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=6.0mm nb=3 delta=30.00  T/m=+3.1801  Bmax=2.26T  it=14 conv=True U2=True
+  -> best |T|=6.1122 N.m/m  iron=95.3%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=6.0mm nb=2 delta=22.50  T/m=+6.5672  Bmax=2.44T  it=17 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=6.0mm nb=2 delta=26.25  T/m=+4.5258  Bmax=2.35T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=6.0mm nb=2 delta=30.00  T/m=+3.3305  Bmax=2.28T  it=14 conv=True U2=True
+  -> best |T|=6.5672 N.m/m  iron=95.3%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=12.0mm nb=3 delta=22.50  T/m=+6.8274  Bmax=2.45T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=12.0mm nb=3 delta=26.25  T/m=+4.7229  Bmax=2.37T  it=15 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=12.0mm nb=3 delta=30.00  T/m=+3.4167  Bmax=2.30T  it=15 conv=True U2=True
+  -> best |T|=6.8274 N.m/m  iron=91.3%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=12.0mm nb=2 delta=22.50  T/m=+7.1237  Bmax=2.47T  it=16 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=12.0mm nb=2 delta=26.25  T/m=+4.9596  Bmax=2.39T  it=13 conv=True U2=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+  frac=0.30 span=12.0mm nb=2 delta=30.00  T/m=+3.5152  Bmax=2.31T  it=13 conv=True U2=True
+  -> best |T|=7.1237 N.m/m  iron=91.3%
+
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+REFINE frac0.62_span12.0_nb2 delta=26.25: T(1536)=9.0950 T(3072)=8.5265 -> U3=True
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+REFINE frac0.62_span8.4_nb2 delta=26.25: T(1536)=8.6979 T(3072)=8.0532 -> U3=True
+
+GATES: {'U1_converged': True, 'U2_areas<=1%': True, 'U3_refine<=10%': {'frac0.62_span12.0_nb2': True, 'frac0.62_span8.4_nb2': True}}
+BEST: frac0.62_span12.0_nb2 |T|=8.5265 N.m/m  iron=82.0% -> excitation multiplier to reach target: x12.7  (J would be 76.1 A/mm^2)
+OVERALL: PASS
+wrote /home/darion-dev/project-m1/simulation/scripts/validation/anchor_rotor_upgrade/rotor_sweep.json
+DONE rc=0
