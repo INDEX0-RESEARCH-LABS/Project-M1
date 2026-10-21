@@ -74,7 +74,7 @@ def run_config(name: str, kw: dict, H, B) -> dict:
             "PF": pf, "S": 1.5 * vhat * i, "Bmax": op["Bmax"], "kw": kw}
 
 
-def confirm_deep(H, B) -> int:
+def confirm_deep(H, B, j_mm2=None) -> int:
     """Ring-averaged confirmation of the deep-barrier candidate.
 
     The screen's +13% torque and +0.11 PF are same-extractor comparisons; this
@@ -86,10 +86,12 @@ def confirm_deep(H, B) -> int:
 
     kw = dict(n_barriers=4, barrier_angle_frac=0.62, barrier_gap_frac=0.25,
               barrier_span=0.0445)
-    res = solve_raw(D.DELTA_OP, J, H, B, 3072, 10, geom=build(D.DELTA_OP, D.BORE, **kw))
+    jj = J if j_mm2 is None else j_mm2 * 1e6
+    res = solve_raw(D.DELTA_OP, jj, H, B, 3072, 10,
+                    geom=build(D.DELTA_OP, D.BORE, **kw))
     t = [torque_at(res, r) for r in (1, 5, 9)]
     n_c1 = D.turns(D.BORE, D.L_STACK, 1)
-    i = J * A.FILL * res["a_slot"] / n_c1
+    i = jj * A.FILL * res["a_slot"] / n_c1
     t9 = t[2]
     lam_perp = t9 / (1.5 * D.P_POLES * i)
     lam_par = res["lam_alpha"] * n_c1
@@ -100,7 +102,8 @@ def confirm_deep(H, B) -> int:
     p_cu = 1.5 * r_ph * i * i
     pf = (p_cu + t9 * w_m) / (1.5 * vhat * i)
     base = 1.507
-    print(f"\nconfirm (3072/10): rings 1/5/9 = {t[0]:.3f}/{t[1]:.3f}/{t[2]:.3f} N.m")
+    print(f"\nconfirm (3072/10, J={jj/1e6:.2f}): rings 1/5/9 = "
+          f"{t[0]:.3f}/{t[1]:.3f}/{t[2]:.3f} N.m")
     print(f"  candidate T={t9:.3f} vs baseline ring-averaged {base:.3f} -> "
           f"{t9/base-1:+.1%}")
     print(f"  PF={pf:.3f}  S={1.5*vhat*i:.0f} VA  i={i:.1f} A  Vhat={vhat:.2f} V")
@@ -168,6 +171,10 @@ def main() -> int:
 
 if __name__ == "__main__":
     _H, _B = load_bh_curve("M-43 Steel")
+    if any(a == "--target" or a.startswith("--target=") for a in sys.argv):
+        jt = float(next((a.split("=")[1] for a in sys.argv if a.startswith("--target=")),
+                        5.21))
+        raise SystemExit(confirm_deep(_H, _B, j_mm2=jt))
     if "--confirm" in sys.argv:
         raise SystemExit(confirm_deep(_H, _B))
     raise SystemExit(main())

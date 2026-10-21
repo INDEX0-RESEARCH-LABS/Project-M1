@@ -5,6 +5,16 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
 ## [Unreleased]
 
 ### Added
+- **2026-10-22 (D-014 adopted)** - **Gate B and iron loss on the deep-barrier rotor both
+  pass, so the candidate becomes the design of record.** New `rotor_stress_fem.py`
+  (2D plane-stress, validated against the solid-disk known answer to 0.17%) gives
+  SF 16.6 at 6000 rpm and 12.2 at 7000 rpm on the declared p99.5 rule, 9.5/7.3 even on
+  the absolute corner peak, and 3.8 um airgap growth of 520. The pessimistic hand bound
+  (~420 MPa, "bridge carries the whole rim") is refuted: the arc ribs share the load.
+  `iron_loss.py --candidate`: 12.1 W median (7.5-21.2), below the baseline 13.5 W. The
+  certified target point at J=5.21 is 49.7 A, PF 0.633, **S 0.86 kVA**, 93.4%,
+  ~6,840 rpm, 7.37 kg iron. `STATUS.md` restated to the deep rotor; the shallow-rotor
+  numbers are kept in parentheses. Open: torque ripple/NVH and punching tooling.
 - **2026-10-20** — Phase Zero: workspace created, git initialized, Python venv with
   numpy 2.5.4 / scipy 1.18.1 / pandas 3.0.6 / matplotlib 3.11.2 / pytest 9.1.1.
 - Charter, roadmap, decision log, ground rules, toolchain record.

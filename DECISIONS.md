@@ -414,7 +414,7 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   thermal conclusion, iron loss, and the qualitative blocker (PF/current at 48 V).
 - **Status:** PROPOSED.
 
-## D-014 - Deep-barrier rotor candidate: +16% torque, PF 0.63 (PROPOSED)
+## D-014 - Deep-barrier rotor: +16% torque, PF 0.633, adopted
 - **Date:** 2026-10-21
 - **Context:** D-012's blocker is PF 0.49-0.54 / ~1.1 kVA. PF in a SynRM is set by
   saliency, and the certified rotor measures xi = Ld/Lq = 1.85 - low for a multi-barrier
@@ -430,20 +430,30 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   **44.5 mm** (zone_in 19.3 mm, 2.4 mm above the shaft), bridge 0.6 mm. Ring-averaged at
   3072/10: **T = 1.751 N.m (+16.2% vs the 1.507 baseline at the same extractor), PF 0.635,
   S 903 VA at 102 A (k=1)**.
-- **Consequence at the 1.6 N.m target:** J 5.10, 48.8 A at k=2, P_cu 22-23 W, efficiency
-  ~93.3%, speed ceiling ~6,900 rpm, **S ~0.76-0.80 kVA, PF 0.63-0.64**. The 48 V controller
-  for 0.5 kW drops from ~1.1 kVA to ~0.8 kVA, and the winding no longer sits at the voltage
-  ceiling.
-- **Why it is not adopted yet:** mechanical stress (4 full-depth barriers, 3.8 mm ribs,
-  0.6 mm bridge, 1.5-2.4 mm yoke) has not been checked - Gate B was certified for the
-  shallow rotor. Iron loss has not been re-run (Bmax in the ribs 2.73 -> 2.79 T), ripple is
-  not modelled, and the +/-4% extractor band still applies. The candidate is therefore
-  recorded as a **candidate**, not a baseline; `STATUS.md` keeps the certified numbers and
-  carries the candidate separately.
+- **First consequence estimate (2026-10-21, SUPERSEDED):** scaling the screen gave J 5.10,
+  48.8 A, P_cu 22-23 W, ~93.3%, ~6,900 rpm, S ~0.76-0.80 kVA. The measured point below is
+  the number to quote; S did not fall as fast as torque rose, and it is 0.86 kVA, not 0.8.
+- **Why it was not adopted on 2026-10-21:** mechanical stress (4 full-depth barriers,
+  3.8 mm ribs, 0.6 mm bridge, 1.5-2.4 mm yoke) had not been checked, iron loss had not
+  been re-run, ripple was unmodelled, and the +/-4% extractor band still applies. Both
+  named gates were then run and passed (below).
 - **Gate note:** the screen's declared candidate rule required xi >= 2.5 and the candidate
   lands at 2.41, so it FAILS as declared. The xi clause was a proxy; the data show xi is
   not monotonic in the objective (a 2.74-xi variant loses half its torque). Revised rule,
   recorded rather than silently retuned: candidate if PF >= BASE + 0.03 and T >= 0.95 x
   BASE. Both are met by a wide margin (+0.11, +13%).
-- **Status:** PROPOSED - requires Gate B stress and iron loss before any restatement of
-  the baseline. Result: `validation/saliency_lever/RESULT.md`.
+- **Gate B (2026-10-22): PASS.** A validated plane-stress FE (solid-disk known answer
+  within 0.17%) gives SF 16.6 at 6000 rpm and 12.2 at 7000 rpm on the declared p99.5
+  rule, and 9.5/7.3 even on the absolute corner peak; airgap closure 3.8 um of 520.
+  The old hand bound of ~420 MPa ("bridge carries the whole rim") is refuted: the three
+  3.8 mm arc ribs share the rim load. `validation/rotor_stress/RESULT.md`.
+- **Iron loss (2026-10-22): PASS.** 12.1 W median (7.5-21.2) at J=5.34, below the
+  baseline 13.5 W, because the deep barriers remove 1.5 kg of rotor iron. The certified
+  target point re-solved at J=5.21: ring-averaged 1.663 -> adopted 1.60, PF 0.633,
+  S 0.861 kVA, Vhat 11.5 V at k=2, efficiency 93.4%, ceiling ~6,840 rpm.
+- **Status:** ADOPTED (technical). This replaces the shallow-barrier rotor as the design
+  of record; `STATUS.md` now quotes the deep-rotor numbers with the baseline in
+  parentheses. Open risks that adoption does not close: torque ripple/NVH (unmodelled,
+  the largest remaining), punching tooling for 16 barriers and 3.8 mm ribs, and the fact
+  that the co-energy arbiter was not re-run on S6 (the baseline's -4% factor is applied,
+  so the +16% ratio is stronger evidence than the absolute 1.685 N.m).

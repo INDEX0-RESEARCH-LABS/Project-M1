@@ -74,36 +74,49 @@ whose pass/fail statistic was poorly chosen (the first was E1 in
 Pattern worth keeping: a gate built on an assumed mechanism must be checked against the
 objective it stands in for.
 
-## 5. Consequence at the 1.6 N.m target (DERIVED, same scaling as STATUS.md)
+## 5. The certified target point (measured, not scaled)
 
-| | baseline | deep-barrier candidate (S6) |
+The target point was re-solved at the current that delivers 1.6 N.m, ring-averaged, on the
+ruled mesh (3072 rays / 10 gap rows), log `saliency_target521.log`:
+
+| | baseline (D-012) | deep-barrier S6 (D-014) |
 |---|---|---|
-| T at J=5.34, ring-averaged | 1.507 | **1.751** |
-| J for 1.6 N.m | 5.62 | **5.10** |
-| current (k=2) | 53.7 A | **48.8 A** |
-| copper loss | 26-28 W | **22-23 W** |
-| efficiency (with iron) | 92.3% | **~93.3%** |
-| Vhat at 3000 rpm (k=2) | 13.5 V | **~11.4 V** |
-| speed ceiling | ~5,860 rpm | **~6,900 rpm** |
-| **S at 1.6 N.m** | **~1.09 kVA** | **~0.76-0.80 kVA** |
-| **PF** | 0.49-0.54 | **0.63-0.64** |
+| Maxwell ring-average at J=5.34 | 1.507 | **1.751 (+16.2%)** |
+| adopted (same -4% arbitration factor) | 1.45 (1.40-1.51) | **1.685** |
+| **target point** | J 5.62 | **J 5.21, ring-avg 1.663 -> adopted 1.60** |
+| current (k=2) | 53.7 A | **49.7 A** |
+| copper loss | 26-28 W | **23-24.5 W** |
+| iron loss (100 Hz, median) | 13.5 W | **12.1 W (7.5-21.2)** |
+| efficiency | 92.3% (91.1-93.7%) | **93.4% (91.7-94.3%)** |
+| Vhat at 3000 rpm (k=2) | 13.5 V | **11.5 V** |
+| speed ceiling (26.3 V) | ~5,860 rpm | **~6,840 rpm** |
+| **S at the target** | **~1.09 kVA** | **0.86 kVA** |
+| **PF** | 0.49-0.54 | **0.633** |
+| active iron | 8.9 kg | **7.37 kg (-17%)** |
+| specific power | ~51 W/kg | **~68 W/kg** |
 
-This is close to closing the D-012 blocker without changing voltage, winding or frame:
-the controller for 0.5 kW drops from ~1.1 kVA to ~0.8 kVA, and the 48 V envelope gains
-speed headroom because the machine needs less flux for the same torque.
+The earlier scaling estimate of 0.76-0.80 kVA was optimistic: S does not fall as fast as
+T rises once the current is reduced, because Vhat falls too. The measured 0.86 kVA is the
+number to quote.
 
-## 6. What is NOT established (do not ship this yet)
+This closes the D-012 blocker without changing voltage, winding or frame: a ~0.86 kVA
+controller for 0.5 kW, 7% less current, 17% less iron, and 17% more speed headroom.
 
-1. **Mechanical.** Four full-depth barriers leave 3.8 mm ribs, a 0.6 mm surface bridge and
-   a 1.5-2.4 mm yoke above the shaft. Gate B was certified for the shallow rotor; stress
-   must be re-run, and this is the most likely failure mode.
-2. **Iron loss.** The rotor flux path changed materially and Bmax in the ribs rose from
-   2.73 to 2.79 T (saturation is what blocks q-flux, but it costs loss). Re-run
-   `iron_loss.py` on this geometry before quoting the 93.3%.
-3. **Manufacturing.** 16 barrier punches per rotor plus thin ribs and bridges: standard
-   SynRM practice, but a tooling question, not a simulation one.
-4. **Extractor band.** +/-4% on absolute torque still applies. The +16% is outside it.
+## 6. What is NOT established
+
+1. ~~Mechanical~~ **CLOSED - Gate B PASS.** Plane-stress FE with a validated solid-disk
+   known answer: SF 16.6 at 6000 rpm and 12.2 at 7000 rpm on the declared p99.5 rule,
+   9.5/7.3 even on the absolute corner peak, airgap growth 3.8 um of 520.
+   `validation/rotor_stress/RESULT.md`.
+2. ~~Iron loss~~ **CLOSED.** `iron_loss.py --candidate`: 12.1 W median (7.5-21.2),
+   slightly *below* the baseline 13.5 W, because the rotor loses 1.5 kg of iron.
+3. **Manufacturing.** 16 barrier punches per rotor plus 3.8 mm ribs and 0.6 mm bridges:
+   standard SynRM practice, but a tooling question, not a simulation one.
+4. **Extractor band.** +/-4% on absolute torque still applies, and the co-energy arbiter
+   was NOT re-run on S6 - the baseline's -4% factor is applied by assumption, so the
+   *ratio* (+16%) is stronger evidence than the absolute 1.685.
 5. **Ripple / NVH.** Not modelled at all; deeper barriers usually raise torque ripple.
+   This is now the largest unmodelled risk of the design.
 
 ## 7. Recommended next batch (in order)
 

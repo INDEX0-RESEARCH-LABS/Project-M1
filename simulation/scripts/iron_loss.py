@@ -55,7 +55,7 @@ def equivalent_mass(b: np.ndarray, areas: np.ndarray, n: float) -> float:
     return float((RHO_ST * (b / B_REF) ** n * areas * L_STACK).sum())
 
 
-def main() -> int:
+def main(geom=None) -> int:
     H, B = load_bh_curve("M-43 Steel")
     print(f"bore {BORE*1e3:.0f} mm, L {L_STACK*1e3:.1f} mm, delta {DELTA_OP} deg, "
           f"f_e = {F_ELEC:.0f} Hz (guarantee at {F_REF:.0f} Hz, scaled)")
@@ -69,7 +69,7 @@ def main() -> int:
     print("F2 PASS: B^n scaling exact for n = 1.6 / 1.8 / 2.0")
 
     for j_mm2 in (TARGET, 6.0):
-        r = solve_point(DELTA_OP, j_mm2 * 1e6, H, B)
+        r = solve_point(DELTA_OP, j_mm2 * 1e6, H, B, geom=geom)
         be, ar, regions = r["Belem"], r["areas"], r["regions"]
         print(f"\nJ={j_mm2:.2f}: T={r['T']*L_STACK:.3f} N.m  Bmax={r['Bmax']:.2f} T")
         tot = {}
@@ -127,4 +127,11 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    geom = None
+    if "--candidate" in sys.argv:
+        # D-014 S6 deep-barrier rotor (see validation/saliency_lever/RESULT.md)
+        from envelope_validation import build
+        geom = build(DELTA_OP, BORE, n_barriers=4, barrier_angle_frac=0.62,
+                     barrier_gap_frac=0.25, barrier_span=0.0445)
+        print("geometry: D-014 candidate S6 (deep barriers)")
+    raise SystemExit(main(geom))

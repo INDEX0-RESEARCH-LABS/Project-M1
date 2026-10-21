@@ -1,6 +1,6 @@
 # Current state - single source of truth
 
-**As of D-012 addendum 10 (2026-10-21).** Everything here is reproduced by the scripts named
+**As of D-014 (2026-10-22).** Everything here is reproduced by the scripts named
 in section 6. Where a number moved during the campaign, the latest value is here and the
 superseded one is marked in `DECISIONS.md`; **quote from this file, not from old RESULT
 sections.**
@@ -11,17 +11,17 @@ quantities; **ESTIMATE** = model with a stated band; **ASSUMED** = input not yet
 ## 1. Where the project is
 
 Zero-budget (D-009) design study of a magnet-free 48 V traction motor for the Indian 2W
-market. Gate A-C are complete; the baseline is a 4-pole, 36-slot synchronous reluctance
-machine. The point design is **130 mm bore / 50.4 mm stack**. Two things now block the
-founder call, and neither is torque: **PF 0.49-0.54** at the current that delivers the
-1.6 N.m target (a ~1.1 kVA controller for 0.5 kW of shaft), and the **torque extractor
-bias** found on 2026-10-21 (absolute torque is 1.45 N.m, not 1.592; +/-4% band). The
-voltage question is closed: 96 V does not change apparent power.
+market. Gate A-C are complete; the design is a 4-pole, 36-slot synchronous reluctance
+machine at **130 mm bore / 50.4 mm stack**. The extractor bias found on 2026-10-21 is
+absorbed (absolute torque 1.45 N.m for the shallow rotor, +/-4% band).
 
-**Candidate that may close the PF blocker (D-014, not yet certified):** the barrier stack
-is too shallow. Deepening it from 10.4 to 44.5 mm gives +16% torque and PF 0.635 at the
-same current, i.e. ~0.8 kVA at the target instead of ~1.1. It is waiting on Gate B stress
-and an iron-loss re-run before it can replace the baseline.
+**D-014 ADOPTED: the deep-barrier rotor closes the PF blocker.** The barrier stack used
+to occupy only the outer 10.4 mm of a 64.5 mm rotor radius, so q-flux dived under it. At
+44.5 mm depth (4 barriers, 25% ribs, 0.62 angular fraction) the machine at the 1.6 N.m
+target needs **J 5.21 / 49.7 A**, gives **PF 0.633, S 0.86 kVA, 93.4% efficiency**, and
+carries **17% less iron** with a **~6,840 rpm** voltage ceiling. Gate B (plane-stress FE,
+SF 12.2 at 7000 rpm) and iron loss (12.1 W median) both pass. The open risks are torque
+ripple/NVH and tooling, not electromagnetics.
 
 ## 2. The design, in numbers
 
@@ -29,32 +29,33 @@ and an iron-loss re-run before it can replace the baseline.
 |---|---|---|---|
 | frame | 130 mm bore, 50.4 mm stack, 188 mm OD, 4 poles, 36 slots | - | `envelope_point_design/RESULT.md` |
 | winding (decided, D-013) | single layer, 6 coils/phase, **10 turns/coil at a=4**, 2 x 1.2 mm per turn | SOLVED + scaling | `prototype/design/winding_spec_v1.md` |
-| torque at J=5.34 A/mm2 | **1.45 N.m, band 1.40-1.51** (the 1.592 previously quoted was a single-circle coarse-mesh sample) | SOLVED, band | `torque_extractor/RESULT.md` |
-| torque at J=6.0 | 1.920 N.m (ring-averaged, 3072/10); the 25% margin point is not held, margin is +20% | SOLVED | same |
+| torque at J=5.34 A/mm2 | **1.685 N.m, band 1.62-1.75** (D-014; baseline rotor was 1.45, band 1.40-1.51) | SOLVED, band | `saliency_lever/RESULT.md` s.5 |
+| torque at J=6.0 | 1.920 N.m (baseline rotor, ring-averaged 3072/10); S6 not measured at J=6 | SOLVED | `torque_extractor/RESULT.md` |
 | torque per stack length | 38.5 N.m/m (rows 4/20/40: 38.50/37.86/39.67), ratio-based, shares the -9% extractor bias | SOLVED | `envelope_point_design/RESULT.md` |
 | torque-density utilization | 0.43 of the anchor-class expectation | DERIVED | `torque_density_audit` |
-| current for the 1.6 N.m target | **J = 5.62 A/mm2, 53.7 A peak** at k=2 (at 51 A the machine gives 1.45 N.m / 454 W) | DERIVED | `torque_extractor/RESULT.md` s.3 |
-| copper loss (hot, enclosed) | **26-28 W** at the 1.6 N.m target; 24-26 W at 51 A | DERIVED | `dq_model/RESULT.md` s.9 |
-| iron loss (100 Hz elec.) | 8.4-23.4 W, median **13.5 W** | ESTIMATE | `iron_loss/RESULT.md` |
-| winding rise | **~11 K** copper only, **~16 K** with iron (enclosed), at the 1.6 N.m target | ESTIMATE | same |
-| efficiency | **92.3% (91.1-93.7%)** at the 1.6 N.m target; 92.1% if 51 A is held (454 W); copper-only ~94.8% | ESTIMATE | same |
-| phase current | **53.7 A** peak for the target; 51 A gives 1.45 N.m (102 A at the FEM reference state, N_c = 1.247) | DERIVED | D-013, `torque_extractor` |
-| terminal voltage | **13.5 V** peak at 3000 rpm against a 26.3 V ceiling | DERIVED | same |
-| PF / apparent power | **0.49-0.54 / ~1.09 kVA** at the target; 0.53-0.58 / 0.99 kVA at 51 A | ESTIMATE | same |
-| active mass | 8.9 kg iron + 0.82 kg copper | DERIVED | `iron_loss`, `dq_model` |
+| current for the 1.6 N.m target | **J = 5.21 A/mm2, 49.7 A peak** at k=2 (D-014; baseline needed 53.7 A) | SOLVED | `saliency_lever/RESULT.md` s.5 |
+| copper loss (hot, enclosed) | **23-24.5 W** at the 1.6 N.m target (D-014; baseline 26-28 W) | DERIVED | `thermal_first_order`, `saliency_lever` s.5 |
+| iron loss (100 Hz elec.) | 7.5-21.2 W, median **12.1 W** (D-014; baseline 13.5 W) | ESTIMATE | `saliency_lever` s.5 |
+| winding rise | **~14 K** with iron (9.2 K copper only) at the 1.6 N.m target; enclosed, h=25 | ESTIMATE | `thermal_first_order` |
+| efficiency | **93.4% (91.7-94.3%)** at the 1.6 N.m target (D-014; baseline 92.3%) | ESTIMATE | `saliency_lever` s.5 |
+| phase current | **49.7 A** peak for the target at k=2 (D-014; 99.4 A at the k=1 FEM state, N_c = 1.247) | SOLVED | `saliency_lever` s.5 |
+| terminal voltage | **11.5 V** peak at 3000 rpm against a 26.3 V ceiling (D-014) | DERIVED | `saliency_lever` s.5 |
+| PF / apparent power | **0.633 / 0.86 kVA** at the target (D-014; baseline 0.49-0.54 / 1.09 kVA) | SOLVED / DERIVED | `saliency_lever` s.5 |
+| active mass | **7.37 kg iron** + 0.82 kg copper (D-014; baseline 8.9 kg iron) | DERIVED | `iron_loss --candidate` |
 | slot | 36 x trapezoid, **3.0 mm semi-closed mouth**, 11.7 mm deep, fill 0.40 assumed | ASSUMED | `winding_spec_v1.md` |
-| specific power | ~51 W/kg of active iron at the target (was 56 before the extractor correction) | DERIVED | - |
+| specific power | **~68 W/kg** of active iron at the target (D-014; baseline ~51) | DERIVED | - |
 
-The machine is **thermally comfortable and electrically current-limited**. It is also
-oversized: 8.9 kg of iron for 0.5 kW is what buys the 92.3%.
+The machine is **thermally comfortable and electrically current-limited**. The deep
+rotor removed 1.5 kg of iron without losing torque, so the design is less oversized than
+it was: 7.37 kg of iron for 0.5 kW, at 93.5%.
 
 ## 3. What is actually open
 
 | item | status | what unblocks it |
 |---|---|---|
-| Winding turns | **DECIDED (D-013): k=2, 51 A**, ceiling ~5,860 rpm at the 1.6 N.m target (was ~6,130) | reopens if the final gear ratio pushes the motor past ~5,800 rpm |
-| **Deep-barrier rotor (D-014)** | **CANDIDATE**: +16.2% torque, PF 0.635, S 903 VA at 102 A; ~0.76-0.80 kVA at the target | Gate B stress on 3.8 mm ribs / 0.6 mm bridge; iron-loss re-run; then certification. `saliency_lever/RESULT.md` |
-| **PF 0.49-0.54 at 48 V** | OPEN - founder call (D-012) | accept ~1.1 kVA / 54 A, hold 51 A and accept 454 W, or certify the deep-barrier rotor (D-014), which screens at PF 0.635 / ~0.8 kVA |
+| Winding turns | **DECIDED (D-013): k=2**, ceiling **~6,840 rpm** at the 1.6 N.m target with D-014 (was ~5,860 with the shallow rotor) | reopens if the final gear ratio pushes the motor past ~6,800 rpm |
+| **Deep-barrier rotor (D-014)** | **ADOPTED**: +16.2% torque at equal current, PF 0.633, S 0.86 kVA at the target; Gate B SF 12.2 at 7000 rpm; iron 12.1 W median | torque ripple/NVH and punching tooling (both outside simulation). `saliency_lever/RESULT.md`, `rotor_stress/RESULT.md` |
+| **PF at 48 V** | **CLOSED by D-014**: 0.633 / 0.86 kVA at the target, no voltage, winding or frame change | D-012's founder choice shrinks to accepting 0.86 kVA or spending on a higher-current controller; nothing technical is blocking |
 | **Torque extractor convergence** | ABSORBED - 1.45 N.m +/-4%, single-circle torque retired | one fully converged certification point (4096/20, rings 9 + co-energy) would restore a point value; ~15 min compute |
 | True MTPA angle | NOT ESTABLISHED | a ring-averaged angle sweep with continuation between angles |
 | Rotor slot-harmonic loss (~1800 Hz) | NOT MODELLED | a time-domain eddy solve; scoping bound 0.8-3.3 W (ASSUMED ripple, `iron_loss/RESULT.md` s.5) |
@@ -110,6 +111,9 @@ copies carried the same error. The three routes are now tied by
     .venv/bin/python -u simulation/scripts/saliency_screen.py          # ~14 min, 5 configs
     .venv/bin/python -u simulation/scripts/saliency_screen.py --span   # ~14 min
     .venv/bin/python -u simulation/scripts/saliency_screen.py --confirm  # candidate, ~3 min
+    .venv/bin/python -u simulation/scripts/saliency_screen.py --target=5.21  # certified point
+    .venv/bin/python -u simulation/scripts/rotor_stress_fem.py  # Gate B FE, ~2 min
+    .venv/bin/python -u simulation/scripts/iron_loss.py --candidate  # ~3 min
     .venv/bin/python -m pytest -q
 
 Logs from the current runs: `/tmp/opencode/m1/{dq_fix,dq_pfcheck_fix,thermal_fix,iron_loss_fix,pf_angle,angle_check,torque_mesh}.log`.
