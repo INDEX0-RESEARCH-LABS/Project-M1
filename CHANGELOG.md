@@ -41,6 +41,12 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   (`simulation/validation/torque/RESULT.md`, placeholder steel). Mesh rays now align
   to slot/barrier edges and the airgap supports multiple element rows.
 
+### Added
+- **2026-10-21 (freeze)** — `reports/PHASE0_SUMMARY.md`: Phase 0 simulation &
+  validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
+  standing honesty rules, and the founder decision point (paper freeze vs
+  budget-gated build).
+
 ## [2026-10-21]
 
 ### Added
