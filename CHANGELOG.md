@@ -46,13 +46,24 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (D-012 addendum 6)** - **two unit errors found and fixed by the energy
+  balance** (`P_elec = P_cu + T*w_mech` would not close): `dq_model.py` used the electrical
+  instead of mechanical angular speed (P_mech 2x high) and `thermal_first_order.py` used
+  the FEM **peak** slot current density as RMS (P_cu 2x high). Independent arithmetic audit
+  of 14 identities passes (<=0.1%). **PF is published at 0.55**: model-independent value
+  from measured flux linkage + Maxwell torque, **~1.0 kVA at 1.6 N.m / 1.25 kVA at 2.0 N.m**,
+  Vhat 6.5-7.3 V vs 26.3 V ceiling. **Thermal corrected to ~53 W / ~20 K at the target**
+  (68 W / 26 K at J=6; still air 75 W / 55 K), **~90% copper-only** - efficiency is no
+  longer the gap; PF and the ~100 A design-winding current are. L-based PF (0.49-0.50) kept
+  as a diagnostic bracket only.
 - **2026-10-21 (D-012 addendum 5)** - **dq model attempt**: torque **corroborated** by an
   independent co-energy derivative (36.08 vs 40.12 N.m/m, -10%), but the two-parameter
   `1.5p(Ld-Lq)id iq` model is **falsified** (0.643 vs 2.022 N.m, -68% despite converged
   Ld/Lq). **PF withdrawn** (no admissible number); survivors are the ~100 A phase current
   and the ~6-8 V vs 26.3 V voltage headroom -> the winding is under-turned ~3x (rewind ~35 A
   at identical copper loss). **Correction:** torque scales as J^2, so 1.6 N.m is at
-  J=5.34 -> ~119 W, ~45 K, ~81% (not 97 W / 37 K / 84%).
+  J=5.34 -> ~119 W, ~45 K, ~81% (not 97 W / 37 K / 84%). *The thermal half of this entry is
+  superseded by addendum 6 (peak-vs-RMS); the J=5.34 correction stands.*
 - **2026-10-21 (D-012 addendum 4)** — **envelope point design + thermal/bridge checks**
   (`simulation/validation/envelope_point_design/`): 130 mm bore / 50 mm stack gives
   **2.00 N.m at J=6 (1.25x margin)**, 120/74 gives 1.99 N.m (174 mm OD); certification

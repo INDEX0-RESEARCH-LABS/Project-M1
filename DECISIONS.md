@@ -228,3 +228,39 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   degree at delta=45) -> no cogging/ripple claim near the axes. A real PF needs a saturated
   dq model (lambda_d = dW'/di_d, lambda_q = dW'/di_q at the operating point, ~4 solves).
 - **Status:** PROPOSED.
+
+## D-012 — addendum 6: energy-balance check found two unit errors; PF = 0.55; thermal halved
+- **Date:** 2026-10-21
+- **Evidence:** `simulation/validation/dq_model/RESULT.md` s.7;
+  `simulation/validation/envelope_point_design/RESULT.md` s.3-4; `dq_model.py`,
+  `thermal_first_order.py`; logs `/tmp/opencode/m1/dq_model_v2.log`, `thermal_v2.log`.
+- **How found:** the energy balance `P_elec = P_cu + T*w_mech` did not close (implied
+  PF > 1). Two independent factor-2 errors:
+  1. `dq_model.py` used the electrical angular speed (628 rad/s) with the torque, so
+     mechanical power was 2x high. `T = 1.5p(lam_d i_q - lam_q i_d)` pairs with
+     `w_mech = 314 rad/s`; `w_e = p*w_mech` belongs only inside the back-EMF.
+  2. `thermal_first_order.py` used the FEM **peak** slot current density as RMS, so copper
+     loss and every rise were 2x high. Correct: `P_cu = rho*(J_peak^2/2)*V_cu`, which is
+     algebraically identical to `3*I_rms^2*R_ph` (asserted in the script).
+- **Independent check:** a fresh-context arithmetic audit of 14 identities (w_m/w_e
+  placement, peak/RMS, 3-phase/1.5 factors, copper-volume route) passes, max deviation
+  0.08%.
+- **PF published (ESTIMATE, model-independent):** from the alpha-axis flux linkage
+  (slot stream function) and the Maxwell torque, `lam_perp = T/(1.5 p i)`; the failed
+  two-parameter dq model is not used.
+  - 1.6 N.m target (J=5.34): 102 A, 6.5 V, **999 VA, PF 0.549**, 1.59 N.m measured.
+  - 2.0 N.m margin (J=6): 115 A, 7.3 V, **1253 VA, PF 0.555**.
+  - Bracket: the L-based voltage gives PF 0.49-0.50, so the honest range is **0.49-0.56**.
+  - Withdrawn for good: PF ~0.25 / ~4 kVA (VA upper bound, addendum 4).
+- **Thermal corrected (130/50, enclosed):** J=6 -> 68 W / 26 K; target J=5.34 -> 53 W /
+  20 K; still air J=6 -> 75 W / 55 K. Copper-only efficiency **~90%** at both points
+  (was 81%). Iron loss still excluded, so this is an upper bound. The addendum-5
+  "119 W / 45 K / 81%" was the peak-as-RMS error, not a real design penalty.
+- **Decision:** no envelope change. Adopt PF 0.55 / ~1.0-1.25 kVA / ~100 A at the 48 V
+  design winding as the working system figure. The product-level lever is the ~3x turns
+  increase (~35 A at identical copper loss), not a larger controller. Thermal margin means
+  the next zero-budget task is **iron loss** (efficiency is the only unquantified term),
+  then the founder call on PF 0.55 / 100 A vs rewinding vs 96 V.
+- **Lesson recorded:** a printed PF is not evidence; the energy balance is. Both errors
+  would have been caught by `1.5*(v_d i_d + v_q i_q) = P_cu + T*w_mech` on the first run.
+- **Status:** PROPOSED.

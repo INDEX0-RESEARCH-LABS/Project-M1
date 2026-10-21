@@ -35,35 +35,42 @@ constraint is OD (174 mm) rather than axial length.
 
 ## 3. Thermal / efficiency at the chosen frame (130/50, first-order lumped)
 
-| J | P_cu (enclosed) | winding rise | note |
+**Values below are post-correction (D-012 addendum 6).** The original table used the FEM
+peak slot current density as RMS and was 2x high on copper loss.
+
+| J (peak) | P_cu (enclosed, hot) | winding rise | note |
 |---|---|---|---|
-| 6.0 (2.0 N.m margin point) | 151 W | 57 K | needs forced air to be comfortable |
-| **4.8 (exact 1.6 N.m target)** | **~97 W** | **~37 K** | viable enclosed |
-| 4.0 | 60 W | 23 K | comfortable |
+| 6.0 (2.0 N.m margin point) | 68 W | 26 K | viable enclosed |
+| **5.34 (1.6 N.m target)** | **53 W** | **20 K** | comfortable |
+| 3.0 | 16 W | 6 K | large margin |
 
-Still air (h=10) is not viable at J=6 (131-137 K rise); enclosed (h=25) and forced air
-(h=50) are. At the exact target torque the machine runs at J ~ 4.8, ~97 W copper,
-~37 K rise, copper-only efficiency ~84%. **The target is thermally viable; the margin
-point is not, without airflow.** Hotspot is higher than this lumped number.
+Still air (h=10) at J=6 is 75 W / 55 K: marginal but not the 131 K previously reported.
+Enclosed (h=25) and forced air (h=50, 14 K) are comfortable. At the exact target torque
+the machine runs ~53 W copper, ~20 K rise, **~90% copper-only efficiency**. Hotspot is
+higher than this lumped number, and iron loss is excluded (efficiency is an upper bound).
 
-**CORRECTION (D-012 addendum 5):** the J ~ 4.8 line assumed T proportional to J. The
-measured torque scales as J^2 over 4.8-6 A/mm2, so 1.6 N.m sits at **J = 5.34**:
-**~119 W copper, ~45 K rise, ~81% copper-only**. Still viable enclosed; 8 K hotter.
-See `../dq_model/RESULT.md`.
+**Correction history:** addendum 5 moved the target from J=4.8 to J=5.34 (`T ~ J^2`).
+Addendum 6 fixed the peak-vs-RMS copper-loss error. Net effect versus the original table:
+the target point went from 97 W / 37 K / 84% to **53 W / 20 K / ~90%**.
 
 ## 4. System-level number (recorded because it drives inverter cost)
 
-At 130/50, J=6: N_ph = 15.1, phase current ~109 A for 2.0 N.m -> **kT ~ 0.018 N.m/A**.
-At the 1.6 N.m target that is **~87 A phase** for 0.5 kW mechanical (~12 A DC bus at 84%),
-i.e. **power factor ~0.25 and ~4 kVA of inverter**. A 48 V / ~100 A controller exists but
-is scooter-class, not e-bike-class. This is a real product-level consequence of a
-low-saliency magnet-free machine and must be in the spec discussion.
+**PUBLISHED (D-012 addendum 6) - model-independent, from measured flux linkage + torque:**
 
-**WITHDRAWN (D-012 addendum 5):** the PF/turns numbers in this section are not
-admissible. The dq model that was meant to replace them failed its own gate (3.1x
-torque error), so no PF is published. Survivors: the ~100 A phase current at this
-winding, and the ~6-8 V terminal voltage against a 26.3 V ceiling (the winding is
-under-turned ~3x). See `../dq_model/RESULT.md`.
+| point | i phase | Vhat | S | PF |
+|---|---|---|---|---|
+| 1.6 N.m (J=5.34) | 102 A | 6.5 V | ~1.0 kVA | 0.55 |
+| 2.0 N.m (J=6) | 115 A | 7.3 V | 1.25 kVA | 0.56 |
+
+kT ~ 0.016 N.m/A at this winding. **The inverter is a ~1.2 kVA, ~100 A class part**, not
+4 kVA. Voltage is far from the 26.3 V ceiling, so the winding is under-turned ~3x: at a=4
+(~15 turns/coil) the phase current falls to ~35 A for identical copper loss. That, not
+the VA, is the cost driver. Full derivation and caveats: `../dq_model/RESULT.md` s.7.
+
+**WITHDRAWN:** the earlier `PF ~0.25 / ~4 kVA` figure (a VA upper bound) and the
+`kN.m/A` + 84% combination. The intermediate `PF not published` state (addendum 5) is
+also superseded - the dq *model* failed, but PF does not need it.
+
 
 ## 5. Bridge thickness is not the lever (falsified)
 
@@ -86,10 +93,11 @@ task.
 ## 6. Consequences for D-012
 
 - **Envelope: 130 mm bore / 50 mm stack** (or 120/74 if OD is the constraint), 4-pole,
-  36 slots, ~5 turns/coil at a=4. Delivers 1.6 N.m at J ~ 4.8 with ~37 K rise.
-- **Efficiency and PF are the real product gap** (~84% copper-only, PF ~0.25,
-  ~4 kVA inverter), not torque or thermal feasibility.
-- Remaining zero-budget work: iron loss + PF from the same field solution (no new
-  physics), then a spec decision on whether a low-PF SynRM is acceptable for the 2W
-  product or whether the topology/battery voltage must change (96 V halves the current
-  and inverter VA, at the cost of a 96 V pack).
+  36 slots, ~5 turns/coil at a=4. Delivers 1.6 N.m at J=5.34 with ~20 K rise.
+- **Efficiency is not the gap** (~90% copper-only, iron loss still to be added); **PF 0.55
+  and the ~100 A phase current at the 48 V design winding** are the product-level
+  constraints. A ~1.2 kVA controller covers it; the ~3x turns increase is the lever that
+  drops current to ~35 A at identical copper loss.
+- Remaining zero-budget work: iron loss from the same field solution (no new physics),
+  then a spec decision on whether PF 0.55 / ~100 A is acceptable for the 2W product or
+  whether the winding (turns) or pack voltage (96 V) should change.

@@ -70,6 +70,9 @@ linkage scale and on geometry:
   ceiling. That is the actionable inverter-cost lever, and it does not depend on the
   failed model.
 
+> **SUPERSEDED by section 7.** A PF *is* now published (0.55), from the measured flux
+> linkage and torque rather than from Ld/Lq. The VA estimate is ~1.0-1.25 kVA, not ~4 kVA.
+
 ## 4. Correction found by this run: torque scales as J^2 here
 
 | J [A/mm2] | T [N.m] |
@@ -89,6 +92,10 @@ The 25% margin point (2.0 N.m) remains at J=6: 151 W, 57 K. The thermal verdict 
 unchanged in kind - viable enclosed at the target, needs airflow at the margin point -
 but the target point is 8 K hotter than previously reported.
 
+> **SUPERSEDED by section 7.** The 119 W / 45 K / 81% figures above came from a
+> peak-current-density phase error in `thermal_first_order.py` (loss 2x high). Corrected:
+> target point ~53 W hot, ~20 K rise, ~90% copper-only.
+
 ## 5. Open issues (declared, not fixed)
 
 1. **Maxwell vs co-energy disagree at the alignment axes** (and Maxwell changes 47% over
@@ -106,3 +113,65 @@ but the target point is 8 K hotter than previously reported.
 The envelope result (130/50 = 2.0 N.m at J=6; 120/74 = 2.0 N.m) rests on the Maxwell
 torque, which the co-energy arbiter independently corroborates at -10%. The bridge-thickness
 falsification and the Gate C family ceiling are untouched.
+
+## 7. CORRECTION (D-012 addendum 6): two unit errors; PF = 0.55; thermal halved
+
+Found by checking the energy balance `P_elec = P_cu + T*w_mech` instead of trusting the
+printed PF. It did not close (PF > 1), which traced to **two independent factor-2 errors**:
+
+1. `dq_model.py` multiplied the torque by the **electrical** angular speed
+   (`w_e = p*w_m` = 628 rad/s) instead of the mechanical one (314 rad/s), so `P_mech` was
+   2x high. `T = 1.5p(lam_d i_q - lam_q i_d)` pairs with `w_mech`; `w_e` belongs only
+   inside the back-EMF.
+2. `thermal_first_order.py` used the FEM's **peak** slot current density as if it were
+   RMS, so `P_cu` was 2x high and every rise was 2x high. Correct form:
+   `P_cu = rho*(J_peak^2/2)*V_cu`, which equals `3*I_rms^2*R_ph` identically (asserted in
+   the script).
+
+Both are fixed. An independent arithmetic audit of 14 identities (w_m/w_e placement,
+peak/RMS, 3-phase factors, copper-volume route) passes with max deviation 0.08%.
+
+### Terminal state, model-independent
+
+`lam_par` is the flux linkage along the current vector from the slot stream function
+(alpha-axis projection `(2/3)(lam_a - 0.5 lam_b - 0.5 lam_c)`; phase-A is 2.1-2.5% higher,
+i.e. the winding harmonics are small). `lam_perp = T/(1.5 p i)` comes from the measured
+torque, so **no failed dq model enters this table**.
+
+| J [A/mm2] | T [N.m] | i [A] | lam_par | lam_perp | abs(lam) | Vhat | S | PF |
+|---|---|---|---|---|---|---|---|---|
+| 4.8 | 1.279 | 91.7 | 7.88 mWb | 4.65 | 9.15 | 5.90 V | 811 VA | 0.543 |
+| **5.34 (target)** | **1.592** | **102.1** | **8.68** | **5.20** | **10.12** | **6.52** | **999 VA** | **0.549** |
+| 6.0 (margin) | 2.022 | 114.7 | 9.64 | 5.88 | 11.30 | 7.29 | 1253 VA | 0.555 |
+
+The target lands at 1.59 N.m (-0.5% of 1.6) at J=5.34, as `T ~ J^2` predicted.
+
+- **PF = 0.54-0.56**, not the withdrawn 0.25 (too pessimistic, it was a VA upper bound)
+  and not the L-based 0.49-0.50/0.93 pair (failed model). For reference the L-based
+  voltage is retained only as a diagnostic: it gives PF 0.49-0.50, ~10% below the
+  model-independent value, which brackets the answer honestly.
+- **1.0 kVA at the target**, 1.25 kVA at the margin point - a single ~1.2 kVA controller,
+  not a 4 kVA one.
+- **Voltage is not the constraint** (6.5-7.3 V against 26.3 V); **current is** (~100 A at
+  this winding). The ~3x turns increase remains the lever that cuts current to ~35 A at
+  identical copper loss.
+
+### Thermal (corrected, enclosed h=25)
+
+| point | P_cu hot | rise | copper-only efficiency |
+|---|---|---|---|
+| J=6 (2.0 N.m) | 68 W | 26 K | 90.3% |
+| J=5.34 (1.6 N.m) | 53 W | 20 K | ~90% |
+| J=6, still air | 75 W | 55 K | - |
+
+Previously reported 151 W / 57 K / 81%: that was the peak-as-RMS error. Still air is
+marginal but not hopeless (55 K, not 131 K); enclosed is comfortable. Iron loss is still
+excluded, so efficiency remains an upper bound.
+
+### Honest limits of this PF
+
+It uses the Maxwell torque (corroborated by co-energy to 10%) and a flux linkage from the
+slot stream function. It is **not** a saturated dq decomposition, and it is an
+**ESTIMATE**, not a bench measurement. The open item from section 5.2 (true
+`lam_d = dW'/di_d`, `lam_q = dW'/di_q`) is now optional rather than blocking: it would
+decompose the same physics, not change the terminal VA by more than the 10% torque spread.

@@ -33,7 +33,7 @@ RPM, P_POLES = 3000.0, 2
 V_CEIL = 48.0 / math.sqrt(3) * 0.95      # peak phase ceiling, same as the winding model
 MTL = 2 * L_STACK + 1.2 * math.pi * BORE / 4
 RHO = 1.75e-8
-J_LEVELS = (4.8e6, 6.0e6)
+J_LEVELS = (4.8e6, 5.34e6, 6.0e6)   # 5.34e6 = the 1.6 N.m target (T ~ J^2)
 
 
 def solve_point(delta: float, J: float, H, B, n_theta: int = 1536,
@@ -63,12 +63,24 @@ def solve_point(delta: float, J: float, H, B, n_theta: int = 1536,
     neg = [k for k in range(A.N_SLOTS) if A.slot_phase36(k) == ("A", -1)]
     lam_per_turn = L_STACK * (sum(abar[f"slot_{k:02d}"] for k in pos)
                               - sum(abar[f"slot_{k:02d}"] for k in neg))
+    lam_phase = {}
+    for ph in ("A", "B", "C"):
+        p = [k for k in range(A.N_SLOTS) if A.slot_phase36(k) == (ph, 1)]
+        n = [k for k in range(A.N_SLOTS) if A.slot_phase36(k) == (ph, -1)]
+        lam_phase[ph] = L_STACK * (sum(abar[f"slot_{k:02d}"] for k in p)
+                                   - sum(abar[f"slot_{k:02d}"] for k in n))
+    # flux linkage along the current vector (current is on the alpha/A axis):
+    #   lam_alpha = (2/3)(lam_a - 0.5 lam_b - 0.5 lam_c); equals lam_a for a
+    #   purely sinusoidal flux, so the difference measures the winding harmonics
+    lam_alpha = (2.0 / 3.0) * (lam_phase["A"] - 0.5 * lam_phase["B"]
+                               - 0.5 * lam_phase["C"])
     # co-energy of the same solution (arbiter for the torque extractor)
     bmag = np.hypot(sol["Bx"], sol["By"])
     air = np.abs(sol["nu"] - 1.0 / MU0) <= 1e-4 / MU0
     w = co_energy_density(bmag, H, B, np.where(air, 1.0, 0.0))
     Wp = float((w * areas).sum())
     return {"delta": delta, "T": abs(T), "lam_per_turn": lam_per_turn,
+            "lam_alpha": lam_alpha, "lam_phase": lam_phase,
             "Wp": Wp, "a_slot": float(np.mean(list(slot_area.values()))),
             "Bmax": float(np.hypot(sol["Bx"], sol["By"]).max())}
 
@@ -104,12 +116,24 @@ def main() -> int:
         i_d, i_q = ihat * math.cos(beta), ihat * math.sin(beta)
         t_dq = 1.5 * P_POLES * (Ld - Lq) * i_d * i_q
         r_ph = RHO * 12 * n_c1**2 * MTL / (A.FILL * op["a_slot"])
-        w = 2 * math.pi * (RPM / 60) * P_POLES
-        v_d = r_ph * i_d - w * Lq * i_q
-        v_q = r_ph * i_q + w * Ld * i_d
-        vhat = math.hypot(v_d, v_q)
+        w_m = 2 * math.pi * (RPM / 60)          # mechanical rad/s
+        w_e = w_m * P_POLES                     # electrical rad/s (voltage only)
+        # L-based (two-parameter) voltage: DIAGNOSTIC ONLY, this model failed D2
+        v_d = r_ph * i_d - w_e * Lq * i_q
+        v_q = r_ph * i_q + w_e * Ld * i_d
+        vhat_lin = math.hypot(v_d, v_q)
+        # Model-independent terminal voltage at the operating point:
+        #   lam_par  = phase flux linkage along the current vector (slot stream sum)
+        #   lam_perp = T / (1.5 p i)  from the MEASURED torque, not from Ld/Lq
+        lam_par = op["lam_alpha"] * n_c1
+        lam_perp = op["T"] * L_STACK / (1.5 * P_POLES * ihat)
+        # frame with current along x: vx = R i - w*lam_y, vy = w*lam_x;
+        # T = 1.5 p (lam_x i_y - lam_y i_x) = -1.5 p lam_y i  =>  lam_y = -lam_perp
+        v_x = r_ph * ihat + w_e * lam_perp
+        v_y = w_e * lam_par
+        vhat = math.hypot(v_x, v_y)
         p_cu = 1.5 * r_ph * ihat**2
-        p_mech = op["T"] * L_STACK * w
+        p_mech = op["T"] * L_STACK * w_m        # MECHANICAL speed, not w_e
         pf = (p_cu + p_mech) / (1.5 * vhat * ihat)
         print(f"\nJ={J/1e6:.1f}: saliency Ld/Lq={Ld/Lq:.2f}  (Ld={Ld*1e3:.3f} mH, "
               f"Lq={Lq*1e3:.3f} mH, Lop={Lop*1e3:.3f} mH)")
@@ -118,8 +142,15 @@ def main() -> int:
               f"(D2 <=25%: {'PASS' if abs(t_dq/(op['T']*L_STACK) - 1) <= 0.25 else 'FAIL'})")
         print(f"  i_d={i_d:.1f} A  i_q={i_q:.1f} A  R_ph={r_ph*1e3:.2f} mOhm  "
               f"P_cu={p_cu:.1f} W  P_mech={p_mech:.1f} W")
+        print(f"  lam_par={lam_par*1e3:.2f} mWb  lam_perp={lam_perp*1e3:.2f} mWb  "
+              f"|lam|={math.hypot(lam_par, lam_perp)*1e3:.2f} mWb  "
+              f"(phase-A lam={op['lam_per_turn']*n_c1*1e3:.2f} mWb, "
+              f"harmonic delta {(op['lam_alpha']/op['lam_per_turn']-1):+.1%})")
         print(f"  Vhat={vhat:.2f} V (ceiling {V_CEIL:.2f})  PF={pf:.3f}  "
-              f"S={1.5*vhat*ihat:.0f} VA")
+              f"S={1.5*vhat*ihat:.0f} VA   [L-based Vhat={vhat_lin:.2f} V, "
+              f"PF there {(p_cu+p_mech)/(1.5*vhat_lin*ihat):.3f} - failed model, do not quote]")
+        # the energy balance is the check that caught the 2x errors: PF must be physical
+        assert 0.0 < pf <= 1.0 + 1e-9, f"PF out of range: {pf:.3f}"
         k = 24.0 / vhat if vhat > 0 else float("nan")
         print(f"  turns rescale to 24 V: x{k:.2f} -> N_c={n_c1*k:.2f} "
               f"({max(1, round(n_c1*k))} turns/coil), i={ihat/k:.1f} A, "

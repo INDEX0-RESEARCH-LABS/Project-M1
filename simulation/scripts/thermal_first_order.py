@@ -9,6 +9,9 @@ Declared assumptions (lumped, conservative-in-the-right-direction):
     + radiation h_rad ~= eps*sigma*(Ts^2+Tamb^2)*(Ts+Tamb)
   * winding rise = copper mean rise; the slot hotspot is HIGHER than this
     (insulation + iron path not modelled) -> treat the result as a lower bound.
+  * the J passed in is the FEM PEAK slot current density (the 3-phase set is
+    solved at the instant phase A peaks); the copper loss uses the RMS value,
+    J_rms = J/sqrt(2). Using J directly is a factor-2 loss error.
 
 Use: python thermal_first_order.py
 """
@@ -36,16 +39,16 @@ def estimate(bore: float, L: float, J: float, h_conv: float) -> dict:
     r_th = 1.0 / (h_conv + 6.0)               # 6 W/m2K radiation, fixed first pass
     d_out = bore * OD_RATIO
     area = math.pi * d_out * L + 2 * math.pi / 4 * d_out**2
-    p_cu = RHO20 * J * J * v_cu
+    p_cu = RHO20 * (0.5 * J * J) * v_cu       # J is peak, loss uses RMS
     # iterate copper temperature (resistivity feedback) with fixed thermal R
     t = T_AMB + 20.0
     for _ in range(40):
         rho = RHO20 * (1 + ALPHA * (t - 20.0))
-        p = rho * J * J * v_cu
+        p = rho * (0.5 * J * J) * v_cu
         t_new = T_AMB + p * r_th / area
         t = 0.5 * (t + t_new)
     rho = RHO20 * (1 + ALPHA * (t - 20.0))
-    p_cu = rho * J * J * v_cu
+    p_cu = rho * (0.5 * J * J) * v_cu
     return {"bore": bore, "L": L, "J": J, "h": h_conv, "v_cu_cm3": v_cu * 1e6,
             "p_cu": p_cu, "area_cm2": area * 1e4, "q_kWm2": p_cu / area / 1e3,
             "t_cu": t, "rise": t - T_AMB}
@@ -65,10 +68,21 @@ def main() -> None:
             print(f"  J=6, {label:10s} h={h:4.1f}: P_cu={r['p_cu']:6.1f} W  "
                   f"q={r['q_kWm2']:5.2f} kW/m2  T_cu={r['t_cu']:5.1f} C  "
                   f"rise={r['rise']:5.1f} K")
-        for J in (2.0e6, 3.0e6, 4.0e6):
+        for J in (3.0e6, 5.34e6, 6.0e6):
             r = estimate(bore, L, J, 25.0)
-            print(f"  J={J/1e6:.0f}, enclosed: P_cu={r['p_cu']:6.1f} W  "
+            print(f"  J={J/1e6:.2f} (peak), enclosed: P_cu={r['p_cu']:6.1f} W  "
                   f"rise={r['rise']:5.1f} K")
+
+    # self-check: the copper-loss route used here must equal 3*Irms^2*R_ph.
+    #   rho*(J^2/2)*V_cu  ==  18*rho*J^2*FILL*A_slot*MTL   (identical algebra)
+    a_slot = A_SLOT_150 * (0.120 / 0.150) ** 2
+    tau_p = math.pi * 0.120 / 4.0
+    mtl = 2.0 * 0.074 + 1.2 * tau_p
+    p_thermal = RHO20 * 0.5 * (6e6) ** 2 * N_SLOTS * FILL * a_slot * mtl
+    p_winding = 18 * RHO20 * (6e6) ** 2 * FILL * a_slot * mtl
+    assert abs(p_thermal - p_winding) / p_winding < 1e-12, "loss routes disagree"
+    print(f"\ncross-check J=6, 120/74: rho*J_rms^2*V_cu = {p_thermal:.2f} W "
+          f"== 3*Irms^2*R_ph route = {p_winding:.2f} W")
 
     # self-check: loss must scale with J^2 and with copper volume
     a = estimate(0.120, 0.074, 6e6, 25.0)["p_cu"]
