@@ -32,11 +32,10 @@ ROTOR_SLOT_FRAC = 25.0 / 45.0  # rotor slot arc / rotor pitch (45 deg)
 ROTOR_SLOT_DEPTH = 0.012   # amended from 0.005: 5mm gave negligible saliency (see PLAN)
 ROTOR_TIP = 0.0             # amended from 0.002: continuous 2mm surface sleeve shunted
                             # the flux (amendment 2 in PLAN)
+SWEEP_DEG = list(range(0, 95, 5))          # one 90 deg period, 5 deg steps; the
+# curve is 45 deg periodic (rotor pitch; phase circuit spans 2 pitches)
 TORQUE_NTHETA = 2880
 N_RINGS = 9
-SWEEP_DEG = [15.0, 20.0, 25.0, 30.0, 35.0, 37.5, 40.0, 45.0, 52.5, 60.0]
-# unaligned at 15 deg (rotor slot under stator pole), aligned at 37.5 deg,
-# and periodic: 60 deg = 15 deg + 45 deg rotor pitch (G3 checks both zeros)
 
 MAX_ITER = 80
 
@@ -96,6 +95,16 @@ def srm_pattern() -> dict[str, float]:
     return jz
 
 
+def phase_linkage(sol, mesh, cells, pat: dict[str, float]) -> float:
+    """Phase flux linkage [Wb/m] = sum over energized slots of j * A_bar * a."""
+    A_el = np.asarray(sol["A"])[mesh.t].mean(axis=0)
+    tri = triangle_areas(mesh)
+    return float(sum(pat[f"slot_{k:02d}"] * A_el[cells[f"slot_{k:02d}"]].mean()
+                     * tri[cells[f"slot_{k:02d}"]].sum()
+                     for k in range(SRM_N_SLOTS)
+                     if cells[f"slot_{k:02d}"].size and pat[f"slot_{k:02d}"]))
+
+
 def triangle_areas(mesh) -> np.ndarray:
     t, p = mesh.t, mesh.p
     return 0.5 * np.abs(
@@ -130,22 +139,10 @@ def torque_nmm(sol, gg: SynRMGeometry) -> float:
                           n_rings=N_RINGS, r_spread=0.5 * half_gap)
 
 
-def sweep(steel: str, mesh_kw: dict, phases_deg=None) -> dict:
-    H, B = load_bh_curve(steel)
-    jz = srm_pattern()
-    out = {}
-    for deg in (phases_deg or SWEEP_DEG):
-        gg = srm_geometry(math.radians(deg))
-        sol, mesh, cells = solve_case(gg, jz, H, B, mesh_kw=mesh_kw)
-        conv = bool(sol.get("converged", True))
-        aerr, _ = area_report(mesh, cells, gg)
-        out[deg] = {"T_pmm": torque_nmm(sol, gg), "conv": conv, "area_err": aerr}
-        print(f"  {steel:10s} phi={deg:5.1f}  T={out[deg]['T_pmm']:+.4f} N.m/m"
-              f"  conv={conv}  area_err={aerr:.3%}", flush=True)
-    return out
-
-
 def main() -> None:
+    """Empirical protocol (PLAN amendments 2-3): coarse 0..90/5 lambda+T curve,
+    aligned/unaligned = measured lambda extrema, gates against those, fine mesh
+    at the peak and both lambda-plateau centres."""
     import json
     out_dir = Path(__file__).parent / "validation" / "srm_synrm_compare"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -153,53 +150,72 @@ def main() -> None:
     mesh_kw_fine = dict(n_theta=3072, n_gap_rows=4)
 
     print("SRM slot depth (equal-Cu):", f"{SRM_DEPTH*1e3:.2f} mm", flush=True)
-    area_synrm = expected_areas(synrm_reference_geometry())["slots"]
-    print(f"  total slot area: synrm={area_synrm*1e6:.1f} mm^2  "
-          f"srm={12*srm_slot_area(SRM_DEPTH, a_open=math.asin((SRM_POLE_TIP_MM*1e-3/2)/(BORE/2)), half_bot=0.55*(2*math.pi/SRM_N_SLOTS)/2)*1e6:.1f} mm^2", flush=True)
+    H, B = load_bh_curve("M-43 Steel")
+    jz = srm_pattern()
 
-    results: dict = {"srm_depth_mm": SRM_DEPTH * 1e3,
-                     "curve": sweep("M-43 Steel", mesh_kw)}
+    # coarse curve over one 90 deg period
+    curve = {}
+    for deg in SWEEP_DEG:
+        gg = srm_geometry(math.radians(deg))
+        sol, mesh, cells = solve_case(gg, jz, H, B, mesh_kw=mesh_kw)
+        curve[deg] = {"T_pmm": torque_nmm(sol, gg), "conv": bool(sol["converged"]),
+                      "area_err": area_report(mesh, cells, gg)[0],
+                      "lam": phase_linkage(sol, mesh, cells, jz)}
+        c = curve[deg]
+        print(f"  phi={deg:5.1f} lam={c['lam']:+.5f} T={c['T_pmm']:+.4f}"
+              f" conv={c['conv']} area={c['area_err']:.3%}", flush=True)
 
-    peak = max((abs(v["T_pmm"]) for v in results["curve"].values()))
-    peak_phi = max(results["curve"], key=lambda d: abs(results["curve"][d]["T_pmm"]))
-    aligned = results["curve"][37.5]["T_pmm"]
-    unaligned = results["curve"][15.0]["T_pmm"]
-    g1 = all(v["conv"] for v in results["curve"].values())
-    g2 = max(v["area_err"] for v in results["curve"].values()) <= 0.01
-    g3 = (abs(aligned) <= 0.2 * peak) and (abs(unaligned) <= 0.2 * peak)
-    results["peak_T_pmm"] = peak
-    results["peak_phi_deg"] = peak_phi
+    lams = np.array([curve[d]["lam"] for d in SWEEP_DEG])
+    span = lams.max() - lams.min()
+    # lambda plateau = consecutive grid points within 5% of span of the extremum
+    def plateau(i: int) -> float:
+        lo = hi = i
+        while lo > 0 and abs(lams[lo - 1] - lams[i]) <= 0.05 * span:
+            lo -= 1
+        while hi < len(SWEEP_DEG) - 1 and abs(lams[hi + 1] - lams[i]) <= 0.05 * span:
+            hi += 1
+        return (SWEEP_DEG[lo] + SWEEP_DEG[hi]) / 2
+    phi_aligned = plateau(int(np.argmax(lams)))
+    phi_unaligned = plateau(int(np.argmin(lams)))
+    peak_phi = max(curve, key=lambda d: abs(curve[d]["T_pmm"]))
+    peak = abs(curve[peak_phi]["T_pmm"])
+    print(f"aligned={phi_aligned} T={curve[phi_aligned]['T_pmm']:+.4f}"
+          f" unaligned={phi_unaligned} peak@{peak_phi}={peak:+.4f}", flush=True)
 
-    # G4 refinement: same rotor position, fine mesh
-    fine = sweep("M-43 Steel", mesh_kw_fine, phases_deg=[peak_phi])
-    t_ref = abs(results["curve"][peak_phi]["T_pmm"])
-    t_fine = abs(fine[peak_phi]["T_pmm"])
-    g4 = abs(t_fine - t_ref) / t_ref if t_ref else 1.0
-    results["fine_T_pmm"] = fine[peak_phi]["T_pmm"]
+    fine = {}
+    for deg in (peak_phi, phi_aligned, phi_unaligned):
+        gg = srm_geometry(math.radians(deg))
+        sol, mesh, cells = solve_case(gg, jz, H, B, mesh_kw=mesh_kw_fine)
+        fine[deg] = {"T_pmm": torque_nmm(sol, gg), "conv": bool(sol["converged"]),
+                     "area_err": area_report(mesh, cells, gg)[0]}
+        print(f"  fine phi={deg:5.1f} T={fine[deg]['T_pmm']:+.4f}", flush=True)
 
-    # C1 comparison (anchor numbers from the completed sweep, N.m per meter)
-    synrm_T_pmm = 7.6911
-    srm_T_74 = peak * L_STACK
-    synrm_T_74 = synrm_T_pmm * L_STACK
-    ratio = peak / synrm_T_pmm
-    results["comparison"] = {
-        "synrm_T_pmm": synrm_T_pmm, "srm_T_pmm_peak": peak,
-        "synrm_T_74mm": synrm_T_74, "srm_T_74mm": srm_T_74,
-        "ratio_srm_over_synrm": ratio,
-        "synrm_active_mass_kg": active_mass_kg(L_STACK),
-        "srm_T_per_active_vol_Nm_per_L": srm_T_74 / active_volume_L(L_STACK),
-    }
-
+    peak_fine = abs(fine[peak_phi]["T_pmm"])
+    g1 = all(v["conv"] for v in list(curve.values()) + list(fine.values()))
+    g2 = max(v["area_err"] for v in list(curve.values()) + list(fine.values())) <= 0.01
+    g3 = (abs(fine[phi_aligned]["T_pmm"]) <= 0.2 * peak_fine
+          and abs(fine[phi_unaligned]["T_pmm"]) <= 0.2 * peak_fine)
+    g4 = abs(peak_fine - peak) / peak <= 0.10
     gates = {"G1_converged": g1, "G2_areas<=1%": g2,
-             "G3_zeros<=20%peak": g3, "G4_refine<=10%": g4 <= 0.10}
-    results["gates"] = gates
-    results["gates_detail"] = {"aligned_T": aligned, "unaligned_T": unaligned,
-                               "g4_diff": g4,
-                               "overall": all(gates.values())}
+             "G3_zeros<=20%peak": g3, "G4_refine<=10%": g4}
+
+    synrm_T_pmm = 8.1235   # corrected anchor MTPA (2026-10-21 wrap-fix run)
+    ratio = peak_fine / synrm_T_pmm
+    c1 = {
+        "synrm_T_pmm": synrm_T_pmm, "srm_T_pmm_peak_fine": peak_fine,
+        "synrm_T_74mm": synrm_T_pmm * L_STACK, "srm_T_74mm_fine": peak_fine * L_STACK,
+        "ratio_srm_over_synrm": ratio,
+        "synrm_T_per_active_vol_Nm_per_L": synrm_T_pmm * L_STACK / active_volume_L(L_STACK),
+        "srm_T_per_active_vol_Nm_per_L": peak_fine * L_STACK / active_volume_L(L_STACK),
+    }
+    results = {"srm_depth_mm": SRM_DEPTH * 1e3, "curve": curve,
+               "peak_T_pmm_coarse": peak, "peak_phi": peak_phi,
+               "phi_aligned": phi_aligned, "phi_unaligned": phi_unaligned,
+               "fine": fine, "gates": gates, "comparison": c1}
     print("GATES:", gates, flush=True)
-    print(f"C1: SRM peak {peak:.4f} N.m/m ({srm_T_74:.3f} N.m @74mm) vs "
-          f"SynRM {synrm_T_pmm:.4f} N.m/m ({synrm_T_74:.3f} N.m) -> "
-          f"ratio {ratio:+.3f} (+/-25% band per PLAN)", flush=True)
+    print(f"C1: SRM peak {peak_fine:.3f} N.m/m ({peak_fine*L_STACK:.3f} N.m @74mm) vs "
+          f"SynRM {synrm_T_pmm:.4f} ({synrm_T_pmm*L_STACK:.3f} N.m) -> ratio {ratio:+.3f}"
+          " (+/-25% band per PLAN)", flush=True)
     print("OVERALL:", "PASS" if all(gates.values()) else "FAIL", flush=True)
 
     def _np(o):
@@ -213,11 +229,6 @@ def main() -> None:
 def active_volume_L(L: float) -> float:
     r_out, r_sh = STATOR_OD / 2, SHAFT_OD / 2
     return math.pi * (r_out**2 - r_sh**2) * L * 1e3  # litres
-
-
-def active_mass_kg(L: float) -> float:
-    r_out, r_sh = STATOR_OD / 2, SHAFT_OD / 2
-    return math.pi * (r_out**2 - r_sh**2) * L * 7650
 
 
 if __name__ == "__main__":
