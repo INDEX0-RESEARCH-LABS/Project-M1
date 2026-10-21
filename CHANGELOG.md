@@ -46,6 +46,11 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (winding spec v1)** - `prototype/design/winding_spec_v1.md` for the 130/50
+  frame: documents that the **solved winding is single-layer** (6 coils/phase, `N_ph = 6*N_c`),
+  correcting v0's double-layer description (a double-layer build would need torque
+  re-certification), and gives the turns/speed/current trade (k=1/2/3 -> 102/51/34 A,
+  12,300/6,100/4,100 rpm, kVA invariant at ~1.0). v0 marked superseded.
 - **2026-10-21 (D-012 addendum 9)** - **third factor-2 in the copper path fixed**: the mean
   turn length was multiplied by a *half-turn* copper volume (`V_cu = 36*FILL*A_slot*(MTL/2)`,
   `R_ph = rho*6*N_c^2*MTL/(FILL*A_slot)`). Copper volume 0.82 kg (was 1.65), P_cu **25.6 W**

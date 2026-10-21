@@ -3,6 +3,9 @@
 **Script:** `simulation/scripts/dq_model.py` (log `/tmp/opencode/m1/dq_model.log`).
 **Declared method/gates:** `PLAN.md` (before running).
 
+> **Current numbers live in section 9** (P_cu 25.6 W, PF 0.53-0.58, rise 9.7 K). Sections
+> 3, 7 and 8 are the audit trail of two superseded copper-loss errors; do not quote them.
+
 ## 1. What was measured (130 mm bore, 50.4 mm stack, M-43 bracket)
 
 Apparent phase inductance from the slot stream function, and the Maxwell torque, at

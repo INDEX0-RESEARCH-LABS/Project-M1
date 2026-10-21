@@ -1,5 +1,9 @@
 # Winding spec v0 — 36/4/3 SynRM (committed anchor envelope)
 
+> **SUPERSEDED for the chosen frame by `winding_spec_v1.md`** (130/50 point design,
+> corrected copper loss, turns/speed trade). This file is kept because it documents the
+> 159/92 anchor envelope and the original target-spec mismatch.
+
 **Status: connection topology FINAL for this envelope; turn/electrical numbers
 INDICATIVE ±25% (B̂g band) — and they expose a target-spec mismatch that needs a
 founder decision (below).** Date 2026-10-21. Companion artifacts:
