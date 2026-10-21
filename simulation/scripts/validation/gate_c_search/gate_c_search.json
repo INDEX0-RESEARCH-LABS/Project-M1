@@ -1,0 +1,53 @@
+{
+ "gates": {
+  "C1_converged": true,
+  "C2_areas<=1%": true,
+  "C3_refine<=10%": null,
+  "C4_multi_ring<=15%": null,
+  "C5_improve>=10%": null
+ },
+ "baseline_T_pmm": 9.095,
+ "winner_detail": {
+  "T_fine_single": null,
+  "T_fine_multi": null,
+  "c3": null,
+  "c4": null
+ },
+ "results": {
+  "span12_frac0.62_bridge0.6": {
+   "rows": {
+    "25.0": {
+     "converged": true,
+     "iters": 16,
+     "T_per_m": 7.634715756942352,
+     "Bmax_T": 2.494622626501899,
+     "r_gap": 0.045791169853198935,
+     "area_err": 0.00164403595855811
+    },
+    "21.25": {
+     "converged": true,
+     "iters": 17,
+     "T_per_m": 4.751914518559332,
+     "Bmax_T": 2.339960217667376,
+     "r_gap": 0.045791169853198935
+    },
+    "28.75": {
+     "converged": true,
+     "iters": 16,
+     "T_per_m": 9.22321463846133,
+     "Bmax_T": 2.442739129629074,
+     "r_gap": 0.045791169853198935
+    }
+   },
+   "T_best": 9.22321463846133,
+   "best_delta": 28.75,
+   "area_err_max": null,
+   "verify": {
+    "T_fine_single": null,
+    "T_fine_multi": null,
+    "c3": null,
+    "c4": null
+   }
+  }
+ }
+}

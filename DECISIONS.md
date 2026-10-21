@@ -63,3 +63,10 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **Alternatives:** Defer purchase until later (same outcome); fabricate a curve for M1000-65A (rejected — rigor rule); borrow a library curve from the local FEMM database not matching the grade (rejected — mislabels the material, D-006 precedent).
 - **Consequences:** (1) The remaining campaign percentage that was founder-gated collapses into accepted indicative status — Phase 0's simulation-validation work is effectively COMPLETE when the running rotor-upgrade sweep lands. (2) Prototype-material measurement later (e.g., coupon B-H at a local lab / the built machine itself) becomes the future upgrade path for material fidelity. (3) Downstream phases must not silently treat bracket steel as verified for M1000-65A.
 - **Status:** APPROVED (founder, 2026-10-21).
+
+## D-010 — Baseline geometry v1 for Gate C: span 12 mm, 2 barriers/pole, arc frac 0.62
+- **Date:** 2026-10-21
+- **Context:** The rotor-upgrade sweep (`validation/anchor_rotor_upgrade/RESULT.md`, gates U1–U3 pass) mapped the barrier family: nb=2 beats nb=3 consistently (~+6%), radial span rises monotonically 6→12 mm, and the wide 0.62 arc wins under deep saturation (U4 expectation violated and interpreted). The committed v0 layout (8.4 mm, nb 3) sits within ~5% of the family optimum.
+- **Decision:** Gate C baseline = stator unchanged; rotor = barrier_radial_span 12 mm, n_barriers 2, barrier_angle_frac 0.62, bridge 0.6 mm. Measured at declared excitation: 9.0950 N·m/m (1536, delta 26.25) / 8.5265 (3072) — +5% torque at equal Cu, J, fill, envelope, for free.
+- **Alternatives:** Keep v0 as Gate C baseline (rejected — we would optimize around a known-inferior point); adopt an iron-rich frac 0.30–0.50 layout (rejected — measured inferior in every member family).
+- **Status:** APPROVED (self, data-backed; founder ratification rides along with D-004 sign-off).
