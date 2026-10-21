@@ -34,6 +34,7 @@ the choice of winding turns / pack voltage.
 | terminal voltage | 6.4 V peak against a 26.3 V ceiling | DERIVED | same |
 | PF / apparent power | **0.53-0.58** / ~0.99 kVA | ESTIMATE | same |
 | active mass | 8.9 kg iron + 0.82 kg copper | DERIVED | `iron_loss`, `dq_model` |
+| slot | 36 x trapezoid, **3.0 mm semi-closed mouth**, 11.7 mm deep, fill 0.40 assumed | ASSUMED | `winding_spec_v1.md` |
 | specific power | ~56 W/kg of active iron | DERIVED | - |
 
 The machine is **thermally comfortable and electrically current-limited**. It is also
@@ -45,7 +46,8 @@ oversized: 8.9 kg of iron for 0.5 kW is what buys the 92.7%.
 |---|---|---|
 | **Winding turns / max speed** | OPEN - blocks the winding drawing | application max motor speed or gear ratio (founder input). k=2 (51 A, ~6,100 rpm) is the recommendation for a 2W drivetrain |
 | **PF 0.53-0.58 / 102 A at 48 V** | OPEN - founder call (D-012) | accept ~1 kVA controller at 100 A, or change winding (k=2/3, same kVA) or pack voltage (96 V) |
-| Rotor slot-harmonic loss (~1800 Hz) | NOT MODELLED | a time-domain eddy solve; order-of-magnitude bound says 1-4 W (see `iron_loss/RESULT.md` s.5) |
+| Rotor slot-harmonic loss (~1800 Hz) | NOT MODELLED | a time-domain eddy solve; scoping bound 0.8-3.3 W (ASSUMED ripple, `iron_loss/RESULT.md` s.5) |
+| Slot fill / windability | ASSUMED 0.40 | the 3.0 mm semi-closed mouth needs needle winding; at fill 0.36 the loss is +11% and efficiency ~92.2%. Resolves on the first wound stator |
 | 33% flux-linkage vs torque gap | OPEN, interpretation-limited | rotating-field solve; does not change the torque or the envelope |
 | D-004 (5% replication) | CANCELLED under D-009 | founder sign-off, paperwork only |
 | BOM, insulation/megohm, dyno-class tests | BLOCKED | F-class spend, founder approval |

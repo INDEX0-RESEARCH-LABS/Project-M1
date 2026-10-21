@@ -74,5 +74,14 @@ buys - it is the current rating and the speed range.
 3. End-winding length is estimated as 0.6 * tau_p per end. A real coil would be measured on
    the first prototype; it changes copper loss linearly (the end is ~55% of the turn length
    at this short stack), so it is the largest single geometric uncertainty in P_cu.
-4. Slot fill 0.40 is assumed throughout. Higher fill reduces copper loss only through the
-   current density at fixed AT - it does not change torque.
+4. **Slot fill 0.40 is the optimistic end of what this slot can take.** The modelled slot is
+   a trapezoid with a **3.0 mm semi-closed mouth** widening to 55% of the 11.35 mm pitch at
+   the bottom, 11.7 mm deep (54-57 mm2). Consequences:
+   - a 5-turn coil cannot be pre-formed and dropped in; it needs **needle winding** (or an
+     open/segmented slot). A 4 x 1.2 mm bundle is 2.4 mm across before insulation, so it
+     passes the 3 mm mouth with little clearance;
+   - the narrow mouth means the slot-average fill will be lower than a rectangular slot's.
+     At fill 0.36 instead of 0.40, copper loss rises ~11% at the same AT (P_cu ~ 1/fill):
+     25.6 -> ~28 W, efficiency 92.7 -> ~92.2%. Torque is unchanged.
+   This is the largest remaining *manufacturing* uncertainty in the electrical numbers and
+   it resolves on the first wound stator, not in simulation.
