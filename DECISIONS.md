@@ -87,3 +87,14 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   extractor-robust at +0.6%): the ±25% band stands with consistent support — D-008/D-009
   unaffected. Standing rule: only same-extractor ratios are quotable; absolute N·m/m
   numbers carry their extractor name or the ±25–30% label.
+- **Addendum 2 (2026-10-21, later same day):** gap-rows convergence study
+  (`validation/extractor_convergence/`, rows 4→10→20→40 on the baseline at 3072 rays)
+  resolved the character of the spread: **single-ring extracts are monotone
+  mesh-converged** (8.5265→8.3414, −2.2% total, last step −0.5%), **multi9-ring is
+  uncertifiable** (12.15→10.83→11.33→6.10, a −46% swing between adjacent levels).
+  The former "+25–30% single-vs-multi spread" is reframed as one certified extractor
+  vs one uncertified estimator — NOT symmetric doubt. Certified SynRM absolute:
+  ≈8.34 N·m/m (single @ 3072/40). The single-consistent SRM/SynRM ratio 0.44 is the
+  certified number; the multi column (0.33) downgraded to uncertified.
+  E3's frozen mean-rule verdict remains FAIL (no adoption through that path) — the
+  certification finding above is evidence-based, recorded in RESULT findings.

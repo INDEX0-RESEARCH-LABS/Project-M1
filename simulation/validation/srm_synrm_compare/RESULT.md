@@ -61,6 +61,13 @@ Two notable facts from this re-evaluation:
 2. The winning margin is therefore **2.3×–3.0×**, stronger than the originally quoted
    2.3×: the D-008 no-flip decision is robust to the extractor choice.
 
+> **Certification note (2026-10-21, later):** the gap-rows convergence study
+> (`../extractor_convergence/RESULT.md`) later showed the multi9-ring estimator is
+> *uncertifiable* on the SynRM's saturated gap (−46% swing between refinement levels)
+> while single-ring is monotone mesh-converged. The certified cross-machine ratio is
+> therefore the **single-consistent 0.44**; the multi column (0.33) above is retained
+> only as a downgraded data point. The ±25% band claim is unaffected.
+
 Original per-meter/74mm figures retained for traceability (mixed-extractor, superseded
 for cross-machine comparison — same-extractor columns above are the standing reference):
 

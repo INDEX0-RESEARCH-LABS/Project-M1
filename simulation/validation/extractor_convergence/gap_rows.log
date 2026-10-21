@@ -1,0 +1,19 @@
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+baseline rows= 4: single=+8.5265 multi9=+12.1487 spread=+29.8% conv=True err=0.107% elems=338520 t=71s
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+baseline rows=10: single=+8.4170 multi9=+10.8270 spread=+22.3% conv=True err=0.107% elems=415896 t=95s
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+baseline rows=20: single=+8.3872 multi9=+11.3287 spread=+26.0% conv=True err=0.107% elems=544856 t=126s
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+winner rows=20: single=+9.0056 multi9=+10.7896 spread=+16.5% conv=True err=0.107% elems=544856 t=139s
+
+per-extractor drift, rows 4->20:
+  single: +8.5265 -> +8.3872 (-1.6%)
+  multi9: +12.1487 -> +11.3287 (-6.7%)
+E3: FAIL per E3: spread 26.0% > 15% at rows=20 — trend only
+winner@rows=20: spread=+16.5% single=+9.0056 multi9=+10.7896
+DONE rc=0

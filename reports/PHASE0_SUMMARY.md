@@ -21,20 +21,21 @@ budget and in-house simulation (D-009). Nothing below carries a purchase-depende
 | SRM 12/8 loses to SynRM at equal Cu/J/fill | ratio **0.44 (single-extractor) / 0.33 (multi-extractor)**; SRM side extractor-robust (+0.6%) | RATIO-based, same-extractor both sides — strongest claim in the campaign; D-008 robust |
 | Rajini anchor: our committed layout hits 7.5–8.5 N·m/m vs anchor-implied ~108 ×12.7 gap | excitation-level design discrepancy | INDICATIVE ±25% (final for Phase 0) |
 | Barrier-rotor family ceiling | ~9.2–9.5 N·m/m @1536 (single-ring); +1–9% over v1 baseline best config | same-extractor deltas only |
-| Absolute torque scale | ±25–30% single-vs-multi extractor spread at deep saturation | OPEN (D-011) — standardized same-extractor ratio rule standing |
+| Absolute torque scale | **resolved by certification** (extractor study): single-ring certified the campaign standard for saturated SynRM gaps (8.34 N·m/m @ 3072/40); multi9-ring uncertifiable there (−46% swing), still fine on smooth gaps (SRM +0.6%) | CLOSED by `validation/extractor_convergence/RESULT.md` |
 
 **Effective honesty rules (permanent):**
 1. Only same-extractor ratios are quotable across machines/configurations.
-2. Absolute N·m/m numbers carry their extractor name or the ±25–30% label.
+2. Absolute N·m/m numbers carry their extractor name; on saturated SynRM gaps use
+   single-ring (certified mesh-converged) — multi9-ring is uncertified there.
 3. No purchase, no paid bench (D-009); anchor comparisons stay INDICATIVE ±25% (final for Phase 0).
 
 ## Open items at freeze
 
-1. **Torque-extractor standardization** (D-011 blocker for absolute claims): co-energy FD
-   arbiter aborted (~60× re-mesh drift floor); gap-rows 4→10 probe narrowed spread to
-   16–22% only. Cheap concrete next step when value justifies: fixed-rotation mesh family
-   (identical connectivity across δ; only rotor ray origins rotate) or finer
-   gap disretization, then re-derive extractor-consistent campaign absolutes.
+1. **Torque-extractor standardization** — RESOLVED as *certification asymmetry* by the
+   post-freeze `validation/extractor_convergence/` study: single-ring is
+   mesh-converged (−2.2% over a 10× gap-row refinement), multi9 fails certification.
+   No relabelling of campaign numbers was needed — SynRM absolutes were already
+   single-ring; the certified SRM/SynRM ratio is 0.44 (single-consistent).
 2. **D-004 sign-off** — founder paperwork, blocks no work.
 3. **Topology lever** (split pole shoes / bridge profiling) — not attempted: Gate C showed
    the barrier family is flat; new family = new phase.

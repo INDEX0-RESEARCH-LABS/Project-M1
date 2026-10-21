@@ -46,6 +46,16 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (same day, after freeze)** — **extractor-convergence study**
+  (`validation/extractor_convergence/`, PLAN with frozen rules + amendment 1 before
+  run): gap-rows sweep 4→10→20→40 at 3072 rays. **single-ring certified
+  mesh-converged** (−2.2% total, monotone → 8.34 N·m/m baseline absolute);
+  **multi9-ring uncertifiable** on the SynRM's saturated gap (12.15→6.10, −46% swing).
+  Reframes Gate C's C4 mystery as a certification asymmetry; certified SRM/SynRM
+  ratio = single-consistent **0.44** (multi 0.33 downgraded); SRM's multi-ring usage
+  remains valid (smooth gap, +0.6% agreement). §Result: RESULT.md incl. cost record
+  (71–258 s/solve, up to 803k elements). Phase 0 summary unchanged except labels now
+  certification-based rather than spread-based.
 
 ## [2026-10-21]
 
