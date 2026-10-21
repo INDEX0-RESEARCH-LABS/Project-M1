@@ -60,11 +60,16 @@ def _in_slot(g: SynRMGeometry, x: float, y: float) -> bool:
     if r < r_bore or r >= r_bore + depth:
         return False
     pitch = 2 * math.pi / g.n_slots
+    # stator_profile centres slot k's notch at angle k*pitch (mod pitch: a=0),
+    # so distance to the nearest slot centre is min(a, pitch - a). (The old
+    # version tested |a - pitch/2|, i.e. slots at (k+0.5)*pitch -- a half-pitch
+    # mismatch that silently rotated the applied MMF by half a slot pitch and
+    # made every d/q "alignment" torque nonzero. Found 2026-10-20 via the
+    # anchor smoke run: T(d-alignment) was ~70% of peak instead of ~0.)
     a = math.atan2(y, x) % pitch
-    c = pitch / 2
     frac = (r - r_bore) / depth
     half = a_open + (half_bot - a_open) * frac
-    return abs(a - c) <= half
+    return min(a, pitch - a) <= half
 
 
 def classify_point(g: SynRMGeometry, x: np.ndarray, y: np.ndarray) -> np.ndarray:
@@ -160,17 +165,17 @@ def build_mesh(g: SynRMGeometry, *, n_r=30, n_theta=768, n_gap_rows=2):
     th_ray = np.unique(np.concatenate([base, np.mod(np.array(extra), 2 * math.pi)]))
     th_ray = th_ray[np.r_[True, np.diff(th_ray) > 1e-4]]
     
-    # radial breaks
+    # radial breaks - refined in rotor/barrier bands
     r = np.concatenate([
         np.linspace(0, r_sh, 4),
-        np.linspace(r_sh, r_ro - g.bridge - g.barrier_radial_span, 6),
+        np.linspace(r_sh, r_ro - g.bridge - g.barrier_radial_span, 12),
         # barriers
         np.sort(np.unique([r for r_i,r_o in barrier_bands(g) for r in [r_i,r_o]])),
-        np.linspace(r_ro - g.bridge, r_ro, 3),
+        np.linspace(r_ro - g.bridge, r_ro, 6),
         np.linspace(r_ro, r_bore, 2 * n_gap_rows + 1),
-        np.linspace(r_bore, r_bore + depth, 6),
-        np.linspace(r_bore + depth, r_out, 4),
-        np.linspace(r_out, r_dom, 4),
+        np.linspace(r_bore, r_bore + depth, 12),
+        np.linspace(r_bore + depth, r_out, 8),
+        np.linspace(r_out, r_dom, 6),
     ])
     r = np.unique(np.round(r, 10))
     

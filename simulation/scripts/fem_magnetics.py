@@ -95,10 +95,20 @@ def mu_r_from_bh(H: np.ndarray, B: np.ndarray, b_mag: np.ndarray,
     """
     b = np.clip(b_mag, 0.0, None)
     h = np.interp(b, B, H)
-    slope = (H[-1] - H[-2]) / (B[-1] - B[-2])   # dH/dB at the last point
+    # linear extension at BOTH ends. Above the last breakpoint the curve keeps
+    # rising steeply in H (deep saturation); below the first breakpoint
+    # np.interp would return H[0] = 0, which fabricates mu_r up to ~1e10 on
+    # weak-field elements -- they then act as magnetic short-circuits and a
+    # single such element pins the Picard residual at O(100) forever. Linear
+    # extension gives the finite initial permeability of the curve instead.
+    slope_hi = (H[-1] - H[-2]) / (B[-1] - B[-2])
     over = b > B[-1]
     if np.any(over):
-        h = np.where(over, H[-1] + slope * (b - B[-1]), h)
+        h = np.where(over, H[-1] + slope_hi * (b - B[-1]), h)
+    slope_lo = (H[1] - H[0]) / (B[1] - B[0])
+    under = b < B[0]
+    if np.any(under):
+        h = np.where(under, slope_lo * b, h)
     mu_r = np.where(b > 0, b / (MU0 * np.maximum(h, 1e-12)), 1.0)
     return np.maximum(mu_r, 1.0)
 
@@ -143,15 +153,22 @@ def solve_az_core(
     b = np.zeros(basis.N)
     linear = {}          # group name -> (element indices, nu)
     nonlinear = {}       # group name -> element indices
+    # every element must carry a material: one skipped group leaves its dofs
+    # with zero stiffness rows and the direct solve returns silent NaNs
+    covered = np.zeros(mesh.t.shape[1], dtype=bool)
     for name, mat in materials.items():
         cells = np.asarray(cell_sets.get(name, []), dtype=np.int64)
         if cells.size == 0:
             continue
+        covered[cells] = True
         if isinstance(mat, tuple):
             nonlinear[name] = cells
         else:
             linear[name] = cells
-
+    if not covered.all():
+        raise ValueError(
+            f"{np.flatnonzero(~covered).size} elements have no material entry "
+            "(a group key is empty or missing); the linear solve would return NaN")
     # current loading is independent of the material classification (a slot
     # group split into per-slot regions must get its J even though it shares
     # one material entry)
@@ -177,9 +194,13 @@ def solve_az_core(
             A = K if A is None else A + K
         u = solve(*condense(A, b, D=D))
         iters, converged = 1, True
+        elem_nu = np.full(mesh.t.shape[1], np.nan)
+        for name, cells in linear.items():
+            elem_nu[cells] = 1.0 / (MU0 * float(materials[name]))
     else:
-        u, iters, converged = _newton(mesh, basis, linear, nonlinear, materials,
-                                      K_total, b, D, max_iter, tol)
+        u, iters, converged, elem_nu = _newton(mesh, basis, linear, nonlinear,
+                                               materials, K_total, b, D,
+                                               max_iter, tol)
 
     w = basis.interpolate(u)
     Bx = w.grad[1, :, 0]
@@ -188,25 +209,35 @@ def solve_az_core(
     return {"mesh": mesh, "A": u, "cx": ct[0], "cy": ct[1],
             "Bx": Bx, "By": By, "ndofs": basis.N, "nelems": mesh.t.shape[1],
             "newton_iters": iters, "converged": converged,
+            # final element reluctivity: lets callers audit the nonlinear
+            # fixed point (mu_eff = 1/(MU0*nu_e))
+            "nu": elem_nu,
             # connectivity + vertices so field sampling can use true element
             # containment rather than a nearest-centroid guess
             "tri": mesh.t, "verts": mesh.p}
 
 
 def _newton(mesh, basis, linear, nonlinear, materials, K_total, b, D,
-            max_iter, tol, relax: float = 0.5, relax_min: float = 0.02):
-    """Picard iteration on nu(|B|) for the iron groups, with adaptive relaxation.
+            max_iter, tol, relax: float = 0.0, relax_min: float = 0.0):
+    """Damped Newton iteration on the nonlinear magnetostatic system.
 
-    nu_e = B_e / (mu0 H_e) is recomputed per element each step. A plain
-    substitution update (relax = 1) diverges badly on saturating regions, so nu
-    is under-relaxed; the factor is halved when the residual stops improving.
+    The plain Picard substitution on nu(|B|) is locally non-contractive at the
+    B-H curve's knee (dH/dB is O(1e5-1e6)/T there, see RESULT.md): it enters a
+    two-cycle where B overshoots the curve's end, mu collapses in the
+    extrapolated tail, and drags B back -- mat_res never falls. xfemm's own
+    solver is Newton-Raphson, so this follows it:
 
-    Two details that matter in practice:
-    - iron is initialised at its low-field permeability (~1e3), not vacuum:
-      starting from mu_r = 1 injects a first-iteration flux that never recovers;
-    - convergence is judged on the change in the field (max |B| and the A-norm),
-      because the saturation pattern can oscillate element-by-element while the
-      nodal A-norm looks settled.
+    per step: read |B| from the current solution, set every iron element's nu
+    to the curve demand there, assemble K and the exact P1 Newton tangent
+
+        J_ij,e = A_e [ nu_e g_i.g_j + (dnu/dB) (gA.g_i)(gA.g_j) / |B| ]
+
+    (gA = grad A, g_i = grad phi_i, per element; dnu/dB by central difference
+    of the curve), solve J dA = -(K u - b) with a backtracking line search on
+    ||F||, accept u_new.
+
+    Convergence is judged by material consistency (as before, the only
+    criterion that distinguishes "fixed point" from "frozen relaxation").
     """
     from numpy.linalg import norm
 
@@ -214,60 +245,151 @@ def _newton(mesh, basis, linear, nonlinear, materials, K_total, b, D,
         w = basis.interpolate(u_nodal)
         return np.hypot(w.grad[1, :, 0], w.grad[0, :, 0])
 
-    # initialise iron at a modest permeability and let the iteration climb.
-    # Starting at the curve's low-field mu_r (~4400) overshoots violently -- the
-    # first iteration produced |B| ~ 200 T, which the relaxation then had to
-    # crawl back from over dozens of steps.
+    MAT_TOL = 0.02
+
+    # element geometry/shape-function gradients shared by both assemblers
+    p, t = mesh.p, mesh.t
+    x, y = p[0, t], p[1, t]
+    A_e = 0.5 * ((x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0]))
+    dx = np.stack([(y[1] - y[2]) / (2 * A_e), (y[2] - y[0]) / (2 * A_e),
+                   (y[0] - y[1]) / (2 * A_e)])
+    dy = np.stack([(x[2] - x[1]) / (2 * A_e), (x[0] - x[2]) / (2 * A_e),
+                   (x[1] - x[0]) / (2 * A_e)])
+
+    def assemble(nu_e):
+        return _assemble_weighted(basis, nu_e).tocsr()
+
+    # initialise iron at a modest permeability, not vacuum
     elem_nu = np.full(mesh.t.shape[1], 1.0 / (MU0 * 1.0))
     for name, cells in linear.items():
         elem_nu[cells] = 1.0 / (MU0 * float(materials[name]))
+    iron_mask = np.zeros(mesh.t.shape[1], dtype=bool)
     for name, cells in nonlinear.items():
+        iron_mask[cells] = True
         elem_nu[cells] = 1.0 / (MU0 * 100.0)
 
-    u = solve(*condense(_assemble_weighted(basis, elem_nu).tocsr(), b, D=D))
-    prev_res = np.inf
+    u = solve(*condense(assemble(elem_nu), b, D=D))
     for it in range(1, max_iter + 1):
         b_old = b_field(u)
-        target = elem_nu.copy()
+        nu_demand = elem_nu.copy()
         for name, cells in nonlinear.items():
             H, Btab = materials[name]
-            target[cells] = 1.0 / (MU0 * mu_r_from_bh(H, Btab, b_old[cells]))
+            nu_demand[cells] = 1.0 / (MU0 * mu_r_from_bh(H, Btab, b_old[cells]))
+        mat_res = 0.0
+        for name, cells in nonlinear.items():
+            tt = nu_demand[cells]
+            ee = elem_nu[cells]
+            mat_res = max(mat_res, float(np.max(np.abs(ee - tt) / np.maximum(tt, 1e-30))))
+        if mat_res < MAT_TOL:
+            return u, it, True, elem_nu
 
-        elem_nu = relax * target + (1.0 - relax) * elem_nu
-        u_new = solve(*condense(_assemble_weighted(basis, elem_nu).tocsr(), b, D=D))
+        # Newton step at the demanded materials
+        elem_nu = nu_demand
+        K = assemble(elem_nu)
+        F = K @ u - b
+        F[D] = 0.0
+        dnu = np.zeros(mesh.t.shape[1])
+        for name, cells in nonlinear.items():
+            H, Btab = materials[name]
+            bmag = b_old[cells]
+            mu = mu_r_from_bh(H, Btab, bmag)
+            step = 1e-4
+            dmu = (mu_r_from_bh(H, Btab, bmag + step)
+                   - mu_r_from_bh(H, Btab, bmag - step)) / (2 * step)
+            dnu[cells] = -dmu / (MU0 * mu * mu)
+        J = K + _assemble_tangent(basis, elem_nu, dnu, u, dx, dy)
+        try:
+            dA = solve(*condense(J.tocsc(), -F, D=D))
+        except Exception:
+            return u, it, False, elem_nu
+        if not np.all(np.isfinite(dA)):
+            return u, it, False, elem_nu
 
-        res = norm(u_new - u) / max(norm(u_new), 1e-30)
-        b_new = b_field(u_new)
-        db = float(np.max(np.abs(b_new - b_old)) / max(np.max(b_new), 1e-30))
-        u = u_new
-        if res < tol and db < 1e-5:
-            return u, it, True
-        # cut relaxation only when progress clearly stalls; a 0.9 test is too
-        # eager and throttles the iteration before it can settle
-        if res > prev_res * 0.95:
-            relax = max(relax * 0.7, relax_min)
-        prev_res = res
-    return u, max_iter, False
+        f0 = norm(F) / max(norm(b), 1e-30)
+        lam, best = 1.0, None
+        for _ in range(6):
+            u_try = u + lam * dA
+            f_try = norm(K @ u_try - b) / max(norm(b), 1e-30)
+            if best is None or f_try < best[0]:
+                best = (f_try, lam, u_try)
+            if f_try < f0:
+                break
+            lam *= 0.5
+        u = best[2]
+    return u, max_iter, False, elem_nu
 
 
 def _assemble_weighted(basis, elem_nu):
-    """Assemble sum_e nu_e * integral grad(u).grad(v) over all elements."""
-    from skfem import BilinearForm
+    """Assemble sum_e nu_e * integral grad(u).grad(v) over all elements.
 
-    @BilinearForm
-    def form(u, v, w):
-        from skfem.helpers import dot, grad
-        return w["nu"] * dot(grad(u), grad(v))
+    nu stays *per element*: smearing nu to nodes damps iron permeability at
+    every air-iron boundary, inflating the gap reluctance (see RESULT.md).
+    For P1 triangles the weighted element stiffness has the closed form
+    K_e = nu_e * A_e * G_e^T G_e, so this is assembled directly in numpy --
+    passing a per-element array through skfem's cross-basis DiscreteField
+    binding (Basis(..., ElementTriP0()) + interpolate) scrambles values
+    between elements (validated 2026-10-21 against exact element matrices).
+    """
+    from scipy.sparse import coo_matrix
 
-    # scikit-fem 12 interpolates nodal fields; map element-wise nu to nodes
-    mesh = basis.mesh
-    nodal = np.zeros(basis.N)
-    counts = np.zeros(basis.N)
-    for c in range(3):
-        np.add.at(nodal, mesh.t[c], elem_nu)
-        np.add.at(counts, mesh.t[c], 1.0)
-    nodal = nodal / np.maximum(counts, 1.0)
-    return asm(form, basis, nu=basis.interpolate(nodal))
+    p, t = basis.mesh.p, basis.mesh.t
+    x, y = p[0, t], p[1, t]
+    A = 0.5 * ((x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0]))
+    area = np.abs(A)   # physical measure; gradients below use signed A and
+                       # are orientation invariant, the count A is not
+    # gradients of the P1 shape functions, per element
+    dx = np.stack([(y[1] - y[2]) / (2 * A), (y[2] - y[0]) / (2 * A),
+                   (y[0] - y[1]) / (2 * A)])
+    dy = np.stack([(x[2] - x[1]) / (2 * A), (x[0] - x[2]) / (2 * A),
+                   (x[1] - x[0]) / (2 * A)])
+    n = basis.N
+    rows, cols, vals = [], [], []
+    for i in range(3):
+        for j in range(3):
+            rows.append(t[i].ravel())
+            cols.append(t[j].ravel())
+            vals.append((elem_nu * area * (dx[i] * dx[j] + dy[i] * dy[j])).ravel())
+    return coo_matrix(
+        (np.concatenate(vals), (np.concatenate(rows), np.concatenate(cols))),
+        shape=(n, n)).tocsr()
+
+
+def _assemble_tangent(basis, elem_nu, dnu_e, u, dx, dy):
+    """Newton tangent helper: d/dA of nu(|grad A|) grad(u).grad(v).
+
+    For P1 the element gradient gA = grad A is constant, so the contribution is
+    the closed form (see _assemble_weighted for the geometry setup):
+
+        K_tan,e[i,j] = A_e * dnu_e * (gA.g_i)(gA.g_j) / |B|
+
+    with g_i the element gradients of phi_i and dx/dy those gradients as
+    returned by _newton. dnu/dB is negative over most of the curve, so this is
+    a rank-structured perturbation of the weighted Laplacian.
+    """
+    from scipy.sparse import coo_matrix
+
+    p, t = basis.mesh.p, basis.mesh.t
+    A = 0.5 * ((p[0, t][1] - p[0, t][0]) * (p[1, t][2] - p[1, t][0])
+               - (p[0, t][2] - p[0, t][0]) * (p[1, t][1] - p[1, t][0]))
+    area = np.abs(A)
+    an = u[t]                                   # (3, ne) nodal potentials
+    gax = an[0] * dx[0] + an[1] * dx[1] + an[2] * dx[2]
+    gay = an[0] * dy[0] + an[1] * dy[1] + an[2] * dy[2]
+    bmag = np.hypot(gax, gay)
+    # s[i] = gA . grad(phi_i), per element, shape (3, ne)
+    s = np.stack([gax * dx[i] + gay * dy[i] for i in range(3)])
+    n = basis.N
+    rows, cols, vals = [], [], []
+    with np.errstate(divide="ignore", invalid="ignore"):
+        w_e = np.where(bmag > 1e-30, dnu_e / np.maximum(bmag, 1e-30), 0.0)
+    for i in range(3):
+        for j in range(3):
+            rows.append(t[i].ravel())
+            cols.append(t[j].ravel())
+            vals.append((area * w_e * s[i] * s[j]).ravel())
+    return coo_matrix(
+        (np.concatenate(vals), (np.concatenate(rows), np.concatenate(cols))),
+        shape=(n, n)).tocsr()
 
 
 
@@ -307,17 +429,14 @@ def co_energy_density(b_mag: np.ndarray, H: np.ndarray, B: np.ndarray,
     return out
 
 
-def field_at(sol: dict, px: np.ndarray, py: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-    """B (Bx, By) at the points (px, py), from the element *containing* each point.
+def field_at_elem(sol: dict, px: np.ndarray, py: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """(Bx, By, element_index) — containment lookup like :func:`field_at`, plus the
+    element index so callers can source element-wise properties (nu, region, J)
+    from the *same* element the B sample came from."""
+    return _containment(sol, np.asarray(px), np.asarray(py))
 
-    P1 elements carry an element-wise-constant B, so the correct sample for a
-    point is the element the point lies inside -- not the element whose centroid
-    happens to be nearest, which misassigns a strip along every shared edge
-    (and does so systematically, so it does not average out).
 
-    Falls back to the nearest centroid only for points that fall outside the
-    mesh (e.g. exactly on a boundary, where a barycentric coordinate is ~0).
-    """
+def _containment(sol: dict, px: np.ndarray, py: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     tri = np.asarray(sol["tri"])            # (3, nelem)
     v = np.asarray(sol["verts"])            # (2, nnode)
     x0, y0 = v[0, tri[0]], v[1, tri[0]]
@@ -341,7 +460,22 @@ def field_at(sol: dict, px: np.ndarray, py: np.ndarray) -> tuple[np.ndarray, np.
     if not np.all(inside):
         # widen the search to a small neighbourhood of each failing point
         j = _containing_element_near(tri, v, px, py, j, inside)
-    return sol["Bx"][j], sol["By"][j]
+    return sol["Bx"][j], sol["By"][j], j
+
+
+def field_at(sol: dict, px: np.ndarray, py: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """B (Bx, By) at the points (px, py), from the element *containing* each point.
+
+    P1 elements carry an element-wise-constant B, so the correct sample for a
+    point is the element the point lies inside -- not the element whose centroid
+    happens to be nearest, which misassigns a strip along every shared edge
+    (and does so systematically, so it does not average out).
+
+    Falls back to the nearest centroid only for points that fall outside the
+    mesh (e.g. exactly on a boundary, where a barycentric coordinate is ~0).
+    """
+    bx, by, _ = _containment(sol, np.asarray(px), np.asarray(py))
+    return bx, by
 
 
 def _containing_element_near(tri, v, px, py, cand, inside, k: int = 12) -> np.ndarray:
