@@ -1,5 +1,13 @@
 # Winding spec v1 - 130/50 point design
 
+> **CORRECTION (D-012 addendum 10, 2026-10-21).** The absolute torque is 1.45 N.m at
+> J = 5.34 (band 1.40-1.51), not 1.592: the old number was a single-circle Maxwell
+> sample on a coarse mesh. At the 1.6 N.m target the winding therefore needs 53.7 A
+> (J = 5.62), and the no-field-weakening ceiling is ~5,860 rpm, not ~6,130. The turns
+> decision (k = 2) and every scaling relation below are unchanged. Quote absolute
+> current/voltage/speed from `STATUS.md`, not from this file. See
+> `simulation/validation/torque_extractor/RESULT.md`.
+
 **Supersedes `winding_spec_v0.md` for the chosen frame.** v0 described the committed
 159/92 anchor envelope and concluded the target torque did not fit; the 130/50 point
 design (D-012 addendum 4) does. Numbers below are from the certified field solutions, the

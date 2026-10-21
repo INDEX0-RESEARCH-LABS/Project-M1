@@ -5,8 +5,8 @@ India-first electric traction motor R&D initiative.
 **Guiding principle:** Research rigor first. Simulation second. Prototype third. Scale only after validation.
 
 **Current numbers and open decisions: [`STATUS.md`](STATUS.md).** Quote from there, not from
-older result sections - three copper-loss corrections changed the thermal and efficiency
-figures during the campaign.
+older result sections - three copper-loss corrections and one torque-extractor correction
+changed the absolute figures during the campaign.
 
 ## Status
 

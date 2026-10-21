@@ -375,3 +375,41 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **Revisit trigger:** the final gear ratio. If the motor must exceed ~6,100 rpm, k = 2
   fails on voltage and the choice returns to k = 1 (102 A) or k = 1.5 with field weakening.
 - **Status:** PROPOSED (founder confirmation), implemented in `prototype/design/winding_spec_v1.md`.
+
+## D-012 addendum 10 - Torque extractor bias: 1.592 -> 1.45 N.m, and the false 48/96 V binary
+- **Date:** 2026-10-21
+- **Trigger:** the PF-vs-angle sweep needed for the D-012 founder call produced a torque
+  curve that is unphysical in shape (0.881 N.m at 32 deg, 1.761 at 36 deg). Chasing it
+  found the cause in the extractor, not the machine.
+- **Found:** torque was extracted with a single Maxwell-stress circle on a 1536-ray /
+  4-gap-row mesh. Because the solver's B is element-wise constant, that single radius
+  samples whichever element it lands in: at the operating point the same solution gives
+  1.592 / 1.518 / 1.412 N.m for 1 / 5 / 9 sampling rings (-11%). Mesh refinement to
+  3072/10 and 4096/10 gives 1.507 and 1.436 N.m ring-averaged, and the independent
+  co-energy derivative at 3072/10 gives 1.399 N.m.
+- **Adopted:** **1.45 N.m at J = 5.34 A/mm2, band 1.40-1.51 (+/-4%)**, midpoint of the
+  Maxwell ring average (1.45) and the co-energy route (1.40). Correction **-9%**
+  (range -5% to -12%). The previously quoted 1.592 is retained only as the audit trail.
+- **Also found:** the 25% envelope margin at J=6 is really **+20%** (1.920 N.m vs the
+  2.00 N.m margin point).
+- **Consequences at the 1.6 N.m target (DERIVED):** J = 5.62 A/mm2, i = 53.7 A at k=2,
+  P_cu 26-28 W, efficiency 92.3%, terminal 13.5 V, speed ceiling ~5,860 rpm (was ~6,130),
+  **S ~1.09 kVA, PF ~0.49-0.54**. Holding 51 A instead gives 454 W shaft at 92.1% and
+  PF 0.53-0.58.
+- **Voltage question closed:** at constant slot ampere-turns `S = P/PF` is invariant
+  (`V ~ k`, `I ~ 1/k`, `R ~ k^2`, `P_cu` invariant, all pinned at 1e-12 in
+  `tests/test_voltage_scaling.py`). 96 V at k=2 doubles the speed ceiling at the same
+  51 A; 96 V at k=4 halves the current and leaves S at 999 VA. **96 V is not a PF fix**,
+  so "accept ~1 kVA or go to 96 V" was a false binary (see
+  `validation/voltage_and_angle/RESULT.md` s.4 for the real options).
+- **Angle question closed as far as the data allows:** no measured current angle beats
+  26.25 deg on both torque and equal-output PF (A2 gate, as declared). The sweep is too
+  noisy to locate the true MTPA, so 26.25 deg is retained as the operating point, not
+  proven optimal. PF is a rotor (saliency) property, not a controller setting.
+- **Rule adopted:** any quotable absolute torque must be ring-averaged (`n_rings >= 5`,
+  preferably 9) on a mesh with `n_gap_rows >= 10`. Single-circle torque is a diagnostic,
+  never a quotable number. Ratios and torque-per-stack comparisons that share the bias
+  are unaffected.
+- **What does not change:** the frame choice (ratio-based), SRM vs SynRM (D-008), the
+  thermal conclusion, iron loss, and the qualitative blocker (PF/current at 48 V).
+- **Status:** PROPOSED.

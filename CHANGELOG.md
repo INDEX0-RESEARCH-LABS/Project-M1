@@ -46,6 +46,24 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (D-012 addendum 10)** - **torque extractor bias found and corrected**:
+  the headline 1.592 N.m was one Maxwell-stress sampling circle on a 1536-ray/4-row mesh.
+  Rings (1/5/9) scatter 11% on that mesh, so the single-circle number was a high-side
+  sample. Ring-averaged fine meshes give 1.44-1.51 N.m and the independent co-energy
+  derivative 1.40 N.m. **Adopted 1.45 N.m, band 1.40-1.51 (-9%)**; at J=6 the margin point
+  is 1.920 N.m, so the declared 25% envelope margin is really +20%. Consequence at the
+  1.6 N.m target: J 5.62, 53.7 A, P_cu 26-28 W, efficiency 92.3%, ceiling ~5,860 rpm,
+  **S ~1.09 kVA, PF 0.49-0.54**. New `validation/torque_extractor/`,
+  `torque_mesh_convergence.py`, `tests/test_torque_rescope.py`. Rule: quotable absolute
+  torque must be ring-averaged with >=10 gap rows.
+- **2026-10-21 (voltage and angle)** - **96 V does not fix PF**: at constant slot
+  ampere-turns, `V ~ k`, `I ~ 1/k`, `R ~ k^2`, `P_cu` invariant and `S` invariant
+  (`tests/test_voltage_scaling.py`, 1e-12); 96 V at k=2 doubles the speed ceiling at 51 A,
+  96 V at k=4 halves the current for the same 999 VA. New
+  `validation/voltage_and_angle/` + `pf_angle_sweep.py`. A 10-point current-angle sweep
+  finds no angle that beats 26.25 deg on equal-output PF (A2 gate FAIL as declared), but
+  the sweep is extractor-limited, so the true MTPA is not established and PF is recorded
+  as a rotor (saliency) property, not a controller setting.
 - **2026-10-21 (D-013)** - **winding turns decided: k = 2** (10 turns/coil at a=4, 2 x 1.2 mm
   per turn). 51 A peak, 12.9 V at 3000 rpm, R_ph 6.12 mOhm, copper loss unchanged (24-26 W),
   PF 0.53-0.58, S ~0.99 kVA; speed ceiling ~6,130 rpm without field weakening (was ~12,300).
