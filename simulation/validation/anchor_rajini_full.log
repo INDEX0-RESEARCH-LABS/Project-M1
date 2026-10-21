@@ -2,32 +2,3 @@ Transforming over 1000 vertices to C_CONTIGUOUS.
 Transforming over 1000 elements to C_CONTIGUOUS.
 Transforming over 1000 vertices to C_CONTIGUOUS.
 Transforming over 1000 elements to C_CONTIGUOUS.
-bore derived = 92.102 mm ; rotor_od = 91.062 mm
-geometry sanity: {'stator_fits_envelope': True, 'rotor_bore_clearance_ok': True, 'n_slots_even': True, 'barrier_count_plausible': True, 'bridge_positive': True, 'airgap_positive': True, 'all_pass': True}
-
-=== bracket steel: M-43 Steel ===
-R1 region err max = 0.124% -> True
-Traceback (most recent call last):
-  File "/home/darion-dev/project-m1/simulation/scripts/rajini_anchor.py", line 325, in <module>
-    raise SystemExit(main())
-                     ~~~~^^
-  File "/home/darion-dev/project-m1/simulation/scripts/rajini_anchor.py", line 227, in main
-    c = solve_case(gg, pp["mesh"], pp["sub"], pp["sg"],
-                   pp["slot_area"], H, B)
-  File "/home/darion-dev/project-m1/simulation/scripts/rajini_anchor.py", line 154, in solve_case
-    sol = solve_az_core(mesh, cell_sets, materials, jz)
-  File "/home/darion-dev/project-m1/simulation/scripts/fem_magnetics.py", line 169, in solve_az_core
-    raise ValueError(
-        f"{np.flatnonzero(~covered).size} elements have no material entry "
-        "(a group key is empty or missing); the linear solve would return NaN")
-ValueError: 17160 elements have no material entry (a group key is empty or missing); the linear solve would return NaN
-Transforming over 1000 vertices to C_CONTIGUOUS.
-Transforming over 1000 elements to C_CONTIGUOUS.
-Transforming over 1000 vertices to C_CONTIGUOUS.
-Transforming over 1000 elements to C_CONTIGUOUS.
-Transforming over 1000 vertices to C_CONTIGUOUS.
-Transforming over 1000 elements to C_CONTIGUOUS.
-Transforming over 1000 vertices to C_CONTIGUOUS.
-Transforming over 1000 elements to C_CONTIGUOUS.
-Transforming over 1000 vertices to C_CONTIGUOUS.
-Transforming over 1000 elements to C_CONTIGUOUS.
