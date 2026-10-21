@@ -77,9 +77,10 @@ Indicative anchor: I1 T@74 mm within ±25% of 8 N·m · I2 L* within ±25% of 74
 ### Anchor sweep — complete run (2026-10-21, full sweep, OVERALL: FAIL gates R2/R5/R3/I1; R1/R4 pass)
 
 Full 7-point delta sweep × 2 bracket steels + 5-point MTPA refine + R3 fine-mesh solve completed.
-`anchor_results.json` write was cut by a SIGPIPE in the monitoring pipe; the complete gate record
-is in `validation/anchor_rajini_run_final.log` (the sweep itself finished — OVERALL printed after
-all gates). Values below are from that log.
+`anchor_results.json` (valid, values match this log exactly) lives at
+`simulation/scripts/validation/anchor_rajini/anchor_results.json` — the script's OUT path
+resolves from the scripts dir, not `simulation/validation/`. The complete gate record
+is additionally in `validation/anchor_rajini_run_final.log` (values below are from that log).
 
 **MTPA (per-meter, T@74 mm stack):**
 
