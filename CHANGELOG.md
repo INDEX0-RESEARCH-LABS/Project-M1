@@ -46,6 +46,12 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (D-012 addendum)** — **envelope sizing scan** (`simulation/scripts/envelope_sizing.py`,
+  `prototype/design/envelope_redesign_proposal.md`): 36 candidates at 3000 rpm/48 V/6 A/mm²
+  against the certified density — **1/36 windable** (2-pole 90/30 mm, 6.1 turns/coil, 21 A,
+  but 0.26/1.03 N·m), **0/36 meet torque targets**. Windability and certified torque have no
+  intersection at 48 V/3000 rpm: blocker is the ~4× torque-density gap (0.64 vs ~2.5 kPa),
+  not frame size. D-012 addendum: no envelope freeze; density workstream proposed (zero budget).
 - **2026-10-21 (same day, after freeze)** — **extractor-convergence study**
   (`validation/extractor_convergence/`, PLAN with frozen rules + amendment 1 before
   run): gap-rows sweep 4→10→20→40 at 3072 rays. **single-ring certified

@@ -118,3 +118,16 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   envelope-independent design tools; no Phase-0 validation artifact is invalidated
   (D-009 always framed Phase 0 as methodology, not marketability).
 - **Status:** PROPOSED
+
+## D-012 — addendum: sizing scan says the blocker is torque DENSITY, not envelope size
+- **Date:** 2026-10-21 (same day as D-012)
+- **Evidence:** `simulation/scripts/envelope_sizing.py` + `prototype/design/envelope_redesign_proposal.md`
+  scan (36 candidates, 3000 rpm / 48 V, certified density): **1/36 windable**, that point
+  6× short on continuous torque; **0/36** meet torque targets. Windability N_c ∝ 1/(B·D·L)
+  and torque ∝ D⁴·L only intersect outside the 48 V / 3000 rpm constraint set.
+- **Amended decision:** no envelope freeze until the ~4× gap between certified gap shear
+  (0.64 kPa) and 2W-class machines (~2.5 kPa) is understood. Next step = zero-budget
+  density workstream (published-machine comparative analysis + our J/AT convention audit),
+  then choose topology/spec/voltage path. Original D-012 options remain available but are
+  superseded as the immediate action.
+- **Status:** PROPOSED (amended) — founder call on running the density workstream.
