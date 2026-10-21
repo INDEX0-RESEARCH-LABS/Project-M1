@@ -1,0 +1,45 @@
+{
+ "gates": {
+  "U1_converged": true,
+  "U2_areas<=1%": true,
+  "U3_refine<=10%": {
+   "frac0.62_span8.4_nb3": null,
+   "frac0.30_span8.4_nb3": null
+  }
+ },
+ "target_T_per_m": 108.10810810810811,
+ "excitation_multiplier": null,
+ "best_key": "frac0.62_span8.4_nb3",
+ "results": {
+  "frac0.62_span8.4_nb3": {
+   "rows": {
+    "26.25": {
+     "converged": true,
+     "iters": 17,
+     "T_per_m": 9.133383421505698,
+     "Bmax_T": 2.479162889427605,
+     "r_gap": 0.045791169853198935,
+     "area_err": 0.0015501984208725617
+    }
+   },
+   "T_best": 9.133383421505698,
+   "iron_frac": 0.8680445917622511,
+   "U2_max_err": 0.0015501984208725617
+  },
+  "frac0.30_span8.4_nb3": {
+   "rows": {
+    "26.25": {
+     "converged": true,
+     "iters": 15,
+     "T_per_m": 5.604634843805766,
+     "Bmax_T": 2.3494326824430893,
+     "r_gap": 0.045791169853198935,
+     "area_err": 0.0014427618788495078
+    }
+   },
+   "T_best": 5.604634843805766,
+   "iron_frac": 0.9361506089172182,
+   "U2_max_err": 0.0014427618788495078
+  }
+ }
+}
