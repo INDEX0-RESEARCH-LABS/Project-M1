@@ -19,9 +19,9 @@ Dates are planning targets. Every gate is pass/fail; failure triggers a document
 - [x] Day 2 — Literature pass 2 (torque ripple, control, thermal, AI-optimization); `bibliography.bib`
 - [x] Day 3 — Prior-art pass (Google Patents / PATENTSCOPE); `ip/patent_search_log.md` (landed in `research/prior_art.md`)
 - [x] Day 4 — Architecture comparison matrix scored; baseline shortlist (SynRM provisional, founder approval pending)
-- [ ] Day 5 — Toolchain: attempt FEMM/OpenFemm install; record blockers honestly
-- [ ] Day 6 — Baseline geometry + first mesh (even if unsolved/incomplete); mesh plan
-- [ ] Day 7 — Gate A review: hypotheses, gaps, smallest credible experiment defined
+- [x] Day 5 — Toolchain: attempt FEMM/OpenFemm install; record blockers honestly *(completed later than planned: xfemm 3.0 built from source; demoted to cross-check by D-005, in-house solver primary)*
+- [x] Day 6 — Baseline geometry + first mesh (even if unsolved/incomplete); mesh plan *(SynRMGeometry + structured polar mesh, region-area gates R1)*
+- [x] Day 7 — Gate A review: hypotheses, gaps, smallest credible experiment defined *(validation chain: analytic → nonlinear toroid → xfemm cross-check → anchor, see simulation/validation/)*
 
 ## Smallest scientifically credible experiment (preview)
 
