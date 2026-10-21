@@ -77,3 +77,13 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **Decision:** No winner declared. D-010 baseline unchanged (no candidate beats it beyond extractor uncertainty). Gate C is BLOCKED on the declared follow-up: settle the torque extractor (co-energy `T = −∂W′/∂δ` cross-check on one configuration, then re-label all absolute numbers with the standardized extractor). Before that, no absolute torque claims from this toolchain carry meaning beyond same-extractor ratios.
 - **Alternatives:** Declare split20/0.70/0.4 the winner on the single-consistent +8.5% (rejected — inside the uncertainty the gate exists to catch); re-run the search with extra configs inside the exhausted family (rejected — mapped neighborhood is flat, cost without information).
 - **Status:** APPROVED (self). Result: `validation/gate_c_search/RESULT.md`.
+- **Addendum (2026-10-21, same day):** the declared co-energy arbiter was implemented and
+  aborted as unusable — FD of W′ across re-meshed one-degree steps carries a ~60×
+  numerical floor (ΔW′ = 8.9 J vs expected 0.15 J signal; `gate_c_coenergy.py` kept as
+  honest negative artifact). Gap-row refinement 4→10 narrows the single/multi spread
+  25–30% → 16–22% but does not converge at acceptable cost; the extractor question stays
+  OPEN under this decision. In the same pass, the SRM/SynRM headline ratio was re-derived
+  under one extractor per comparison (0.44 single / 0.33 multi; SRM side itself is
+  extractor-robust at +0.6%): the ±25% band stands with consistent support — D-008/D-009
+  unaffected. Standing rule: only same-extractor ratios are quotable; absolute N·m/m
+  numbers carry their extractor name or the ±25–30% label.

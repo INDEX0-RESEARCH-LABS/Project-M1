@@ -57,6 +57,20 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   excitation (76 A/mm²). Baseline upgraded to span 12 mm / 2 barriers/pole (D-010).
 - **Gate C declared search** (`validation/gate_c_search/PLAN.md`): 12 configs over the
   v1 baseline neighborhood, frozen C1–C5 gates, run started.
+- **Gate C RESULT** (`validation/gate_c_search/RESULT.md`): C1–C3 pass; C4/C5 fail
+  honestly — winner 20/0.70/0.4 mm improves the baseline only +8.5% (single-consistent)
+  / +1.2% (multi-consistent) vs the declared +10% gate, while the two Maxwell torque
+  extractors disagree by ±25–30% on the SAME solution at deep saturation. Barrier family
+  declared exhausted (~9.2–9.5 N·m/m @1536 single); no winner declared, D-010 baseline
+  stands (D-011). Same-day follow-ups: co-energy arbiter implemented and aborted
+  (~60× re-mesh drift floor); gap-rows 4→10 probe narrows spread to 16–22%, not
+  converged; **standardized same-extractor ratio rule adopted** for all quotable numbers.
+- **SRM/SynRM C1 re-evaluated under consistent extraction**: ratio 0.44 (single) /
+  0.33 (multi) — SRM is extractor-robust (+0.6% spread, smooth gap field), the +36%
+  ambiguity lives entirely on the SynRM side; original 0.43 sat inside the honest
+  range by coincidence and the ±25% band stands with consistent support; win margin
+  tightens to 2.3×–3.0×. Also fixed `gate_c_search` late KeyError (refine rows missing
+  `area_err`) and recorded search log as artifact.
 
 ### Fixed
 - **barrier wrap bug** — `_in_barrier` used unwrapped angular distance: every barrier

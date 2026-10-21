@@ -82,3 +82,29 @@ a **co-energy torque cross-check** (`T = −∂W′/∂δ` from two converged so
 δ ± small) on ONE configuration — if it agrees with one of the two extractors (and it
 is mesh-convergent), that extractor becomes the campaign standard, all absolute numbers
 are re-labelled, and only then does Gate C re-open with a defensible ±.
+
+## Follow-ups executed 2026-10-21 (same day; honesty log continues)
+
+1. **Co-energy arbiter — attempted, aborted as unusable.** `gate_c_coenergy.py` computes
+   W′ = ∫w(|B|)dV (same BH table; air B²/2μ₀; iron table+linear tail) at δ = 25.25°/27.25°
+   and finite-differences. Result: ΔW′ = 8.9 J/m between one-degree steps versus an
+   expected signal of T·Δδ ≈ 0.15 J — a ~60× numerical floor from mesh-dependent energy
+   integration across re-meshed configurations (~10% of W′ drift per mesh change).
+   The co-energy FD **cannot resolve 8.5 vs 12.1** with this meshing approach. Kept as
+   an artifact with the honest negative outcome.
+2. **Gap-row refinement probe.** Same baseline/winner solves at `n_gap_rows` 4 → 10:
+   estimator spread narrows from +25–30% to **+22.3% / +16.4%** (both extractor values
+   move; not converged at acceptable mesh cost). Absolute torques keep the ±25–30%
+   single-vs-multi label; the standardization question stays **open** (D-011).
+3. **Headline (SRM/SynRM) consistency debt paid.** The corridor opened by this work
+   showed the C1 cross-machine ratio had mixed estimators (SRM multi9 vs SynRM
+   single-ring). Re-extracted both machines at 3072/4 under both extractors:
+   SynRM v0 = 7.5248 / 10.2405; SRM peak = 3.3362 / 3.3578. **SRM is extractor-robust
+   (+0.6% — smooth gap field from open slots); the entire +36% spread lives on the
+   SynRM side.** Consistent ratios: **0.44 (single) / 0.33 (multi)** — original 0.43
+   happened to land inside the "ratio band," so the ±25% label 0.32–0.53 remains valid
+   and now has *consistent* support inside it. Win margin tightens to **2.3×–3.0×**.
+   `srm_synrm_compare/RESULT.md` updated; D-008/D-009 unaffected (ordering robust).
+
+**Standing rule (effective immediately):** only same-extractor ratios are quotable;
+absolute N·m/m numbers carry their extractor name or the ±25–30% label.

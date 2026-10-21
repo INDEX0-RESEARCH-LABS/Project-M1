@@ -35,22 +35,44 @@ The 45° periodicity is exact to printed precision (rotor pitch; the phase circu
 two rotor pitches). Positive and negative lobes are asymmetric (+3.20 / −3.93) — expected
 for a saturated-reluctance structure; only the positive thrust window is used.
 
-## C1 — the comparison
+## C1 — the comparison (UPDATED 2026-10-21: consistent-extractor re-evaluation)
+
+The numbers below replace the original mixed-extractor quote (SRM multi9 vs SynRM
+single-ring 8.124 — the published 0.43 happened to sit inside the honest range, but was
+not method-consistent). Both machines re-extracted at the same mesh level (3072/4) with
+BOTH extractors (`gate_c_extractor_ab.py` methodology):
+
+| | T/m single-ring | T/m multi9-ring |
+|---|---|---|
+| SynRM v0 committed @ MTPA 26.25° | 7.5248 | 10.2405 |
+| SRM 12/8 peak @ φ=20° | 3.3362 | 3.3578 |
+| **ratio** | **0.44** | **0.33** |
+
+**Indicative claim (estimator-consistent):** the SRM's single-phase peak torque is
+**0.33–0.44 of the SynRM's MTPA torque** at this envelope (equal installed Cu, fill, J).
+The ±25%-band form of the original declaration (0.32–0.53) covers this range.
+
+Two notable facts from this re-evaluation:
+
+1. **The SRM is extractor-robust** (+0.6% between extractors — its deep open rotor slots
+   give a smooth gap field), while **the SynRM carries a +36% estimator spread**
+   (steep gap features from barrier corners / bridges at saturation). All of the C1
+   ambiguity is on the SynRM side.
+2. The winning margin is therefore **2.3×–3.0×**, stronger than the originally quoted
+   2.3×: the D-008 no-flip decision is robust to the extractor choice.
+
+Original per-meter/74mm figures retained for traceability (mixed-extractor, superseded
+for cross-machine comparison — same-extractor columns above are the standing reference):
 
 | | T/m | T @ 74 mm | T per active volume (1.437 L) |
 |---|---|---|---|
-| SynRM @ MTPA | 8.1235 N·m/m | 0.601 N·m | 0.418 N·m/L |
+| SynRM @ MTPA | 8.1235 N·m/m¹ | 0.601 N·m | 0.418 N·m/L |
 | SRM 12/8 @ peak (fine) | 3.467 N·m/m | 0.257 N·m | 0.179 N·m/L |
-| **ratio** | | **SRM/SynRM = 0.43** | |
+| **ratio (quoted 2026-10-21 first pass)** | | **SRM/SynRM = 0.43**² | |
 
-**Indicative claim:** at this envelope, with equal installed copper, equal slot fill and
-current density, the SRM's single-phase peak torque is ~**43% of the SynRM's MTPA torque**
-(declared ±25% band ⇒ 0.32–0.53). For the SRM to match the SynRM thermally it must run
-its phase ⅓ of the time, so its *continuous-torque* ranking is even lower — the
-instantaneous-peak comparison given here is the SRM's **best case**, and it still loses
-by >2×. That is the envelope-level answer to M1's original question: **the SynRM is the
-stronger machine in this frame**, and the anchor's remaining failures (unpublished rotor
-geometry) do not flip this ordering: flipping 0.43→ >1 would need a >2.3× SRM redesign.
+¹ single-ring extraction of the committed v0 layout (1536-ray run). ² mixed-extractor:
+SRM multi9 / SynRM single-ring. Superseded by the same-extractor ratios 0.44 (single)
+and 0.33 (multi) above; the mixed quote survived inside that range by coincidence.
 
 ## Boot story (recorded for honesty; all artifacts kept)
 
@@ -71,7 +93,8 @@ geometry) do not flip this ordering: flipping 0.43→ >1 would need a >2.3× SRM
 - SRM result = single-phase instantaneous peak; its thermal continuous torque is ≤⅓ duty.
 - SRM steel bracket (1006) was declared optional and not re-run; M-43 only.
 - The SRM is a first-cut declared design, not an optimized SRM; the SynRM is the anchor's
-  committed geometry (itself not the published design). Both share the same toolchain so
-  the mesh bias cancels in the ratio (PLAN).
+  committed geometry (itself not the published design). Same-toolchain mesh bias cancels
+  in the ratio; extractor consistency is handled explicitly in the re-evaluation above
+  (same-extractor ratios only).
 - R3-class mesh discretization: G4 at 8.3% (≤10% gate) is the torque extractor's
   resolution on this geometry; carried into the ±25% band.
