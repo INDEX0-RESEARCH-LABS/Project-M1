@@ -264,3 +264,26 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **Lesson recorded:** a printed PF is not evidence; the energy balance is. Both errors
   would have been caught by `1.5*(v_d i_d + v_q i_q) = P_cu + T*w_mech` on the first run.
 - **Status:** PROPOSED.
+
+## D-012 — addendum 7: PF is a bracket (0.55-0.60); the alpha-beta torque identity understates torque by 33%
+- **Date:** 2026-10-21
+- **Evidence:** `dq_model.py --pf-check`, log `/tmp/opencode/m1/pf_check3.log`;
+  `simulation/validation/dq_model/RESULT.md` s.8.
+- **Two routes to the perpendicular flux at the operating point** (J=5.34, 1.592 N.m,
+  102.1 A): torque route `lam_perp = -T/(1.5 p i)` = -5.20 mWb (PF 0.549); phase
+  flux-linkage route `lam_beta = (lb-lc)/sqrt3` = -3.50 mWb (PF 0.596). **33% apart.**
+- **The torque stands.** The torque implied by the alpha-beta linkages is 1.07 N.m vs
+  1.59 N.m Maxwell and 1.82 N.m co-energy. That identity assumes a balanced sinusoidal
+  winding; this single-layer 36-slot winding's phase linkages are not a 120-deg set
+  (sum +0.61 mWb), so it captures about two thirds of the torque. Two distribution-free
+  field integrals (Maxwell stress, dW'/ddelta) agree within 10%, and Maxwell was
+  mesh/radius-certified. No envelope or kT change.
+- **A rejected check is recorded, not deleted:** `dlam_alpha/dbeta` over a 10-deg rotor
+  sweep is -15.2 mWb/rad, ~3x `lam_beta`, because the flux magnitude itself varies strongly
+  with angle. Using that derivative as `lam_perp` was invalid; it is documented so nobody
+  repeats it.
+- **Decision:** quote **PF 0.55-0.60**, S **1.0-1.1 kVA** at the 1.6 N.m target
+  (1.13-1.25 kVA at J=6). This does not change the addendum-6 conclusion: the inverter is
+  ~1.2 kVA, not 4 kVA, and the ~100 A design-winding current remains the cost driver.
+  The only clean closure is a rotating-field (time-domain) solution at fixed current angle.
+- **Status:** PROPOSED.

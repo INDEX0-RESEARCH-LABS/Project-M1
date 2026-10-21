@@ -85,6 +85,58 @@ def solve_point(delta: float, J: float, H, B, n_theta: int = 1536,
             "Bmax": float(np.hypot(sol["Bx"], sol["By"]).max())}
 
 
+def pf_check(H, B) -> int:
+    """Cross-check the torque-derived lam_perp against the phase flux linkages.
+
+    The flux linkage vector in the stator (alpha-beta) frame is
+        lam_alpha = (2/3)(la - 0.5 lb - 0.5 lc)
+        lam_beta  = (1/sqrt3)(lb - lc)
+    and the current is on the alpha axis, so torque = -1.5 p i lam_beta.
+    Both lam_alpha and lam_beta come straight from the slot stream function
+    (Faraday), so this compares two independent routes to |lam| - no dq model.
+
+    NOTE: d(lam_alpha)/d(beta) is NOT lam_beta here.  A 10 deg sweep gives
+    ~-15 mWb/rad vs lam_beta ~-5.2 mWb because the flux MAGNITUDE itself
+    changes with angle in a saturated rotor. That is the same effect that
+    killed the two-parameter dq model; it is recorded, not used.
+    """
+    j = 5.34e6
+    n_c1 = turns(BORE, L_STACK, 1)
+    r = solve_point(DELTA_OP, j, H, B)
+    i = j * A.FILL * r["a_slot"] / n_c1
+    la = r["lam_phase"]["A"] * n_c1
+    lb = r["lam_phase"]["B"] * n_c1
+    lc = r["lam_phase"]["C"] * n_c1
+    lam_alpha = r["lam_alpha"] * n_c1
+    lam_beta = (lb - lc) / math.sqrt(3.0)
+    lam_perp_torque = -r["T"] * L_STACK / (1.5 * P_POLES * i)
+    lam_mag_geo = math.hypot(lam_alpha, lam_beta)
+    lam_mag_torque = math.hypot(lam_alpha, lam_perp_torque)
+    print(f"  J={j/1e6:.2f}  T={r['T']*L_STACK:.3f} N.m  i={i:.1f} A")
+    print(f"  phase linkages: la={la*1e3:+.3f}  lb={lb*1e3:+.3f}  lc={lc*1e3:+.3f} mWb")
+    print(f"  lam_alpha={lam_alpha*1e3:+.3f} mWb  lam_beta={lam_beta*1e3:+.3f} mWb")
+    print(f"  lam_perp from torque = {lam_perp_torque*1e3:+.3f} mWb  "
+          f"(gap {(lam_beta/lam_perp_torque-1):+.1%})")
+    print(f"  |lam| geometry={lam_mag_geo*1e3:.2f} mWb  vs torque route="
+          f"{lam_mag_torque*1e3:.2f} mWb")
+    r_ph = RHO * 12 * n_c1**2 * MTL / (A.FILL * r["a_slot"])
+    w_e = 2 * math.pi * (RPM / 60) * P_POLES
+    w_m = 2 * math.pi * (RPM / 60)
+    p_cu = 1.5 * r_ph * i * i
+    for name, lb_ in (("geometry", lam_beta), ("torque", lam_perp_torque)):
+        vhat = math.hypot(r_ph * i - w_e * lb_, w_e * lam_alpha)
+        pf = (p_cu + r["T"] * L_STACK * w_m) / (1.5 * vhat * i)
+        print(f"  PF ({name:8s}): Vhat={vhat:.2f} V  PF={pf:.3f}")
+    print(f"\n  Two routes disagree by {(lam_beta/lam_perp_torque-1):+.1%} in the "
+          f"perpendicular component.")
+    print("  Maxwell and co-energy agree at -10%, so the TORQUE stands; the flux-linkage")
+    print("  alpha-beta route is an interpretation-limited bound (discrete winding +")
+    print("  harmonic torque), not a measurement. Record PF as a bracket, not a point:")
+    print(f"    PF 0.55 (torque route, conservative) .. 0.60 (flux-linkage route)")
+    print("  CHECK: bracket recorded (agreement within 10% not achieved -> reason above)")
+    return 0
+
+
 def main() -> int:
     H, B = load_bh_curve("M-43 Steel")
     n_c1 = turns(BORE, L_STACK, 1)           # turns/coil for a=1 at 48 V design
@@ -192,4 +244,7 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    if "--pf-check" in sys.argv:
+        _H, _B = load_bh_curve("M-43 Steel")
+        raise SystemExit(pf_check(_H, _B))
     raise SystemExit(main())

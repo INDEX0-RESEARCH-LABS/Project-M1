@@ -146,10 +146,10 @@ torque, so **no failed dq model enters this table**.
 
 The target lands at 1.59 N.m (-0.5% of 1.6) at J=5.34, as `T ~ J^2` predicted.
 
-- **PF = 0.54-0.56**, not the withdrawn 0.25 (too pessimistic, it was a VA upper bound)
+- **PF = 0.54-0.56** at the three current levels (torque route; see section 8 for the
+  0.55-0.60 bracket), not the withdrawn 0.25 (too pessimistic, it was a VA upper bound)
   and not the L-based 0.49-0.50/0.93 pair (failed model). For reference the L-based
-  voltage is retained only as a diagnostic: it gives PF 0.49-0.50, ~10% below the
-  model-independent value, which brackets the answer honestly.
+  voltage is retained only as a diagnostic.
 - **1.0 kVA at the target**, 1.25 kVA at the margin point - a single ~1.2 kVA controller,
   not a 4 kVA one.
 - **Voltage is not the constraint** (6.5-7.3 V against 26.3 V); **current is** (~100 A at
@@ -175,3 +175,46 @@ slot stream function. It is **not** a saturated dq decomposition, and it is an
 **ESTIMATE**, not a bench measurement. The open item from section 5.2 (true
 `lam_d = dW'/di_d`, `lam_q = dW'/di_q`) is now optional rather than blocking: it would
 decompose the same physics, not change the terminal VA by more than the 10% torque spread.
+
+## 8. Cross-check (D-012 addendum 7): PF is a bracket, 0.55-0.60, not a point
+
+At the operating point (J=5.34, T=1.592 N.m, i=102.1 A) the perpendicular flux
+component was obtained two ways:
+
+| route | lam_perp | abs(lam) | Vhat | PF |
+|---|---|---|---|---|
+| torque: -T/(1.5 p i) | -5.20 mWb | 10.12 mWb | 6.52 V | **0.549** |
+| flux linkages (Faraday, alpha-beta) | -3.50 mWb | 9.36 mWb | 6.00 V | **0.596** |
+
+Phase linkages from the same solve: `la=+8.882`, `lb=-7.170`, `lc=-1.105` mWb
+(`lam_alpha=8.680`, `lam_beta=-3.501`). Script mode: `dq_model.py --pf-check`,
+log `/tmp/opencode/m1/pf_check3.log`.
+
+**The two routes disagree by 33% in the component that matters for the angle**, so PF is
+quoted as **0.55-0.60** (S ~1.0-1.1 kVA at the target, 1.15-1.25 kVA at J=6).
+
+Why the flux-linkage route is the weaker one, and why the torque stands:
+
+- The torque implied by the alpha-beta linkages, `1.5 p (lam_alpha i_beta - lam_beta i_alpha)`,
+  is **1.07 N.m vs 1.59 N.m** from Maxwell (and 1.82 from co-energy). That identity assumes
+  a sinusoidally distributed, balanced 3-phase winding; this is a **single-layer 36-slot**
+  winding whose three phase linkages are not a 120-degree set (they sum to +0.61 mWb), so
+  the identity captures only about two thirds of the torque here.
+- Two field integrals that assume no winding distribution (Maxwell stress and
+  `dW'/d(delta)`) agree within 10%, and the Maxwell extractor was separately mesh- and
+  radius-certified. The torque - and therefore the envelope and the machine's kT - stands.
+- Sign and magnitude of `lam_alpha` are consistent across routes (8.68 vs 8.88 mWb, -2.3%),
+  so the *parallel* component and the ~3x turns conclusion are unaffected.
+
+Also measured, and worth recording because it kills any "constant flux vector" picture:
+`d(lam_alpha)/d(beta)` over a 10-degree rotor sweep is **-15.2 mWb/rad**, about 3x
+`lam_beta`. The flux *magnitude* itself changes strongly with angle in the saturated rotor
+(la_alpha grows 7.66 -> 8.68 -> 10.31 mWb over beta 23.75 -> 13.75 deg while the torque
+falls after 26 deg). This is the same effect that falsified the two-parameter dq model, and
+it means the earlier check attempt (`lam_perp = dlam/dbeta`) was invalid by construction;
+it is recorded here rather than deleted.
+
+**Open:** a rotating-field (time-domain) solution at fixed slip/current angle would give
+the terminal voltage without any winding-distribution assumption. It is the only clean way
+to close the 33% gap, and it is not on the critical path for the envelope or the 48 V
+decision (both PF bounds leave the ~1.2 kVA conclusion intact).

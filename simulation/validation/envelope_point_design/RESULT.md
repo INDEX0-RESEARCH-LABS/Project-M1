@@ -59,8 +59,12 @@ the target point went from 97 W / 37 K / 84% to **53 W / 20 K / ~90%**.
 
 | point | i phase | Vhat | S | PF |
 |---|---|---|---|---|
-| 1.6 N.m (J=5.34) | 102 A | 6.5 V | ~1.0 kVA | 0.55 |
-| 2.0 N.m (J=6) | 115 A | 7.3 V | 1.25 kVA | 0.56 |
+| 1.6 N.m (J=5.34) | 102 A | 6.0-6.5 V | 1.0-1.1 kVA | 0.55-0.60 |
+| 2.0 N.m (J=6) | 115 A | 6.5-7.3 V | 1.13-1.25 kVA | 0.56-0.62 |
+
+Bracket = two flux routes that disagree by 33% in the perpendicular component (torque vs
+alpha-beta linkages); see `../dq_model/RESULT.md` s.8. The torque route is the lower bound
+and the one consistent with the certified torque.
 
 kT ~ 0.016 N.m/A at this winding. **The inverter is a ~1.2 kVA, ~100 A class part**, not
 4 kVA. Voltage is far from the 26.3 V ceiling, so the winding is under-turned ~3x: at a=4

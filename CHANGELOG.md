@@ -46,6 +46,14 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (D-012 addendum 7)** - **PF cross-check**: the perpendicular flux was
+  measured two ways at the operating point; torque route gives -5.20 mWb (PF 0.549),
+  alpha-beta flux-linkage route gives -3.50 mWb (PF 0.596), **33% apart**. The
+  alpha-beta *torque* identity returns 1.07 vs 1.59 N.m Maxwell (and 1.82 co-energy), so
+  it captures ~2/3 of the torque on this single-layer 36-slot winding; the torque (and the
+  envelope) stands. **PF is published as 0.55-0.60, S 1.0-1.1 kVA** at the target.
+  A `dlam/dbeta` check attempt is recorded as invalid (flux magnitude varies with angle,
+  ~3x `lam_beta`) so it is not repeated. New mode: `dq_model.py --pf-check`.
 - **2026-10-21 (D-012 addendum 6)** - **two unit errors found and fixed by the energy
   balance** (`P_elec = P_cu + T*w_mech` would not close): `dq_model.py` used the electrical
   instead of mechanical angular speed (P_mech 2x high) and `thermal_first_order.py` used
