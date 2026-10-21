@@ -108,11 +108,15 @@ limiting uncertainty.
 **Interpretation amendments vs the first run:**
 
 1. **I1 remains failed for the same primary reason** — declared rotor-geometry assumption
-   (iron fraction, barrier sizing) vs the unpublished anchor design. The wrap fix moved the
-   headline torque +5.6% (0.569 → 0.601 N·m @74mm), confirming the first run's numbers were
-   depressed by (a) the barrier-shave artifact and (b) the geometry assumption; the deficit
-   remains a **declared, model-level geometry finding**, not a solver failure (R1/R4 green,
-   field reconciliation closed at 1.22×, wire test ≤1%, 23 tests green).
+   (iron fraction, barrier sizing) vs the unpublished anchor design. **Quantified 2026-10-21
+   by the rotor-upgrade sweep** (`validation/anchor_rotor_upgrade/`): the whole 24-config
+   barrier family ceilings at 8.53 N·m/m (fine mesh) — the committed layout was already
+   within ~5% of the family optimum, and the anchor's implied 108 N·m/m needs ×12.7
+   excitation (76 A/mm²). The wrap fix moved the headline torque +5.6% (0.569 → 0.601
+   N·m @74mm), confirming the first run's numbers were depressed by (a) the barrier-shave
+   artifact and (b) the geometry assumption; the deficit remains a **declared, model-level
+   geometry finding**, not a solver failure (R1/R4 green, field reconciliation closed at
+   1.22×, wire test ≤1%, 23 tests green).
 2. **R5 as DECLARED is my formulation error, not a model failure.** The |T(δ)|≈|T(90−δ)|
    mirror premise is not a symmetry of this excitation setup: mirror-mapping the barrier
    set (δ → 90−δ) maps the stator MMF lobe to its opposite, which the winding pattern
