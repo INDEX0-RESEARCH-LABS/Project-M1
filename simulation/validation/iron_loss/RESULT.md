@@ -59,9 +59,15 @@ enclosed; margin point ~49 W, ~19 K. The "comfortable enclosed" conclusion stand
 
 1. **Rotor slot-harmonic loss.** The 5.0 W rotor figure is a 100 Hz fundamental upper
    bound. In the rotor frame the fundamental flux is quasi-static; the real rotor loss is
-   driven by slot-harmonic ripple at 36 x 50 = 1800 Hz. With eddy scaling f^2 that term
+   driven by slot-harmonic ripple at 36 x 50 = **1800 Hz**. With eddy scaling f^2 that term
    can be comparable or larger, but it is concentrated in the small high-B bridge volume.
-   **This is the dominant remaining uncertainty in the efficiency claim** (order +/-5 W).
+   **This is the dominant remaining uncertainty in the efficiency claim.**
+
+   Scoping arithmetic (ASSUMED ripple, not measured): a 2 mm surface layer of the rotor is
+   0.32 kg; at s=0.45 and 1800 Hz the loss is 1037 W/kg per T^2 of rms ripple, so a
+   0.05-0.10 T ripple gives **0.8-3.3 W**. That is small against 500 W, but the ripple
+   amplitude has not been extracted from a field solution and a time-domain eddy solve is
+   the only way to settle it. Do not quote this range as a result.
 2. Excess (anomalous) loss, rotational loss and the building/lamination factor
    (typically +20-40% on Epstein data) are absent, so the band is a **lower bound** on the
    assembled core's contribution.

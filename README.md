@@ -4,15 +4,19 @@ India-first electric traction motor R&D initiative.
 
 **Guiding principle:** Research rigor first. Simulation second. Prototype third. Scale only after validation.
 
+**Current numbers and open decisions: [`STATUS.md`](STATUS.md).** Quote from there, not from
+older result sections - three copper-loss corrections changed the thermal and efficiency
+figures during the campaign.
+
 ## Status
 
 | Phase | Description | Status |
 |---|---|---|
 | 0 | Workspace initialization | ✅ Done |
 | 1 | Literature review & prior art | ✅ Gate A research done (verification of numbers pending full texts) |
-| 2 | Baseline architecture selection | ⬜ Not started |
-| 3 | Simulation workflow | ⬜ Not started |
-| 4 | AI-assisted optimization | ⬜ Not started |
+| 2 | Baseline architecture selection | ✅ Done - SynRM 4-pole, 130/50 point design (D-012) |
+| 3 | Simulation workflow | ✅ Done - Gates A-C, F1-F4; zero-spend default (D-009) |
+| 4 | AI-assisted optimization | ⬜ Not started - blocked on the turns/PF decision |
 | 5 | Novelty & IP | ⬜ Not started |
 | 6 | Physical prototype (target 2026-11-12) | ⬜ Not started |
 | 7 | Funding & commercial validation | ⬜ Not started |
