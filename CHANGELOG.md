@@ -46,6 +46,15 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   validation frozen. Full deliverable chain (Gates A–C) with per-claim labels,
   standing honesty rules, and the founder decision point (paper freeze vs
   budget-gated build).
+- **2026-10-21 (D-012 addendum 2)** — **torque-density audit** (`simulation/validation/torque_density_audit/`,
+  `simulation/scripts/torque_density_audit.py`): one certified-point solve + MMF/gap-field
+  spectra + textbook sizing. Dominant MMF harmonic = p=2 (excitation convention confirmed);
+  A1 = 9.70 kA/m, Bhat = 0.269 T, T_fem/T_sizing = **0.433** (normal SynRM utilization, no
+  solver defect). The earlier "~4x density gap" is re-scoped to a current-density/thermal
+  gap. Sizing scan corrected for parallel paths: **24/36 windable**, **1/36 meets both torque
+  targets** (2-pole 130/74 mm, 1.84 N.m cont, ESTIMATE). Envelope direction: 130 mm-class
+  2-pole (or 4-pole ~150 mm), 2-4 parallel paths; next = 2-pole geometry + certified chain
+  and a copper-loss/thermal gate.
 - **2026-10-21 (D-012 addendum)** — **envelope sizing scan** (`simulation/scripts/envelope_sizing.py`,
   `prototype/design/envelope_redesign_proposal.md`): 36 candidates at 3000 rpm/48 V/6 A/mm²
   against the certified density — **1/36 windable** (2-pole 90/30 mm, 6.1 turns/coil, 21 A,

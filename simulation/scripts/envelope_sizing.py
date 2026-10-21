@@ -43,7 +43,7 @@ T_CONT_TARGET = 1.6  # N.m ESTIMATE
 T_PEAK_TARGET = 2.5  # N.m ESTIMATE
 
 
-def size(n_poles: int, rotor_od: float, L: float) -> dict:
+def size(n_poles: int, rotor_od: float, L: float, paths: int = 1) -> dict:
     p = n_poles // 2
     r_ro = rotor_od / 2
     r_so = r_ro + RADIAL_BUILD
@@ -53,7 +53,10 @@ def size(n_poles: int, rotor_od: float, L: float) -> dict:
     omega_e = 2 * math.pi * f_e
     n_coils = 2 * p * Q
     n_ph = E_ALLOW / (omega_e * psi1)
-    n_c = n_ph / n_coils
+    # n_ph is the SERIES-equivalent turns per phase. With `paths` parallel
+    # paths the physical turns per coil rise by `paths` for the same terminal
+    # voltage (n_ph = (n_coils/paths) * N_c).
+    n_c = paths * n_ph / n_coils
     n_slots = 18 * p                                # q=3 => 6 slots/pole/phase
     a_slot = SLOT_FRAC * math.pi * (r_so**2 - r_ro**2) / n_slots
     a_cu = a_slot * FILL
@@ -61,11 +64,12 @@ def size(n_poles: int, rotor_od: float, L: float) -> dict:
     tau_s = TAU_REF * (at_slot / AT_REF)
     t_cont = tau_s * 2 * math.pi * r_ro**2 * L
     t_peak = t_cont * (J_PEAK / J_CONT)
-    i_ph = at_slot / (2 * max(n_c, 1e-9))
+    i_cond = at_slot / max(n_c, 1e-9)               # conductor current
+    i_ph = i_cond * paths                           # terminal phase current
     return dict(n_poles=n_poles, rotor_od=rotor_od, L=L, n_slots=n_slots,
-                f_e=f_e, psi1=psi1, n_ph=n_ph, n_c=n_c, a_cu=a_cu,
-                at_slot=at_slot, i_ph=i_ph, t_cont=t_cont, t_peak=t_peak,
-                winding_ok=6 <= n_c <= 12)
+                paths=paths, f_e=f_e, psi1=psi1, n_ph=n_ph, n_c=n_c,
+                a_cu=a_cu, at_slot=at_slot, i_ph=i_ph, t_cont=t_cont,
+                t_peak=t_peak, winding_ok=4 <= n_c <= 20)
 
 
 def main() -> None:
@@ -75,27 +79,29 @@ def main() -> None:
             for L in (0.030, 0.050, 0.074):
                 rows.append(size(n_poles, d, L))
 
-    print("n_pole  D_rotor L_stack  f_e  N_c   I_ph  A_cu   AT/slot "
-          "T_cont  T_peak  winding")
+    print("n_pole  D_rotor L_stack  f_e  N_c(a1) N_c(a2) N_c(a4)  AT/slot "
+          "T_cont  T_peak  windable")
     for r in rows:
+        nc = [size(r["n_poles"], r["rotor_od"], r["L"], a)["n_c"]
+              for a in (1, 2, 4)]
+        ok = any(4 <= n <= 20 for n in nc)
         print(f"{r['n_poles']:>4d}  {r['rotor_od']*1e3:6.0f}mm {r['L']*1e3:5.0f}mm "
-              f"{r['f_e']:5.0f}Hz {r['n_c']:5.1f} {r['i_ph']:5.1f} "
-              f"{r['a_cu']*1e6:5.1f} {r['at_slot']:7.1f} "
-              f"{r['t_cont']:6.2f} {r['t_peak']:6.2f}  "
-              f"{'buildable' if r['winding_ok'] else '-'}")
+              f"{r['f_e']:5.0f}Hz {nc[0]:6.1f} {nc[1]:6.1f} {nc[2]:6.1f} "
+              f"{r['at_slot']:8.1f} {r['t_cont']:6.2f} {r['t_peak']:6.2f}  "
+              f"{'yes' if ok else '-'}")
 
-    fit = [r for r in rows if r["winding_ok"]]
+    fit = [r for r in rows
+           if any(4 <= size(r["n_poles"], r["rotor_od"], r["L"], a)["n_c"] <= 20
+                  for a in (1, 2, 4))]
     both = [r for r in fit if r["t_cont"] >= T_CONT_TARGET
             and r["t_peak"] >= T_PEAK_TARGET]
-    print(f"\nbuildable windings: {len(fit)}/{len(rows)}; "
-          f"also meeting torque targets: {len(both)}/{len(rows)}")
-    if both:
-        b = min(both, key=lambda r: (r["rotor_od"] ** 2) * r["L"])
-        print("smallest buildable+torque candidate: "
-              f"{b['n_poles']} poles, D={b['rotor_od']*1e3:.0f} mm, "
-              f"L={b['L']*1e3:.0f} mm, N_c={b['n_c']:.1f}, I={b['i_ph']:.0f} A, "
-              f"T_cont={b['t_cont']:.2f}, T_peak={b['t_peak']:.2f} N.m "
-              "(ESTIMATE)")
+    print(f"\nwindable at some a in (1,2,4): {len(fit)}/{len(rows)}; "
+          f"also meeting both torque targets: {len(both)}/{len(rows)}")
+    for r in both:
+        print("  candidate: "
+              f"{r['n_poles']} poles, D={r['rotor_od']*1e3:.0f} mm, "
+              f"L={r['L']*1e3:.0f} mm, T_cont={r['t_cont']:.2f}, "
+              f"T_peak={r['t_peak']:.2f} N.m (ESTIMATE)")
 
     # self-checks
     a4, a8 = size(4, 0.090, 0.050), size(8, 0.090, 0.050)
@@ -107,6 +113,10 @@ def main() -> None:
     s3 = size(4, 0.090, 0.074)
     assert abs((s3["t_cont"] / s1["t_cont"]) - 0.074 / 0.050) < 0.01, \
         "torque must scale linearly with L at fixed D"
+    # parallel paths: turns/coil scale exactly with a, torque is unchanged
+    p1, p4 = size(4, 0.090, 0.050, 1), size(4, 0.090, 0.050, 4)
+    assert abs(p4["n_c"] - 4 * p1["n_c"]) < 1e-9
+    assert abs(p4["t_cont"] - p1["t_cont"]) < 1e-12
 
 
 if __name__ == "__main__":

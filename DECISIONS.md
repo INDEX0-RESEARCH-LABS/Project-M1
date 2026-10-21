@@ -131,3 +131,30 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   then choose topology/spec/voltage path. Original D-012 options remain available but are
   superseded as the immediate action.
 - **Status:** PROPOSED (amended) — founder call on running the density workstream.
+
+## D-012 — addendum 2: torque-density audit re-scopes the gap (no solver defect; J is the lever)
+- **Date:** 2026-10-21
+- **Evidence:** `simulation/validation/torque_density_audit/{PLAN,RESULT}.md`,
+  `simulation/scripts/torque_density_audit.py` (one solve at the certified point, then MMF +
+  gap-field spectra and textbook sizing).
+- **Measured:** dominant MMF harmonic = 2 pole pairs (matches the 4-pole machine; the
+  excitation convention is confirmed correct); A1 = 9.70 kA/m; Bhat = 0.269 T;
+  sigma_textbook = 1.31 kPa; T_fem/T_sizing = **0.433**. That is normal SynRM utilization
+  at delta = 26 deg with a bridge-saturated rotor - **no order-of-magnitude solver defect**.
+  The ~100 N.m/m first-principles figure that motivated the audit was an arithmetic error
+  in the audit premise (|AT|-sum/circumference is not the fundamental electric loading);
+  corrected value reproduces the FEM within the normal utilization factor.
+- **Re-scope:** the "~4x density gap vs 2W-class machines" is a **current-density/thermal**
+  gap plus a frame-size choice, not a mystery: at J = 6 A/mm2 continuous the machine is
+  normal; literature 1-2 N.m/L is reached at J ~ 15-25 A/mm2 (peak), consistent with the
+  campaign's ~0.42 N.m/L at J = 6.
+- **Scan correction:** the D-012 sizing scan assumed series-only windings. With `a`
+  parallel paths, **24/36 frames are windable** (a in 1,2,4) and **1/36 meets both torque
+  targets**: 2-pole, D = 130 mm, L = 74 mm, N_c = 3.4 (a=2) / 6.8 (a=4), 1.84/7.4 N.m
+  (ESTIMATE). 4-pole fallback: bore ~150 mm, L 74 mm, a = 6 (~4 turns/coil), ~1.6 N.m cont.
+- **Amended decision:** envelope direction = 130 mm-class 2-pole (or 4-pole ~150 mm
+  fallback), winding with 2-4 parallel paths; next zero-budget validation = 2-pole rotor
+  topology in `synrm_geometry` + certified chain, and a first-order copper-loss/thermal
+  gate at J = 6. No envelope freeze until both land.
+- **Status:** PROPOSED (amended). Founder direction still required only for the spec-level
+  question (continuous rating defined thermally vs by J = 6).
