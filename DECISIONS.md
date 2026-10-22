@@ -541,7 +541,8 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   `saliency_screen --confirm` compares against a hardcoded 1.507 baseline ring number and
   is **not** quotable as a like-for-like gain.
 - **Status:** torque and efficiency RE-CERTIFIED. PF OPEN pending a same-estimator
-  baseline. Ripple still NOT ESTABLISHED, with a corrected experiment design: this sweep
+  baseline. Ripple still NOT ESTABLISHED at this point (superseded by D-018), with a
+  corrected experiment design: this sweep
   holds the stator pattern fixed while the rotor turns, which makes it a load-angle
   curve. A running machine holds the current in the rotor frame, so ripple must be
   measured with the pattern rotated with the rotor. `validation/torque_curve/RESULT.md`.

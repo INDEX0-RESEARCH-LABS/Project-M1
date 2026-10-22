@@ -107,12 +107,16 @@ is present in the static sweep and shows up there as only 2.4% of order 4. Wheth
 synchronized sweep can legitimately be 25x larger is not something this harness can
 settle, and the audit continues in a separate review.
 
+**Resolved in section 7 (D-018).** The "2.4% of order 4" came from the 5 deg curve in
+section 3, which has two samples per 10 deg period and could not represent this
+modulation. Gen 3 measures the two excitations on the same window: 91.4% vs 90.2%.
+
 ## 5. What is established, and what is not
 
 - **ESTABLISHED**: the static torque-angle curve, its zeros, its peak, and therefore the
   D-014 operating point. No change to any quotable number in `STATUS.md`.
 - **NOT ESTABLISHED**: torque ripple, peak-to-peak, dominant order, NVH. No number, not
-  even a band.
+  even a band. *(Superseded by section 7-9 and D-018.)*
 - **Still true**: a SynRM has no cogging torque (no magnets); all ripple is load ripple,
   so a no-load sweep would measure nothing.
 
@@ -132,7 +136,7 @@ settle, and the audit continues in a separate review.
 No further compute was spent on this after the inconsistency appeared; the gates exist
 to stop exactly this kind of number from entering the record.
 
-## 6. Gen 3 - the modulation measured (2026-10-23)
+## 7. Gen 3 - the modulation measured (2026-10-23)
 
 46 points, 15.0-37.5 deg at 0.5 deg, J = 5.21 A/mm2, current angle pinned at 26.0,
 1536 rays / 4 gap rows. Estimator: D-016 annulus (rings 1/5/9 written for continuity).
@@ -192,7 +196,7 @@ resolved, and the resolution is the one section 4 already suspected: the static 
 relied on was sampled at 5 deg, i.e. two samples per 10 deg period, so it could not show
 this modulation. The 4/8/12 harmonic fit that produced "order 12 = 2.4%" is withdrawn.
 
-## 7. What the modulation is locked to
+## 8. What the modulation is locked to
 
 The period is measured, not assumed. Repeating the synchronized sweep and comparing
 `T(delta + shift)`:
@@ -221,7 +225,7 @@ order (36) or a low order 2-6. R5 is answered by the measurement but the frozen 
 does not cover the answer: the lever is the **winding layout / phase belt**, with barrier
 shape second, not slot opening or skew alone.
 
-## 8. Consequence for the certified operating point
+## 9. Consequence for the certified operating point
 
 The 1.873 N.m certified at 26.0 deg (D-016) is an **instantaneous value at one rotor
 position inside a ~100% p-p modulation**, not a running average. The full-period sweep
@@ -238,7 +242,7 @@ position inside a ~100% p-p modulation**, not a running average. The full-period
 
 The three 30 deg periods give the same mean to four decimals (1.1918 N.m each), which
 confirms the period independently of the shift test. The co-energy bias measured in
-section 6 (+7% at the peak, -3% at the dip) puts the true mean within a few percent of
+section 7 (+7% at the peak, -3% at the dip) puts the true mean within a few percent of
 1.20-1.25 N.m; it does not move it toward 1.77.
 
 **So the design is undersized on a mean-torque basis.** The 1.6 N.m target was met at

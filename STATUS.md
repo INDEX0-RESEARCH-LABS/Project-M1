@@ -51,11 +51,11 @@ ripple/NVH and tooling, not electromagnetics.
 | frame | 130 mm bore, 50.4 mm stack, 188 mm OD, 4 poles, 36 slots | - | `envelope_point_design/RESULT.md` |
 | winding (decided, D-013) | single layer, 6 coils/phase, **10 turns/coil at a=4**, 2 x 1.2 mm per turn | SOLVED + scaling | `prototype/design/winding_spec_v1.md` |
 | torque at J=5.34 A/mm2 (**instantaneous**, 26.0 deg) | **1.873 N.m** annulus, 6.6% band spread (D-016, 3072/10); 1.77 +- 0.14 at J=5.21. D-014 had 1.685. This is one rotor position, not the running value | SOLVED, band | `torque_curve/RESULT.md` s.9 |
-| **mean torque over a revolution** (J=5.21, current angle 26.0) | **1.202 N.m** annulus (rings 5: 1.374), min 0.587 / max 1.739, p-p 95.8% at 2 deg sampling. Three 30 deg periods give identical means (1.1918). **This is the sizing number.** D-018 | SOLVED, band | `torque_ripple/RESULT.md` s.8 |
+| **mean torque over a revolution** (J=5.21, current angle 26.0) | **1.202 N.m** annulus (rings 5: 1.374), min 0.587 / max 1.739, p-p 95.8% at 2 deg sampling. Three 30 deg periods give identical means (1.1918). **This is the sizing number.** D-018 | SOLVED, band | `torque_ripple/RESULT.md` s.9 |
 | torque at J=6.0 | 1.920 N.m (baseline rotor, ring-averaged 3072/10); S6 not measured at J=6 | SOLVED | `torque_extractor/RESULT.md` |
 | torque per stack length | 38.5 N.m/m (rows 4/20/40: 38.50/37.86/39.67), ratio-based, shares the -9% extractor bias | SOLVED | `envelope_point_design/RESULT.md` |
 | torque-density utilization | 0.43 of the anchor-class expectation | DERIVED | `torque_density_audit` |
-| current for the 1.6 N.m target | **J = 5.21 A/mm2, 49.7 A peak** at k=2 (D-014; baseline needed 53.7 A) - **on an instantaneous basis**. On a *mean* basis (D-018) the estimate is J ~ 6.9 / ~66 A, to be re-certified | SOLVED (instantaneous) / DERIVED (mean, planning) | `saliency_lever/RESULT.md` s.5, `torque_ripple/RESULT.md` s.8 |
+| current for the 1.6 N.m target | **J = 5.21 A/mm2, 49.7 A peak** at k=2 (D-014; baseline needed 53.7 A) - **on an instantaneous basis**. On a *mean* basis (D-018) the estimate is J ~ 6.9 / ~66 A, to be re-certified | SOLVED (instantaneous) / DERIVED (mean, planning) | `saliency_lever/RESULT.md` s.5, `torque_ripple/RESULT.md` s.9 |
 | copper loss (hot, enclosed) | **23-24.5 W** at the 1.6 N.m target (D-014; baseline 26-28 W) | DERIVED | `thermal_first_order`, `saliency_lever` s.5 |
 | iron loss (100 Hz elec.) | 10.1-27.4 W, median **16.3 W** (D-016; D-014 had 12.1 W - the corrected winding saturates the rotor to 2.83 T) | ESTIMATE | `iron_loss --candidate` |
 | winding rise | **~14 K** with iron (9.2 K copper only) at the 1.6 N.m target; enclosed, h=25 | ESTIMATE | `thermal_first_order` |

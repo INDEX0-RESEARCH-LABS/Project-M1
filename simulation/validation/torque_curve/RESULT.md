@@ -127,8 +127,9 @@ honest error bar instead of a single number with no uncertainty.
   the samples. Statements resting on its smoothness are provisional, including the
   4/8/12 harmonic fit in `torque_ripple/RESULT.md` (which was fitted to notch shoulders
   by luck, not design).
-- **Ripple stays NOT ESTABLISHED**, now for a stronger reason than before: the curve it
-  would be computed from is unresolved below 0.5 N.m and its angle axis is off by 5 deg.
+- **Ripple stays NOT ESTABLISHED at this point in the campaign** (superseded by D-018 and
+  `torque_ripple/RESULT.md` section 7): the curve it would be computed from was unresolved
+  below 0.5 N.m and its 5 deg angle axis could not represent the modulation.
 - `torque_at` returns `abs()`, so no torque-sign claim is possible until there is a
   signed path.
 
@@ -253,7 +254,7 @@ re-certified torque is higher, but not by more than the estimator uncertainty.
   `p_mech`, so those move too.
 - The operating point moves from 26.25 to **26.0 deg**, the argmax of the corrected
   sweep. The plateau makes this a small change.
-- **Ripple is still NOT ESTABLISHED, but the reason is now better understood.** This
+- **Ripple was NOT ESTABLISHED at this point (superseded by D-018).** This
   sweep holds the stator current pattern fixed while the rotor turns, which makes it a
   *load-angle* curve, not a running-torque curve. A running machine under field
   orientation holds the current fixed in the **rotor** frame, so a ripple measurement
