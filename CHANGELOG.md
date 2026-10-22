@@ -296,3 +296,29 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
   clamped inside the gap annulus); single-ring regression bit-identical.
 - **D-009** — zero-budget decision: M-43/1006 bracket permanent, anchor labels
   INDICATIVE ±25% final for Phase 0; D-004 ≤5% replication formally cancelled.
+
+### Changed
+- **2026-10-23 (D-017: PF re-certified like-for-like - D-014 survives its own gate)**
+  - `saliency_screen.confirm_deep` now solves **BASE and S6 in the same run** with the
+    annulus estimator; the hardcoded `base = 1.507` comparison is gone, so the printed
+    gain is like-for-like at 26.0 deg, J=5.34, 3072/10.
+  - Result: BASE **1.583 N.m, PF 0.469, 1111 VA**; S6 **1.873 N.m, PF 0.578, 1059 VA**.
+    Gate G-PF1 (+0.030) -> **+0.109 PASS**. Torque +18.3% at 4.7% lower apparent power;
+    1.768 vs 1.425 N.m/kVA.
+  - Baseline PF is corrected from 0.532 to 0.469: the old value was measured on the
+    uncorrected winding at 26.25 deg with a ring torque.
+  - Consequence: PF is **closed**. The 1.06 kVA requirement belongs to the frame and the
+    48 V rail, not to the rotor choice; rejecting S6 would buy 4.7% kVA for 18% torque.
+    Ripple becomes the binding electromagnetic risk and is now the open gate.
+  - The "order 12 = 2.4%" evidence for small ripple is **withdrawn**: it came from a 5 deg
+    sampled curve, i.e. 1.5 samples per 7.5 deg period, so it could not see a 10 deg
+    modulation at all.
+- **2026-10-23 (torque dip characterisation, `torque_curve/RESULT.md` s.11)**
+  - The dips are mirror-symmetric about 22.5 deg (4.00<->41.64, 12.50<->33.00) exactly as
+    the geometry requires, which is evidence against a mesh artefact.
+  - They are **not one harmonic**: spacing 8.50 / 10.00 / 10.50 / 8.64 deg, the 36-slot
+    order is 0.010 N.m, and the apparent 32/rev amplitude (0.344 N.m) drops to 0.038 N.m
+    when the 5-10 deg shoulder is excluded. Best description: a 0.25-0.3 N.m absolute
+    modulation on a smooth envelope. Origin **unconfirmed**, reality supported.
+  - `torque_ripple.py` gains the annulus columns and a window-matched adequacy check;
+    Gen 3 gates (R2', R4', R6) are frozen in `torque_ripple/PLAN.md` before running.

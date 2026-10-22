@@ -1,15 +1,18 @@
 # Current state - single source of truth
 
-**As of D-016 (2026-10-23): torque and efficiency are RE-CERTIFIED; PF is OPEN.**
+**As of D-017 (2026-10-23): torque, efficiency and PF are RE-CERTIFIED; ripple is the open gate.**
 The D-015 half-slot fix changed the machine, so D-014's numbers were re-derived on the
 corrected winding with a 181-point 0.25 deg sweep and a four-mesh ladder. Torque is now
 measured with the gap area integral, because a solid-rotor null test showed the
 single-circle extractor the old chain used reads +0.55 N.m on a machine that must give
 zero. Re-certified: torque 1.77 +- 0.14 N.m at 26.0 deg, efficiency 93.2%, iron 16.3 W.
-PF fell from 0.633 to 0.578 and S rose from 0.90 to 1.06 kVA; the like-for-like baseline
-PF under the same estimator has NOT been re-run, so the size of the S6 PF advantage is
-unknown. Ripple is still NOT ESTABLISHED. See section 4 and
-`validation/torque_curve/RESULT.md`. **Superseded values are kept below and marked.**
+PF is re-certified **like-for-like** at 3072/10 (D-017): S6 **0.578 / 1.059 kVA** against
+the baseline rotor **0.469 / 1.111 kVA** at the same angle and current, so S6 clears the
++0.030 PF gate by +0.109 with 18.3% more torque at 4.7% less apparent power. The baseline
+PF is lower than the 0.532 previously quoted because that number was measured on the
+uncorrected winding at 26.25 deg with a ring torque. Ripple is now the binding risk and
+is being re-measured with the current pattern rotated with the rotor (Gen 3). See section
+4 and `validation/torque_curve/RESULT.md`. **Superseded values are kept below and marked.**
 **Originally as of D-014 (2026-10-22).** Everything here is
 reproduced by the scripts named
 in section 6. Where a number moved during the campaign, the latest value is here and the
@@ -26,12 +29,13 @@ market. Gate A-C are complete; the design is a 4-pole, 36-slot synchronous reluc
 machine at **130 mm bore / 50.4 mm stack**. The extractor bias found on 2026-10-21 is
 absorbed (absolute torque 1.45 N.m for the shallow rotor, +/-4% band).
 
-**D-014 ADOPTED, then re-certified under D-016: the deep-barrier rotor still wins on
-torque and efficiency, but its PF advantage is smaller than D-014 recorded and has not
-been re-measured against a like-for-like baseline.** The barrier stack used
+**D-014 ADOPTED, and its PF justification now holds on a like-for-like basis (D-017): the
+deep-barrier rotor beats the shallow baseline on torque, efficiency *and* power factor
+when both are measured the same way.** The barrier stack used
 to occupy only the outer 10.4 mm of a 64.5 mm rotor radius, so q-flux dived under it. At
 44.5 mm depth (4 barriers, 25% ribs, 0.62 angular fraction) the machine at the 1.6 N.m
-target needs **J 5.21 / 49.7 A**, gives **PF 0.633, S 0.86 kVA, 93.4% efficiency**, and
+target needs **J 5.21 / 49.7 A**, gives **PF 0.578, S 1.06 kVA, 93.2% efficiency** (D-016
+numbers; D-014's 0.633 / 0.86 kVA were on the uncorrected winding), and
 carries **17% less iron** with a **~6,840 rpm** voltage ceiling. Gate B (plane-stress FE,
 SF 12.2 at 7000 rpm) and iron loss (12.1 W median) both pass. The open risks are torque
 ripple/NVH and tooling, not electromagnetics.
@@ -53,7 +57,7 @@ ripple/NVH and tooling, not electromagnetics.
 | efficiency | **93.2% (91.6-94.1%)** (D-016; D-014 had 93.4%) - unchanged within the band | ESTIMATE | `iron_loss --candidate` |
 | phase current | **49.7 A** peak for the target at k=2 (D-014; 99.4 A at the k=1 FEM state, N_c = 1.247) | SOLVED | `saliency_lever` s.5 |
 | terminal voltage | **11.5 V** peak at 3000 rpm against a 26.3 V ceiling (D-014) | DERIVED | `saliency_lever` s.5 |
-| PF / apparent power | **0.578 / 1.06 kVA** at J=5.34, 3072/10 (D-016; D-014 had 0.633 / 0.90 kVA). **OPEN** - baseline not re-run same-estimator | SOLVED / DERIVED | `saliency_screen --confirm` |
+| PF / apparent power | **0.578 / 1.059 kVA** (D-017, S6) against **0.469 / 1.111 kVA** (baseline), both at 26.0 deg, J=5.34, 3072/10, annulus. Gate +0.030 -> **+0.109 PASS** | SOLVED / DERIVED | `saliency_screen --confirm` |
 | active mass | **7.37 kg iron** + 0.82 kg copper (D-014; baseline 8.9 kg iron) | DERIVED | `iron_loss --candidate` |
 | slot | 36 x trapezoid, **3.0 mm semi-closed mouth**, 11.7 mm deep, fill 0.40 assumed | ASSUMED | `winding_spec_v1.md` |
 | specific power | **~68 W/kg** of active iron at the target (D-014; baseline ~51) | DERIVED | - |
@@ -67,12 +71,12 @@ it was: 7.37 kg of iron for 0.5 kW, at 93.5%.
 | item | status | what unblocks it |
 |---|---|---|
 | Winding turns | **DECIDED (D-013): k=2**, ceiling **~6,840 rpm** at the 1.6 N.m target with D-014 (was ~5,860 with the shallow rotor) | reopens if the final gear ratio pushes the motor past ~6,800 rpm |
-| **Deep-barrier rotor (D-014)** | **ADOPTED; torque and efficiency RE-CERTIFIED (D-016)**: 1.873 N.m at J=5.34 (annulus), 1.77 +- 0.14 at J=5.21, 93.2%, iron 16.3 W; Gate B SF 12.2 at 7000 rpm stands (independent of the winding fix) | punching tooling once PF is settled. Ripple/NVH remains **not established** (`torque_curve/RESULT.md`) |
-| **PF at 48 V** | **RE-OPENED by D-016**: re-certified 0.578 / 1.06 kVA at J=5.34 (D-014 had 0.633 / 0.90 kVA on the uncorrected winding). The baseline has not been re-run under the new estimator, so the size of S6's PF advantage is unmeasured | one run: baseline geometry through `saliency_screen --confirm` with the annulus estimator. Until then D-012's choice is between ~1.06 kVA and a higher-current controller |
+| **Deep-barrier rotor (D-014)** | **ADOPTED; torque, efficiency and PF RE-CERTIFIED (D-016, D-017)**: 1.873 N.m at J=5.34 (annulus), 1.77 +- 0.14 at J=5.21, 93.2%, iron 16.3 W, **PF 0.578 vs baseline 0.469**; Gate B SF 12.2 at 7000 rpm stands (independent of the winding fix) | punching tooling once ripple is settled. Ripple remains **the binding risk** (`torque_ripple/`, Gen 3 running) |
+| **PF at 48 V** | **CLOSED (D-017)**: like-for-like at 3072/10, S6 **0.578 / 1.059 kVA** vs baseline **0.469 / 1.111 kVA** at 26.0 deg, J=5.34. S6 wins by +0.109 PF and 18.3% torque at 4.7% *less* kVA. The kVA problem belongs to the frame and the current, not to S6 | D-012's choice is now a controller question: ~1.06 kVA at 48 V (65-88 A class) for either rotor |
 | **Torque extractor convergence** | ABSORBED - 1.45 N.m +/-4% **at the certified point only**. `torque_at` returns `abs()` (no sign structure); angle-resolved torque below **~0.5 N.m is not resolvable** (four gap bands spread 10.7% at the certified point, 9x at a dip). New `fem_magnetics.torque_annulus` area-integral estimator gives 1.536 vs 1.576 N.m at the certified point with a per-band error bar (2026-10-23) | one fully converged certification point (4096/20, rings 9 + co-energy + annulus) would restore a point value; ~15 min compute. Low-torque work needs a stress method that does not depend on element-constant B (local jacobian or co-energy) |
 | **Slot binning convention** | **FIXED (D-015)**: `split_slots` was half a slot off the geometry's k*pitch convention (+0.513 pitch measured), rotating the MMF 5 deg mech and mixing phases at belt boundaries; T(0)/T(45) read 0.44/0.46 N.m instead of 0.01/0.03 | regression test in `tests/test_rajini_winding.py`; nothing else to do |
-| True MTPA angle | **MAPPED at 0.25 deg (D-016)**: argmax 26.0 deg, plateau 25.5-27.5 within 1.5%. The curve has converged dips at 12.5 / 22.5 / 33.0 / 41.75 deg (14-29% of peak) and a negative lobe at 1.5-3.9 deg | resolved enough for the operating point; the dips themselves are unexplained within the model |
-| **Running torque ripple** | NOT ESTABLISHED, design corrected | the 0.25 deg sweep holds the stator current pattern fixed, so it is a *load-angle* curve. A running machine holds the current in the rotor frame: the ripple experiment must rotate the pattern with the rotor and vary delta |
+| True MTPA angle | **MAPPED at 0.25 deg (D-016)**: argmax 26.0 deg, plateau 25.5-27.5 within 1.5%. The curve has converged dips at 12.5 / 22.5 / 33.0 / 41.75 deg (14-29% of peak) and a negative lobe at 1.5-3.9 deg | resolved enough for the operating point. The dips are mirror-symmetric about 22.5 deg (4.0<->41.6, 12.5<->33.0) and *irregularly* spaced (8.5/10.0/10.5/8.6 deg), so no single order explains them; origin unconfirmed but they respect the geometry's symmetry |
+| **Running torque ripple** | **Gen 3 RUNNING**: current pattern rotated with the rotor, annulus estimator, 22.5 deg window (D-017 gates R1-R6 frozen in `torque_ripple/PLAN.md`) | if Gen 3 passes R2/R6 the ripple fraction is quotable; Gen 1's 5 deg sampling aliased the modulation, so its "order-12 = 2.4%" is withdrawn as evidence that ripple is small |
 | Rotor slot-harmonic loss (~1800 Hz) | NOT MODELLED | a time-domain eddy solve; scoping bound 0.8-3.3 W (ASSUMED ripple, `iron_loss/RESULT.md` s.5) |
 | Slot fill / windability | ASSUMED 0.40 | the 3.0 mm semi-closed mouth needs needle winding; at fill 0.36 the loss is +11% and efficiency ~91.8%. Resolves on the first wound stator |
 | 33% flux-linkage vs torque gap | OPEN, interpretation-limited | rotating-field solve; does not change the torque or the envelope |

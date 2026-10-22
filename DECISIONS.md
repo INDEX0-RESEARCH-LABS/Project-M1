@@ -545,3 +545,49 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   holds the stator pattern fixed while the rotor turns, which makes it a load-angle
   curve. A running machine holds the current in the rotor frame, so ripple must be
   measured with the pattern rotated with the rotor. `validation/torque_curve/RESULT.md`.
+
+## D-017 - PF re-certified like-for-like: D-014 survives its own gate (2026-10-23)
+
+**Problem.** D-016 re-certified torque and efficiency with the annulus estimator but left
+PF open: S6 read 0.578 / 1.06 kVA against D-014's frozen 0.633 / 0.90 kVA, and the
+baseline had never been run through the same estimator, angle and winding. PF was the
+reason the deep-barrier rotor was adopted, so the sign of the advantage was not enough.
+A second defect sat in the same function: `saliency_screen.confirm_deep` compared the
+candidate against a **hardcoded** `base = 1.507` ring-average torque and printed a
+"+24.3%" that mixed extractors and angles.
+
+**Gate declared before the run (G-PF1):** S6 survives D-014's adoption criterion iff
+`PF(S6) - PF(BASE) >= +0.030` absolute, both solved at 26.0 deg, J = 5.34 A/mm2, mesh
+3072/10, same annulus estimator.
+
+**Change.** `confirm_deep` now calls a `certify()` helper for BASE and S6 in the same run;
+the hardcoded constant is gone, so no stored number enters a comparison.
+
+**Result** (3072/10, 26.0 deg, J=5.34, annulus; `saliency_screen --confirm`):
+
+| rotor | T N.m | PF | S VA | i A | Vhat V |
+|---|---|---|---|---|---|
+| BASE (3 barriers) | 1.583 | 0.469 | 1111 | 101.9 | 7.27 |
+| S6 (4 barriers) | 1.873 | 0.578 | 1059 | 101.9 | 6.93 |
+
+- **G-PF1 PASS**: +0.109 against a +0.030 gate. Torque +18.3% at 4.7% *lower* apparent
+  power; 1.768 vs 1.425 N.m/kVA (+24%).
+- The baseline reproduces its certified torque (1.583 vs 1.592 frozen at 26.25), so the
+  harness is not flattering S6 by breaking the baseline.
+- Baseline PF is **0.469**, not the 0.532 quoted since Gate C. The 0.532 was measured on
+  the uncorrected winding at 26.25 deg with a ring torque; the D-015 fix and the annulus
+  estimator both move it. That is a correction of a superseded number, not a new
+  uncertainty: BASE and S6 move together, so the difference is like-for-like.
+
+**Consequences.**
+
+1. D-014 stands on its original justification, with a larger margin than the frozen
+   comparison implied. No geometry change is triggered.
+2. The 1.06 kVA question changes owner. S6 needs *less* apparent power than the baseline
+   (1059 vs 1111 VA); the frame and the 48 V rail set the kVA, not the rotor choice. D-012
+   is now purely "fund a ~65-88 A class controller", and rejecting S6 would buy 4.7% less
+   kVA for 18% less torque.
+3. Ripple is the remaining electromagnetic risk and now the binding one (see
+   `validation/torque_ripple/PLAN.md`, Gen 3).
+4. `--confirm` costs two 3072/10 solves (~10 min) instead of one; that is the price of
+   never comparing against a constant again.

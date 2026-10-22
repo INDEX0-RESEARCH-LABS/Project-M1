@@ -47,7 +47,7 @@ sys.path.insert(0, str(HERE))
 import dq_model as D          # noqa: E402
 import rajini_anchor as A     # noqa: E402
 from envelope_validation import build  # noqa: E402
-from fem_magnetics import load_bh_curve  # noqa: E402
+from fem_magnetics import load_bh_curve, torque_annulus  # noqa: E402
 from torque_mesh_convergence import solve_raw, torque_at  # noqa: E402
 
 CAND = dict(n_barriers=4, barrier_angle_frac=0.62, barrier_gap_frac=0.25,
@@ -87,21 +87,25 @@ def sweep(start: float, stop: float, step: float, j_mm2: float, out: str,
     with open(out, mode, newline="") as f:
         w = csv.writer(f)
         if mode == "w":
-            w.writerow(["delta_deg", "T1", "T5", "T9"])
+            w.writerow(["delta_deg", "T1", "T5", "T9", "ann_mean", "ann_spread"])
         for i in range(n):
             d = start + i * step
             if d in done:
                 continue
             alpha = D.P_POLES * math.radians(d - alpha0)
-            res = solve_raw(d, j, H, B, 1536, 4,
-                            geom=build(d, D.BORE, **kw),
+            g = build(d, D.BORE, **kw)
+            res = solve_raw(d, j, H, B, 1536, 4, geom=g,
                             pattern=moving_pattern(alpha))
             t = [torque_at(res, r) for r in RINGS]
-            w.writerow([f"{d:.2f}"] + [f"{x:.6f}" for x in t])
+            bands = torque_annulus(res["sol"], g.rotor_od / 2 + 1e-6,
+                                   g.stator_bore / 2 - 1e-6, 1.0, n_bands=4) * D.L_STACK
+            spread = (bands.max() - bands.min()) / abs(bands.mean())
+            w.writerow([f"{d:.2f}"] + [f"{x:.6f}" for x in t]
+                       + [f"{bands.mean():.6f}", f"{spread:.6f}"])
             f.flush()
-            print(f"  {d:6.2f}  T1={t[0]:7.4f}  T5={t[1]:7.4f}  T9={t[2]:7.4f}",
-                  flush=True)
-            if not (0.8 < t[1] < 2.4):
+            print(f"  {d:6.2f}  T1={t[0]:7.4f}  T5={t[1]:7.4f}  T9={t[2]:7.4f}  "
+                  f"ann={bands.mean():7.4f}  band={spread:.1%}", flush=True)
+            if not (0.05 < t[1] < 3.0):
                 print(f"  HALT: torque {t[1]:.3f} outside the plausible band; "
                       f"current angle or pattern sign is wrong", flush=True)
                 return 2
@@ -115,7 +119,9 @@ def _load(paths):
         with open(p) as f:
             for r in csv.DictReader(f):
                 rows.append([float(r["delta_deg"]), float(r["T1"]),
-                             float(r["T5"]), float(r["T9"])])
+                             float(r["T5"]), float(r["T9"]),
+                             float(r.get("ann_mean", "nan")),
+                             float(r.get("ann_spread", "nan"))])
     rows.sort()
     a = np.array(rows)
     keep = np.concatenate(([True], np.diff(a[:, 0]) > 1e-9))
@@ -128,28 +134,38 @@ def _pp(t):
 
 def analyse(paths, rings: int = 5) -> int:
     a = _load(paths)
-    d, t = a[:, 0], a[:, rings]
+    d = a[:, 0]
     if len(d) < 20:
         raise SystemExit(f"only {len(d)} points")
     step = float(np.median(np.diff(d)))
+    has_ann = np.isfinite(a[:, 4]).any()
     print(f"n={len(d)}  {d.min():.2f}..{d.max():.2f} deg  step {step:.2f}")
     for r in RINGS:
         print(f"  rings {r}: mean {a[:, r].mean():.4f}  min {a[:, r].min():.4f}"
               f"  max {a[:, r].max():.4f}  p-p {_pp(a[:, r]):.2%}")
+    if has_ann:
+        m = np.isfinite(a[:, 4])
+        print(f"  annulus: mean {a[m, 4].mean():.4f}  min {a[m, 4].min():.4f}"
+              f"  max {a[m, 4].max():.4f}  p-p {_pp(a[m, 4]):.2%}")
+        print(f"  annulus band spread: median {np.median(a[m, 5]):.1%}  "
+              f"max {a[m, 5].max():.1%}")
+    t = a[:, 4] if has_ann else a[:, rings]
 
     mean, lo, hi = t.mean(), t.min(), t.max()
     print(f"\nT = {mean:.4f} N.m  p-p = {hi - lo:.4f} N.m = {_pp(t):.2%}")
     print(f"  min at {d[t.argmin()]:.2f} deg, max at {d[t.argmax()]:.2f} deg")
 
-    # R2: two overlapping 36 deg windows must agree
-    wins = []
-    for a0, a1 in ((d.min(), d.min() + 36.0), (d.max() - 36.0, d.max())):
-        m = (d >= a0 - 1e-9) & (d <= a1 + 1e-9)
-        if m.sum() >= 20:
-            wins.append(_pp(t[m]))
-    if len(wins) == 2:
-        print(f"  window 1 p-p {wins[0]:.2%}, window 2 p-p {wins[1]:.2%}, "
-              f"agreement {abs(wins[1] - wins[0]) * 100:.1f} pp")
+    # R2: two equal windows must agree. 11.25 deg is the observed dip spacing
+    # (32 barrier tips); 10.0 deg is the 36-slot pitch.
+    for win in (10.0, 11.25):
+        wins = []
+        for a0, a1 in ((d.min(), d.min() + win), (d.max() - win, d.max())):
+            m = (d >= a0 - 1e-9) & (d <= a1 + 1e-9)
+            if m.sum() >= 10:
+                wins.append(_pp(t[m]))
+        if len(wins) == 2:
+            print(f"  R2 window {win:5.2f} deg: {wins[0]:.2%} vs {wins[1]:.2%}, "
+                  f"agreement {abs(wins[1]-wins[0])*100:.1f} pp")
 
     x = t - t.mean()
     spec = np.abs(np.fft.rfft(x * np.hanning(len(x))))

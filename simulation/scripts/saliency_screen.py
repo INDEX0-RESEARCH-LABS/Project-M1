@@ -76,45 +76,64 @@ def run_config(name: str, kw: dict, H, B) -> dict:
             "PF": pf, "S": 1.5 * vhat * i, "Bmax": op["Bmax"], "kw": kw}
 
 
-def confirm_deep(H, B, j_mm2=None) -> int:
-    """Ring-averaged confirmation of the deep-barrier candidate.
+BASE_KW = dict(n_barriers=3, barrier_angle_frac=0.62, barrier_gap_frac=0.40)
+S6_KW = dict(n_barriers=4, barrier_angle_frac=0.62, barrier_gap_frac=0.25,
+             barrier_span=0.0445)
 
-    The screen's +13% torque and +0.11 PF are same-extractor comparisons; this
-    re-extracts the candidate with the ruled standard (rings=9, 3072/10) and
-    reports PF from the ring-averaged torque, against the baseline already
-    certified at the same mesh (BASE 3072/10 rings9 = 1.507 N.m).
+
+def certify(name: str, kw: dict, H, B, jj: float) -> dict:
+    """One operating point at the ruled mesh: annulus torque and power-balance PF.
+
+    D-016 ruled that absolute torque comes from the gap area integral, so PF here
+    is the annulus PF. Nothing is compared to a stored constant: BASE and the
+    candidate are solved by the same code at the same mesh and angle, so the
+    difference is like-for-like.
     """
     from torque_mesh_convergence import solve_raw, torque_at
 
-    kw = dict(n_barriers=4, barrier_angle_frac=0.62, barrier_gap_frac=0.25,
-              barrier_span=0.0445)
-    jj = J if j_mm2 is None else j_mm2 * 1e6
-    res = solve_raw(D.DELTA_OP, jj, H, B, 3072, 10,
-                    geom=build(D.DELTA_OP, D.BORE, **kw))
+    g = build(D.DELTA_OP, D.BORE, **kw)
+    res = solve_raw(D.DELTA_OP, jj, H, B, 3072, 10, geom=g)
     t = [torque_at(res, r) for r in (1, 5, 9)]
     n_c1 = D.turns(D.BORE, D.L_STACK, 1)
     i = jj * A.FILL * res["a_slot"] / n_c1
-    g_op = build(D.DELTA_OP, D.BORE, **kw)
-    bands = torque_annulus(res["sol"], g_op.rotor_od / 2 + 1e-6,
-                           g_op.stator_bore / 2 - 1e-6, 1.0, n_bands=4) * D.L_STACK
+    bands = torque_annulus(res["sol"], g.rotor_od / 2 + 1e-6,
+                           g.stator_bore / 2 - 1e-6, 1.0, n_bands=4) * D.L_STACK
     t_ann = float(bands.mean())
-    print(f"  annulus T={t_ann:.3f} N.m  band spread "
-          f"{(bands.max()-bands.min())/abs(t_ann):.1%}  (single circle {t[0]:.3f})")
-    t9 = t_ann
-    lam_perp = t9 / (1.5 * D.P_POLES * i)
+    band = (bands.max() - bands.min()) / abs(t_ann)
+    lam_perp = t_ann / (1.5 * D.P_POLES * i)
     lam_par = res["lam_alpha"] * n_c1
     r_ph = D.RHO * 6 * n_c1**2 * D.MTL / (A.FILL * res["a_slot"])
     w_m = 2 * math.pi * (D.RPM / 60)
     w_e = w_m * D.P_POLES
     vhat = math.hypot(r_ph * i + w_e * lam_perp, w_e * lam_par)
     p_cu = 1.5 * r_ph * i * i
-    pf = (p_cu + t9 * w_m) / (1.5 * vhat * i)
-    base = 1.507
-    print(f"\nconfirm (3072/10, J={jj/1e6:.2f}): rings 1/5/9 = "
-          f"{t[0]:.3f}/{t[1]:.3f}/{t[2]:.3f} N.m")
-    print(f"  candidate T={t9:.3f} vs baseline ring-averaged {base:.3f} -> "
-          f"{t9/base-1:+.1%}")
-    print(f"  PF={pf:.3f}  S={1.5*vhat*i:.0f} VA  i={i:.1f} A  Vhat={vhat:.2f} V")
+    pf = (p_cu + t_ann * w_m) / (1.5 * vhat * i)
+    out = dict(name=name, T=t_ann, T_ring=t, band=band, PF=pf,
+               S=1.5 * vhat * i, i=i, vhat=vhat, p_cu=p_cu, lam_par=lam_par)
+    print(f"  {name:4s} T_ann={t_ann:.3f} N.m  (rings 1/5/9 "
+          f"{t[0]:.3f}/{t[1]:.3f}/{t[2]:.3f})  band {band:.1%}  PF={pf:.3f}  "
+          f"S={out['S']:.0f} VA  i={i:.1f} A  Vhat={vhat:.2f} V")
+    return out
+
+
+def confirm_deep(H, B, j_mm2=None) -> int:
+    """Like-for-like certification of the deep-barrier candidate against BASE.
+
+    Gate G-PF1 (declared before the run): D-014's adoption criterion was
+    PF >= BASE + 0.030 absolute. Both rotors are solved at delta=DELTA_OP on the
+    ruled mesh (3072/10) with the annulus estimator, so no stored torque constant
+    enters the comparison.
+    """
+    jj = J if j_mm2 is None else j_mm2 * 1e6
+    print(f"\ncertification: 3072/10, delta={D.DELTA_OP} deg, J={jj/1e6:.2f} A/mm2")
+    b = certify("BASE", BASE_KW, H, B, jj)
+    s = certify("S6", S6_KW, H, B, jj)
+    d_pf = s["PF"] - b["PF"]
+    print(f"\nG-PF1: PF {s['PF']:.3f} - {b['PF']:.3f} = {d_pf:+.3f} "
+          f"{'PASS' if d_pf >= 0.03 else 'FAIL'} (gate >= +0.030)")
+    print(f"  torque {s['T']:.3f} vs {b['T']:.3f} N.m = "
+          f"{s['T']/b['T']-1:+.1%}; kVA {s['S']:.0f} vs {b['S']:.0f} VA")
+    print(f"  N.m/kVA {1e3*s['T']/s['S']:.3f} vs {1e3*b['T']/b['S']:.3f}")
     return 0
 
 

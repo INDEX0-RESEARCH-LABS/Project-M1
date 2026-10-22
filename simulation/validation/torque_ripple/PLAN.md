@@ -50,3 +50,37 @@ periodicity check.
   harmonics is a controller question and is not modelled.
 - No skew, no rotor eccentricity, no manufacturing tolerance.
 - NVH is not predicted: torque ripple is a necessary input, not a sound level.
+
+## Gen 3 amendment (declared before running)
+
+Gen 1 sampled the static curve at 5 deg. A ~10 deg modulation cannot be represented at
+5 deg sampling (two samples per period), so the "order-12 = 2.4%" fit in `RESULT.md` s.3
+is an aliasing artefact and is withdrawn as evidence that ripple is small. That removes
+the stated reason why Gen 1 and Gen 2 "cannot both be right".
+
+What changes in Gen 3: the D-016 gap **area integral** replaces the ring average as the
+measured quantity (rings 1/5/9 are still written for continuity), the window is 15.0-37.5
+deg at 0.5 deg (22.5 deg = two observed dip spacings), and the current angle is pinned at
+`DELTA_OP = 26.0`. Script `torque_ripple.py`, log `/tmp/opencode/m1/ripple_gen3.log`,
+CSV `/tmp/opencode/m1/ripple_gen3.csv`.
+
+Frozen gates:
+
+- **R1 unchanged**: ripple fraction and orders only, no absolute torque claim.
+- **R2' adequacy**: the two 11.25 deg end windows must agree in p-p within 2.0 pp, the
+  median annulus band spread must be < 10% and its maximum < 20%. Either failing means no
+  number is quoted.
+- **R3 unchanged**: <= 10% p-p PASS, 10-15% MARGINAL, > 15% FAIL.
+- **R4' extremum validation**: the three largest local extrema re-solved at 3072 rays /
+  10 gap rows must reproduce the p-p within 2 pp.
+- **R5 unchanged**: report the dominant mechanical order (slot order 36 -> slot opening or
+  skew is the lever; low order 2-6 -> barrier shape is the lever).
+- **R6 reconciliation (new)**: the synchronized p-p in the window centred on 26 deg
+  (20.375-31.625) is compared with the static 0.25 deg sweep's p-p over the same window,
+  where the envelope slope is near zero. Ratio outside **0.5-2.0** means the two
+  excitation models still disagree and ripple stays unquoted. Inside means the Gen 1 vs
+  Gen 2 discrepancy was sampling, and the static record is corrected.
+
+Prediction, stated so it can fail: if the modulation is a real slot-locked torque, R6
+lands inside 0.5-2.0 and R3 returns FAIL (> 15%), because the static dips alone are
+14-29% of the local envelope.

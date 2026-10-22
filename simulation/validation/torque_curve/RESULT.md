@@ -262,3 +262,39 @@ re-certified torque is higher, but not by more than the estimator uncertainty.
   this curve.
 - The dips must be resolved before any NVH or control claim: the operating point sits
   3.5 deg from a dip that costs 70% of the torque.
+
+## 11. What the dips are, as far as the data goes (2026-10-23)
+
+Three cheap tests on the committed sweep, all run after the mechanisms in section 8 were
+refuted. None of them requires a new field solve.
+
+1. **The dip pattern respects the geometry's symmetry.** Torque is odd in delta, so
+   `|T|` is symmetric under `delta -> 45 - delta`. The minima pair up exactly as that
+   requires: 4.00 with 41.64, 12.50 with 33.00, and 22.50 with itself. A mesh or
+   ray-orientation artefact would not reproduce a symmetry that comes from the
+   geometry, so this is evidence against a numerical cause, on top of the three meshes
+   already tested.
+2. **They are not one harmonic.** The dips are broad (2-3 deg) and irregularly spaced:
+   8.50 / 10.00 / 10.50 / 8.64 deg. A window test kills the obvious candidates: the
+   Fourier amplitude at the 36-slot order (10.0 deg) is 0.010 N.m, and the 32/rev or
+   order-8 amplitude of 0.344 N.m found over 5-45 deg collapses to 0.038 N.m when the
+   5-10 deg shoulder is excluded. That spike is leakage from the shoulder, not a
+   stationary component. **No single order explains the dips.**
+3. **Consequence.** The right description is a smooth envelope with an absolute
+   modulation of roughly 0.25-0.3 N.m superimposed. Near the peak that is 14-29%; where
+   the envelope itself is ~0.3 N.m (1.5-3.9 deg) the same modulation reverses the sign.
+   That is consistent with the saturation result in section 8 (dip/peak 0.455 at low
+   current, 0.292 at J=5.21): saturation amplifies a modulation that is present in the
+   linear solution too.
+
+Status: **origin UNCONFIRMED, reality supported.** It is stable across meshes and
+estimators, symmetric as the geometry requires, and absent from the solid-rotor null
+test - which is what a slot-locked or tip-saturation modulation should look like. It is
+not a slot-order effect, and it is not resolved by any mesh change tried.
+
+A fourth mechanism is now excluded on arithmetic rather than by a solve. The 5 deg
+static curve in `validation/torque_ripple/RESULT.md` s.3 fitted "order 12 = 2.4% of
+order 4" and offered that as proof that ripple must be small. Order 12 is a 7.5 deg
+period, sampled every 5 deg: 1.5 samples per period. That fit could not have detected a
+10 deg modulation at all, so it is withdrawn as evidence. It does not by itself prove the
+modulation is real, which is what the Gen 3 ripple experiment is for.
