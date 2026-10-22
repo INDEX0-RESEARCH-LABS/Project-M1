@@ -5,6 +5,35 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
 ## [Unreleased]
 
 ### Added
+- **2026-10-23 (D-016: re-certification done - torque and efficiency re-certified, PF open)**
+  - 181-point 0.25 deg static sweep on the corrected winding (`torque_curve/sweep_0p25deg.csv`).
+    Peak **1.813 N.m at 26.0 deg** (9-ring) / 1.753 at 25.5 (annulus); plateau 25.5-27.5
+    within 1.5%; peak/mean 2.18 against 1.57 for an ideal `sin(4*delta)`. Gate A2 **FAILS**
+    (102/181 points beyond 10% of the 5 deg interpolant).
+  - The dips are **torque reversals**, not notches: `torque_at` returns `abs()`. Signed, all
+    three estimators agree the torque is negative from 1.5 to 3.9 deg (lobe -0.27 N.m, 15%
+    of peak), crossing zero at 3.95. Further dips at 12.5 / 22.5 / 33.0 / 41.75 deg.
+  - Four mechanisms tested and **refuted**: ray-merge slivers (`RAY_MERGE_TOL` 1e-4 -> 2e-3
+    changes nothing, 5e-3 goes singular; the constant is now module-level), material
+    misclassification (barrier area constant to 1e-6 over 46 angles), extractor bias (the
+    solid-rotor null is constant in angle), discretisation (dips stable across three meshes,
+    0.251 / 0.157 / 0.196 N.m at 33 deg). Saturation is an amplifier: dip/peak 0.455 -> 0.333
+    -> 0.292 as J goes 1.05 -> 2.60 -> 5.21 A/mm2.
+  - **Solid-rotor null test**: a rotor with no barriers must give zero torque. Single circle
+    reads **+0.55 N.m**, 9-ring -0.04, gap annulus -0.13, all constant in angle. The single
+    circle was the estimator `dq_model.solve_point` used for PF and efficiency.
+  - **Estimator settled by convergence**, not preference: at 26.0 deg over meshes
+    1536/4, 2048/6, 3072/10, 4096/10 the annulus reads 1.739 / 1.747 / 1.778 / 1.770 N.m
+    (2.2%), the single circle 9.0%, the 9-ring average 22.8% and non-monotone.
+  - `solve_point` now returns `T_ann` / `T_ann_err`; `iron_loss`, `pf_check` and
+    `saliency_screen` use them. `DELTA_OP` 26.25 -> 26.0 (the sweep argmax).
+  - Re-certified: **torque 1.77 +- 0.14 N.m** (vs frozen 1.60), **efficiency 93.2%**
+    (91.6-94.1%, unchanged), **iron 16.3 W median** (vs 12.1). **PF 0.578 / 1.06 kVA**
+    (vs 0.633 / 0.90) - PF moved down and is **OPEN** pending a same-estimator baseline.
+  - Ripple still NOT ESTABLISHED, but the experiment design is now corrected: this sweep is a
+    *load-angle* curve because it fixes the current in the stator frame; a running machine
+    holds it in the rotor frame, so ripple needs the pattern rotated with the rotor.
+  `validation/torque_curve/RESULT.md`, D-016.
 - **2026-10-23 (D-015: slot binning fixed, certified numbers frozen)** - Auditing the
   ripple model found that `split_slots` binned cells with `floor(theta/pitch)` while the
   geometry centres slot k at k*pitch, so every bin sat **+0.513 pitch** off its slot

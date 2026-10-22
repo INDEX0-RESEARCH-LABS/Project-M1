@@ -1,7 +1,12 @@
 # RESULT - the torque-angle curve is not what the record says
 
-**Verdict: two defects, one fixed and one open. The certified operating point must be
-re-derived before D-014 is quoted again.**
+**Verdict: the half-slot defect is fixed (D-015). The 0.25 deg sweep on the corrected
+winding is now done, and it shows the curve has deep, converged dips that are real
+torque reversals, not notches. The extractor question is settled by convergence: the
+gap area integral is the only mesh-stable estimator, and the single circle used by the
+certification chain carries a +0.55 N.m bias on a solid-rotor null test.**
+
+Sections 1-5 were written before the sweep. Sections 6-10 report it.
 
 This section started as a ripple investigation. It became a check of the torque-angle
 curve itself, and the curve failed. Nothing here was found by tuning; every number below
@@ -137,3 +142,123 @@ honest error bar instead of a single number with no uncertainty.
 3. Only then re-open ripple, on a curve whose sampling and angle axis are both sound.
 4. If a dip survives all of that, it needs a saturation diagnostic (Bmax and the order-2
    gap-field spectrum per angle) before it can be called physical.
+
+## 6. The 0.25 deg sweep on the corrected winding (item 1 of section 5, DONE)
+
+181 points, 0-45 deg at 0.25 deg, 1536 rays / 4 gap rows, J = 5.21 A/mm2, corrected
+binning. Each point carries the 9-ring average (T9), the gap area integral (ann) and
+its 4-band spread. Raw data: `sweep_0p25deg.csv` in this directory.
+
+| delta | what | T9 N.m | ann N.m |
+|---|---|---|---|
+| 0.00 | zero (q-alignment) | 0.010 | 0.022 |
+| 4.00 | dip | 0.006 | 0.031 |
+| 9.25 | shoulder minimum | 0.766 | 0.751 |
+| 12.50 | dip | 0.354 | 0.308 |
+| 22.50 | dip | 0.529 | 0.513 |
+| **26.00** | **peak** | **1.813** | 1.739 |
+| 33.00 | dip | 0.251 | 0.213 |
+| 41.75 | dip | 0.073 | 0.136 |
+| 45.00 | zero (d-alignment) | 0.030 | 0.021 |
+
+Peak annulus is 25.50 deg (1.753). The peak is a plateau: 25.5-27.5 deg stays within
+1.5% of the maximum, so an operating angle of 26.0 vs 26.25 is not a meaningful choice.
+
+Mean torque over 0-45 deg is 0.833 N.m, so peak/mean = 2.18. An ideal synchronous
+reluctance curve `sin(4*delta)` has peak/mean = 1.57. The curve is substantially
+lumpier than the fundamental it is supposed to be.
+
+Gate A2, restated on the corrected winding: **still FAILS**. 102 of 181 points lie more
+than 10% from the 5 deg interpolant.
+
+## 7. The dips are torque reversals, and `abs()` was hiding it
+
+`torque_at` returns `abs()`, so a genuine sign reversal looks exactly like a notch.
+Signed values, 1536/4, same solutions:
+
+| delta | 1.0 | 2.0 | 2.5 | 3.0 | 3.5 | 4.0 | 4.5 | 5.0 |
+|---|---|---|---|---|---|---|---|---|
+| single circle | +0.010 | -0.107 | -0.143 | -0.112 | -0.017 | +0.183 | +0.396 | +0.542 |
+| 9-ring average | -0.029 | -0.223 | -0.265 | -0.228 | -0.144 | +0.006 | +0.237 | +0.361 |
+| gap annulus | -0.043 | -0.245 | -0.273 | -0.245 | -0.168 | -0.010 | +0.219 | +0.325 |
+
+All three estimators agree in sign and magnitude. The torque is genuinely negative
+between about 1.5 and 3.9 deg and crosses zero at 3.95 deg. That is not a numerical
+notch to zero: it is a 0.27 N.m negative lobe, 15% of the peak.
+
+A negative lobe is physically admissible in a *static* sweep, because the stator
+current pattern is fixed in space while the rotor turns, so the current-versus-rotor
+angle sweeps a full cycle. The lobe means the flux is non-sinusoidal enough for a
+4th-order torque harmonic to dominate near the q-axis. It does not by itself violate
+any invariant: the curve is odd in delta by the 45 deg mirror symmetry, and the
+winding pattern is antisymmetric under that mirror by design.
+
+## 8. Four candidate mechanisms tested; all four refuted
+
+Declared before running: each test is a null result if the dip survives it.
+
+1. **Ray-degeneracy slivers.** `synrm_mesh` merged rays closer than 1e-4 rad, and the
+   barrier-edge rays land on that floor exactly in the 3.5-4.0 deg band. `RAY_MERGE_TOL`
+   was made a module constant and varied. At 4.0 deg: 0.0063 (1e-4), 0.0067 (5e-4),
+   0.0396 (2e-3) N.m; 5e-3 produced zero-area elements and a singular matrix. The dip
+   survives a 20x tolerance change. **Refuted.**
+2. **Material misclassification.** Barrier and rotor-iron areas were integrated at 46
+   angles. Both are constant to 1e-6 relative and equal to the analytic values. The
+   classification does not move with delta. **Refuted.**
+3. **Extractor bias.** A rotor with no barriers must give exactly zero torque at every
+   angle. Measured at 0 / 12.25 / 26.25 / 33 deg: single circle **+0.540 / +0.548 /
+   +0.570 / +0.551 N.m**, 9-ring -0.046 / -0.043 / -0.019 / -0.045, annulus -0.140 /
+   -0.138 / -0.115 / -0.141. The biases are constant in angle, so they cannot create a
+   dip. **Refuted as the cause; but this test also condemns the single circle, which is
+   the estimator the certification chain uses (`dq_model.solve_point`).**
+4. **Discretisation.** Mesh refinement at the dips, T9 (1536/4 -> 1536/8 -> 3072/8):
+   delta 33 gives 0.251 / 0.157 / 0.196; delta 22.5 gives 0.529 / 0.481 / 0.489. The
+   dips are stable at ~1/5 of the peak. **Refuted.**
+
+Saturation is an amplifier, not the cause: dip/peak at 22.5 vs 26.0 is 0.455 at
+J = 1.05 A/mm2 (essentially linear), 0.333 at 2.60, 0.292 at 5.21. The structure is
+geometric and survives into the linear regime.
+
+**Conclusion: within this model the dips are converged features of the field solution.**
+No claim is made that the model represents a real laminated rotor; the 2D model has no
+laminations, no end effects and a single-valued B-H curve.
+
+## 9. The estimator question is settled by convergence, not by argument
+
+Mesh ladder at delta = 26.0, J = 5.21, S6 geometry:
+
+| mesh (rays/rows) | single circle | 9-ring average | gap annulus | 4-band spread |
+|---|---|---|---|---|
+| 1536/4 | 2.036 | 1.813 | 1.739 | 13.0% |
+| 2048/6 | 1.898 | 1.571 | 1.747 | 12.4% |
+| 3072/10 | 1.900 | 1.930 | 1.778 | 6.7% |
+| 4096/10 | 1.855 | 1.823 | **1.770** | 8.7% |
+| spread | 9.0% | 22.8% | **2.2%** | |
+
+The ring average is not monotone in the mesh at all, which is what an estimator that
+samples element-constant B on a few circles should look like. The area integral
+converges to 1.77 N.m.
+
+Error bar from the solid-rotor null: -0.14 N.m on the annulus. **T_peak = 1.77 +- 0.14
+N.m.** D-014's frozen 1.60 sits just under the lower edge of that band, so the
+re-certified torque is higher, but not by more than the estimator uncertainty.
+
+## 10. What this changes in the record
+
+- **D-016**: the gap area integral is the standard absolute-torque estimator. The
+  single circle is retired for absolute torque (it carries a +0.55 N.m bias and does
+  not converge); the 9-ring average is retired as well (23% mesh sensitivity).
+  `dq_model.solve_point` now returns `T_ann` and `T_ann_err`, and the certification
+  chain (`iron_loss`, `pf_check`) uses them. Torque feeds PF and efficiency through
+  `p_mech`, so those move too.
+- The operating point moves from 26.25 to **26.0 deg**, the argmax of the corrected
+  sweep. The plateau makes this a small change.
+- **Ripple is still NOT ESTABLISHED, but the reason is now better understood.** This
+  sweep holds the stator current pattern fixed while the rotor turns, which makes it a
+  *load-angle* curve, not a running-torque curve. A running machine under field
+  orientation holds the current fixed in the **rotor** frame, so a ripple measurement
+  must rotate the pattern with the rotor and vary delta: then only slot-locking
+  remains. That is a new experiment, declared before it runs, not an inference from
+  this curve.
+- The dips must be resolved before any NVH or control claim: the operating point sits
+  3.5 deg from a dip that costs 70% of the torque.

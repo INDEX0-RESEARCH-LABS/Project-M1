@@ -15,7 +15,7 @@ sys.path.insert(0, str(HERE))
 import dq_model as D          # noqa: E402
 import rajini_anchor as A     # noqa: E402
 from envelope_validation import build  # noqa: E402
-from fem_magnetics import load_bh_curve  # noqa: E402
+from fem_magnetics import load_bh_curve, torque_annulus  # noqa: E402
 
 J = 5.34e6
 CONFIGS = (
@@ -60,9 +60,11 @@ def run_config(name: str, kw: dict, H, B) -> dict:
         out[tag] = r
     op = out["op"]
     i = op["i"]
-    t_nm = op["T"] * D.L_STACK
+    # D-016: torque and PF from the converged gap area integral, not the
+    # single circle (which carries a +0.55 N.m solid-rotor bias).
+    t_nm = op["T_ann"] * D.L_STACK
     lam_par = op["lam_alpha"] * n_c1
-    lam_perp = op["T"] * D.L_STACK / (1.5 * D.P_POLES * i)
+    lam_perp = op["T_ann"] * D.L_STACK / (1.5 * D.P_POLES * i)
     r_ph = D.RHO * 6 * n_c1**2 * D.MTL / (A.FILL * op["a_slot"])
     w_m = 2 * math.pi * (D.RPM / 60)
     w_e = w_m * D.P_POLES
@@ -92,7 +94,13 @@ def confirm_deep(H, B, j_mm2=None) -> int:
     t = [torque_at(res, r) for r in (1, 5, 9)]
     n_c1 = D.turns(D.BORE, D.L_STACK, 1)
     i = jj * A.FILL * res["a_slot"] / n_c1
-    t9 = t[2]
+    g_op = build(D.DELTA_OP, D.BORE, **kw)
+    bands = torque_annulus(res["sol"], g_op.rotor_od / 2 + 1e-6,
+                           g_op.stator_bore / 2 - 1e-6, 1.0, n_bands=4) * D.L_STACK
+    t_ann = float(bands.mean())
+    print(f"  annulus T={t_ann:.3f} N.m  band spread "
+          f"{(bands.max()-bands.min())/abs(t_ann):.1%}  (single circle {t[0]:.3f})")
+    t9 = t_ann
     lam_perp = t9 / (1.5 * D.P_POLES * i)
     lam_par = res["lam_alpha"] * n_c1
     r_ph = D.RHO * 6 * n_c1**2 * D.MTL / (A.FILL * res["a_slot"])

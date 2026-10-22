@@ -493,3 +493,55 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
 - **Status:** FIXED (winding), OPEN (re-certification, dips, low-torque extractor).
   `validation/torque_curve/RESULT.md`. Next: full 0.25 deg static sweep on the corrected
   winding with band error bars, then re-certify the operating point.
+
+## D-016 - Re-certification: annulus estimator is standard, torque is 1.77 N.m, PF drops to 0.578
+- **Date:** 2026-10-23
+- **Context:** D-015 froze D-014's numbers pending re-certification on the corrected
+  winding. That work is done: a 181-point 0.25 deg static sweep, four null/mechanism
+  experiments, a four-mesh ladder, and re-runs of the certification scripts.
+- **Gate declared before the sweep:** A1 (T(0), T(45) <= 5% of peak) already PASS from
+  D-015; A2 (0.25 deg curve within 10% of the 5 deg interpolant) - **FAIL**, 102/181
+  points, as expected once the dips are real.
+- **Found 1 - the dips are torque reversals, not notches.** `torque_at` returns `abs()`,
+  which hid a genuine sign change. Signed values from all three estimators agree: the
+  torque is negative from ~1.5 to ~3.9 deg and crosses zero at 3.95 deg, with a -0.27 N.m
+  lobe (15% of peak). Dips also at 12.5, 22.5, 33.0 and 41.75 deg (14-29% of peak).
+- **Found 2 - four candidate mechanisms, all refuted.** Ray-merge slivers (tolerance
+  1e-4 -> 2e-3 changes nothing; 5e-3 goes singular); material misclassification (barrier
+  and rotor-iron areas constant to 1e-6 over 46 angles); extractor bias (the solid-rotor
+  null is constant in angle, so it cannot create a dip); discretisation (three meshes at
+  each dip agree to within ~25% on a value already 5x below the peak). Saturation is an
+  amplifier, not the cause: dip/peak is 0.455 at J=1.05 (linear), 0.333 at 2.60, 0.292 at
+  5.21. **The dips are converged features of this model.**
+- **Found 3 - the solid-rotor null test condemns the single-circle extractor.** A rotor
+  with no barriers must give exactly zero torque. Measured at four angles: single circle
+  **+0.55 N.m** (33% of working torque), 9-ring -0.04, annulus -0.13, all constant in
+  angle. `dq_model.solve_point` used the single circle, so it fed torque into PF and
+  efficiency through `p_mech`.
+- **Decision - estimator:** the gap area integral (`torque_annulus`) is the standard
+  absolute-torque estimator. Evidence is convergence, not preference: over meshes
+  1536/4, 2048/6, 3072/10, 4096/10 it reads 1.739 / 1.747 / 1.778 / 1.770 N.m (2.2%
+  spread), against 9.0% for the single circle and 22.8% (non-monotone) for the 9-ring
+  average. `solve_point` now returns `T_ann` and `T_ann_err`; `iron_loss`, `pf_check` and
+  `saliency_screen` use them. The single circle is kept only for legacy comparison.
+- **Re-certified numbers at delta = 26.0 deg** (the argmax of the corrected sweep;
+  25.5-27.5 is a plateau within 1.5%):
+  - torque **1.77 +- 0.14 N.m** (annulus, 2.2% mesh spread; the error bar is the
+    solid-rotor null bias) versus D-014's frozen 1.60. A co-energy check at J=6 gives
+    40.9 N.m/m against the annulus 46.4 (-12%), so the band is honest rather than tight.
+  - iron loss median **16.3 W** (band 10.1-27.4) versus 12.1 W frozen - the corrected
+    winding concentrates the same MMF and the rotor saturates harder (Bmax 2.83 T).
+  - efficiency **93.2% (91.6-94.1%)** versus 93.4% frozen: unchanged within the band.
+  - S6 at J=5.34, 3072/10, annulus: T = 1.873 N.m, **PF 0.578, S = 1059 VA** versus the
+    frozen 0.633 / 903 VA. **PF moves down 0.055 and apparent power up 17%.**
+- **What is NOT established:** the like-for-like baseline PF under the new estimator has
+  not been re-run, so the *size* of S6's PF advantage is unknown; only its sign (above
+  the 0.49-0.54 baseline) is plausible. Since PF was the reason to adopt the deep-barrier
+  rotor, this is the next gate, not a footnote. The +24.3% torque figure printed by
+  `saliency_screen --confirm` compares against a hardcoded 1.507 baseline ring number and
+  is **not** quotable as a like-for-like gain.
+- **Status:** torque and efficiency RE-CERTIFIED. PF OPEN pending a same-estimator
+  baseline. Ripple still NOT ESTABLISHED, with a corrected experiment design: this sweep
+  holds the stator pattern fixed while the rotor turns, which makes it a load-angle
+  curve. A running machine holds the current in the rotor frame, so ripple must be
+  measured with the pattern rotated with the rotor. `validation/torque_curve/RESULT.md`.

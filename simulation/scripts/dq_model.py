@@ -23,12 +23,15 @@ import rajini_anchor as A  # noqa: E402
 from envelope_point_design import turns  # noqa: E402
 from envelope_validation import build  # noqa: E402
 from fem_magnetics import (co_energy_density, load_bh_curve, solve_az_core,
-                           torque_maxwell, MU0)  # noqa: E402
+                           torque_annulus_bands, torque_maxwell, MU0)  # noqa: E402
 from synrm_mesh import build_mesh  # noqa: E402
 
 BORE = 0.130
 L_STACK = 0.0504
-DELTA_D, DELTA_Q, DELTA_OP = 45.0, 0.0, 26.25
+DELTA_D, DELTA_Q = 45.0, 0.0
+# argmax of the corrected 0.25 deg sweep (D-016); 25.5-27.5 deg is a plateau
+# within 1%, so the exact value is not critical.
+DELTA_OP = 26.0
 RPM, P_POLES = 3000.0, 2
 V_CEIL = 48.0 / math.sqrt(3) * 0.95      # peak phase ceiling, same as the winding model
 MTL = 2 * L_STACK + 1.2 * math.pi * BORE / 4
@@ -65,6 +68,15 @@ def solve_point(delta: float, J: float, H, B, n_theta: int = 1536,
         raise RuntimeError(f"no convergence at delta={delta}, J={J}")
     r_gap = (g.stator_bore / 2 + g.rotor_od / 2) / 2
     T = torque_maxwell(sol, r_gap, 1.0, n_theta=2880)
+    # Converged absolute-torque estimator (D-016): area integral over the gap.
+    # The single circle above is kept for legacy comparison only. It carries an
+    # O(h) element-constant-B error (solid-rotor null test: +0.55 N.m at
+    # 1536/4) and does not converge under mesh refinement, while this integral
+    # holds to 2.2% over four meshes.
+    T_ann, ann_bands = torque_annulus_bands(
+        sol, g.rotor_od / 2 + 1e-6, g.stator_bore / 2 - 1e-6, 1.0, 4)
+    T_ann_err = float((ann_bands.max() - ann_bands.min())
+                      / max(abs(T_ann), 1e-12))
     # area-weighted slot mean of A_z (element mean of the three nodal values)
     ae = sol["A"][mesh.t].mean(axis=0)
     abar = {k: float((ae[c] * areas[c]).sum() / areas[c].sum())
@@ -89,7 +101,9 @@ def solve_point(delta: float, J: float, H, B, n_theta: int = 1536,
     air = np.abs(sol["nu"] - 1.0 / MU0) <= 1e-4 / MU0
     w = co_energy_density(bmag, H, B, np.where(air, 1.0, 0.0))
     Wp = float((w * areas).sum())
-    return {"delta": delta, "T": abs(T), "lam_per_turn": lam_per_turn,
+    return {"delta": delta, "T": abs(T), "T_ann": float(abs(T_ann)),
+            "T_ann_err": T_ann_err,
+            "lam_per_turn": lam_per_turn,
             "lam_alpha": lam_alpha, "lam_phase": lam_phase,
             "Wp": Wp, "a_slot": float(np.mean(list(slot_area.values()))),
             "Bmax": float(np.hypot(sol["Bx"], sol["By"]).max()),
@@ -122,10 +136,10 @@ def pf_check(H, B) -> int:
     lc = r["lam_phase"]["C"] * n_c1
     lam_alpha = r["lam_alpha"] * n_c1
     lam_beta = (lb - lc) / math.sqrt(3.0)
-    lam_perp_torque = -r["T"] * L_STACK / (1.5 * P_POLES * i)
+    lam_perp_torque = -r["T_ann"] * L_STACK / (1.5 * P_POLES * i)
     lam_mag_geo = math.hypot(lam_alpha, lam_beta)
     lam_mag_torque = math.hypot(lam_alpha, lam_perp_torque)
-    print(f"  J={j/1e6:.2f}  T={r['T']*L_STACK:.3f} N.m  i={i:.1f} A")
+    print(f"  J={j/1e6:.2f}  T={r['T_ann']*L_STACK:.3f} N.m  i={i:.1f} A")
     print(f"  phase linkages: la={la*1e3:+.3f}  lb={lb*1e3:+.3f}  lc={lc*1e3:+.3f} mWb")
     print(f"  lam_alpha={lam_alpha*1e3:+.3f} mWb  lam_beta={lam_beta*1e3:+.3f} mWb")
     print(f"  lam_perp from torque = {lam_perp_torque*1e3:+.3f} mWb  "
@@ -139,7 +153,7 @@ def pf_check(H, B) -> int:
     pf_by_route = {}
     for name, lb_ in (("geometry", lam_beta), ("torque", lam_perp_torque)):
         vhat = math.hypot(r_ph * i - w_e * lb_, w_e * lam_alpha)
-        pf = (p_cu + r["T"] * L_STACK * w_m) / (1.5 * vhat * i)
+        pf = (p_cu + r["T_ann"] * L_STACK * w_m) / (1.5 * vhat * i)
         pf_by_route[name] = pf
         print(f"  PF ({name:8s}): Vhat={vhat:.2f} V  PF={pf:.3f}  "
               f"S={1.5*vhat*i:.0f} VA")

@@ -18,6 +18,12 @@ from synrm_geometry import SynRMGeometry
 SHAFT, ROTOR, BARRIER = "shaft", "rotor_iron", "barriers"
 GAP, STATOR, SLOTS, AIR = "airgap", "stator_iron", "slots", "air"
 
+# Angular rays closer than this are merged. Barrier edges rotate with the rotor,
+# so they sweep across the fixed slot rays; a residual sliver of a few 1e-5 rad
+# is a badly conditioned element exactly where the barrier meets the gap.
+# Module constant so the sensitivity can be tested without editing code.
+RAY_MERGE_TOL = 1e-4
+
 
 def slot_angles(g: SynRMGeometry):
     r_bore = g.stator_bore / 2
@@ -164,7 +170,7 @@ def build_mesh(g: SynRMGeometry, *, n_r=30, n_theta=768, n_gap_rows=2):
         hs = (g.barrier_angle_frac * 2 * math.pi / g.rotor_n_poles) / 2
         extra += [c - hs, c + hs]
     th_ray = np.unique(np.concatenate([base, np.mod(np.array(extra), 2 * math.pi)]))
-    th_ray = th_ray[np.r_[True, np.diff(th_ray) > 1e-4]]
+    th_ray = th_ray[np.r_[True, np.diff(th_ray) > RAY_MERGE_TOL]]
     
     # radial breaks - refined in rotor/barrier bands
     r = np.concatenate([

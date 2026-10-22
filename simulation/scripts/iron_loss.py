@@ -71,7 +71,9 @@ def main(geom=None) -> int:
     for j_mm2 in (TARGET, 6.0):
         r = solve_point(DELTA_OP, j_mm2 * 1e6, H, B, geom=geom)
         be, ar, regions = r["Belem"], r["areas"], r["regions"]
-        print(f"\nJ={j_mm2:.2f}: T={r['T']*L_STACK:.3f} N.m  Bmax={r['Bmax']:.2f} T")
+        print(f"\nJ={j_mm2:.2f}: T={r['T_ann']*L_STACK:.3f} N.m "
+              f"(single circle {r['T']*L_STACK:.3f}, spread {r['T_ann_err']:.0%})  "
+              f"Bmax={r['Bmax']:.2f} T")
         tot = {}
         for name in ("stator_iron", "rotor_iron"):
             cells = np.asarray(regions[name], dtype=np.int64)
@@ -115,7 +117,7 @@ def main(geom=None) -> int:
               f"rotor {p_ro:.1f} W (rotor = UPPER BOUND, fundamental only)")
         # single source of truth for copper loss (enclosed, h=25), not a copy
         p_cu = thermal_estimate(BORE, L_STACK, j_mm2 * 1e6, 25.0)["p_cu"]
-        p_mech = r["T"] * L_STACK * 2 * math.pi * 50
+        p_mech = r["T_ann"] * L_STACK * 2 * math.pi * 50
         eff_cu = p_mech / (p_mech + p_cu)
         for label, p_fe in (("min", ps[0]), ("median", med[3]), ("max", ps[-1])):
             eff = p_mech / (p_mech + p_cu + p_fe)
