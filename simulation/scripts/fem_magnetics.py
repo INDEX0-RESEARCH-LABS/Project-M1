@@ -565,6 +565,62 @@ def torque_maxwell(sol: dict, r_airgap: float, depth: float,
     return float(np.mean(values))
 
 
+def torque_annulus(sol: dict, r_in: float, r_out: float, depth: float,
+                   n_bands: int = 1) -> np.ndarray:
+    """Torque from the area integral of the Maxwell stress over a gap annulus.
+
+    In a current-free, non-magnetic annulus the single-circle integral
+        T(r) = depth * r^2/mu0 * closed_integral Br*Bt dtheta
+    is independent of r, so its radial average is exactly
+        T = depth / (mu0*(r_out-r_in)) * integral_integral_annulus r*Br*Bt dA.
+
+    Evaluating that area integral element by element uses *every* element in the
+    gap, so the element-wise-constant-B error (P1 gives one constant B per
+    triangle) averages over ~1e4 triangles instead of the handful a few
+    sampling rings touch.  That is the point: a circle integral through
+    element-constant B carries an O(h) error that does not shrink with
+    n_rings when the rings all fall inside the same set of elements.
+
+    `n_bands > 1` splits the annulus into n_bands equal radial bands and
+    returns one torque per band.  Their spread is an honest error bar: in the
+    continuum every band gives the same number.
+
+    Returns an array of length n_bands (a scalar array for n_bands=1), with the
+    same sign convention as :func:`torque_maxwell`.
+    """
+    if r_out <= r_in:
+        raise ValueError(f"need r_out > r_in ({r_in=} {r_out=})")
+    if n_bands < 1:
+        raise ValueError(f"n_bands must be >= 1 ({n_bands=})")
+    if not sol.get("converged", True):
+        raise ValueError("refusing to extract torque from a non-converged solution")
+
+    tri = np.asarray(sol["tri"])
+    v = np.asarray(sol["verts"])
+    x = sol["cx"]
+    y = sol["cy"]
+    r = np.hypot(x, y)
+    area = 0.5 * np.abs((v[0, tri[1]] - v[0, tri[0]]) * (v[1, tri[2]] - v[1, tri[0]])
+                        - (v[0, tri[2]] - v[0, tri[0]]) * (v[1, tri[1]] - v[1, tri[0]]))
+    br = (sol["Bx"] * x + sol["By"] * y) / r
+    bt = (-sol["Bx"] * y + sol["By"] * x) / r
+    contrib = r * br * bt * area                     # integral kernel, per element
+
+    edges = np.linspace(r_in, r_out, n_bands + 1)
+    out = np.empty(n_bands)
+    for i in range(n_bands):
+        sel = (r >= edges[i]) & (r < edges[i + 1])
+        out[i] = depth / (MU0 * (edges[i + 1] - edges[i])) * contrib[sel].sum()
+    return out
+
+
+def torque_annulus_bands(sol: dict, r_in: float, r_out: float, depth: float,
+                         n_bands: int) -> np.ndarray:
+    """Convenience wrapper: torque per radial band plus mean, as (mean, bands)."""
+    bands = torque_annulus(sol, r_in, r_out, depth, n_bands=n_bands)
+    return float(bands.mean()), bands
+
+
 def b_magnitude_at(sol: dict, x: float, y: float) -> float:
     """|B| at the mesh node nearest (x, y), averaged over its incident elements.
 

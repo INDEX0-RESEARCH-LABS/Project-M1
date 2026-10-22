@@ -5,6 +5,23 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
 ## [Unreleased]
 
 ### Added
+- **2026-10-23 (D-015: slot binning fixed, certified numbers frozen)** - Auditing the
+  ripple model found that `split_slots` binned cells with `floor(theta/pitch)` while the
+  geometry centres slot k at k*pitch, so every bin sat **+0.513 pitch** off its slot
+  (measured geometrically). The applied MMF was rotated 5 deg mechanical and the belt
+  boundaries mixed two phases into one current density. `rajini_anchor`'s own docstring
+  requires T = 0 at delta = 0 and 45; as shipped those read 0.4386 and 0.4577 N.m, and
+  after the one-line fix 0.0102 and 0.0296. The fix is not a relabelling: torque at the
+  same label moves 1.5761 -> 1.7897 N.m, so D-014's torque, lambda, PF, S, efficiency
+  and ceiling are **frozen pending re-certification**, not withdrawn. Regression test
+  `test_split_slots_bins_are_centred_on_geometry_slots` (fails at 0.513 pitch).
+  Also found and recorded: the torque-angle curve has dips the 5 deg grid stepped over
+  (T9 < 0.05 N.m at 42.5-43.75 deg against 1.07 at 40 and 0.46 at 45, reproducible at
+  3072/10), and the Maxwell extractor cannot resolve torque below ~0.5 N.m (four gap
+  bands spread 10.7% at the certified point, 9x at a dip). New estimator
+  `fem_magnetics.torque_annulus` (area integral over the gap, band spread as error bar)
+  agrees at the certified point: 1.536 vs 1.576 N.m.
+  `validation/torque_curve/RESULT.md`, D-015.
 - **2026-10-22 (torque ripple: attempted, NOT established)** - Two harness generations
   for load torque ripple. Gen 1 swept the rotor with the current pattern fixed in the
   stator frame, which is the **static torque-angle curve**, not ripple; it was

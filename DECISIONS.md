@@ -457,3 +457,39 @@ Status: `PROPOSED` | `APPROVED` | `REJECTED` | `SUPERSEDED` by D-NNN.
   the largest remaining), punching tooling for 16 barriers and 3.8 mm ribs, and the fact
   that the co-energy arbiter was not re-run on S6 (the baseline's -4% factor is applied,
   so the +16% ratio is stronger evidence than the absolute 1.685 N.m).
+
+## D-015 - Slot binning followed the wrong angle convention; certified numbers frozen
+- **Date:** 2026-10-23
+- **Context:** auditing the torque-ripple model turned into a check of the torque-angle
+  curve itself. `rajini_anchor`'s docstring (2026-10-21) states that delta = 0 and
+  delta = 45 must both be torque-free by symmetry, and `synrm_geometry.stator_profile`
+  centres slot k at k*pitch, which is why `synrm_mesh._in_slot` was corrected to that
+  convention on 2026-10-20.
+- **Found:** `split_slots` still binned with `floor(theta/pitch)`, so bin i spanned
+  [i*pitch, (i+1)*pitch) and sat centred on (i+0.5)*pitch. Measured geometrically:
+  **+0.513 pitch offset on every bin** (max 0.519), zero after the fix. The applied MMF
+  was therefore rotated by half a slot pitch (5 deg mech, 10 deg elec), and every belt
+  boundary averaged two phases into one current density.
+- **Gate A1 (pre-existing invariant, not a new threshold):** T(0) and T(45) <= 5% of peak.
+  As shipped 0.4386 and 0.4577 N.m (27% and 29%) -> **FAIL**, with the real zero displaced
+  to 50 deg. Fixed: 0.0102 and 0.0296 N.m (0.6% and 1.9%) -> **PASS**.
+- **Decision:** fix `split_slots` (one line, `+0.5*pitch`), keep the invariant as a
+  regression test (`tests/test_rajini_winding.py`), and **freeze D-014's headline numbers
+  rather than withdraw them**. They were computed self-consistently on the shipped
+  binning, which describes a valid machine - just not the winding the labels and the
+  drawing describe.
+- **Why freeze and not re-quote:** the fix is not a relabelling. Torque at the same label
+  moves 1.5761 -> 1.7897 N.m (+13.6%) because removing the belt-boundary phase mixing
+  changes the machine. Torque, lambda, PF, S, efficiency and the speed ceiling are all
+  affected and must be re-derived on the corrected winding.
+- **Also found in the same audit, recorded here because it gates the re-certification:**
+  the torque-angle curve has dips the 5 deg grid stepped over (T9 < 0.05 N.m over
+  42.5-43.75 deg against 1.07 at 40 and 0.46 at 45), reproducible at 3072/10; and the
+  Maxwell extractor cannot resolve torque below ~0.5 N.m (four radial gap bands spread
+  10.7% at the certified point, 9x at the dip), because element-constant B gives an O(h)
+  circle integral. A robust area-integral estimator (`fem_magnetics.torque_annulus`) was
+  added and agrees at the certified point (1.536 vs 1.576 N.m) with an honest per-band
+  error bar.
+- **Status:** FIXED (winding), OPEN (re-certification, dips, low-torque extractor).
+  `validation/torque_curve/RESULT.md`. Next: full 0.25 deg static sweep on the corrected
+  winding with band error bars, then re-certify the operating point.

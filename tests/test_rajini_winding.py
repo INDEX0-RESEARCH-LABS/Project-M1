@@ -116,3 +116,28 @@ def test_matlib_bracket_curves_parse():
     # load_bh_curve must stay away from it in the anchor (documented here).
     with pytest.raises(Exception):
         load_bh_curve("M-47 Steel")
+
+
+# ---- slot binning must follow the geometry's slot convention ----
+def test_split_slots_bins_are_centred_on_geometry_slots():
+    """Bin k must be the cells of the physical slot centred at k*pitch.
+
+    `stator_profile` centres slot k at k*pitch and `_in_slot` tests against that
+    same convention, so a half-pitch offset in the binning silently rotates the
+    applied MMF by half a slot (found 2026-10-23: it made the two angles that
+    must be torque-free read 0.44 and 0.46 N.m instead of ~0).
+    """
+    from rajini_anchor import split_slots
+
+    n = 36
+    pitch = 2 * math.pi / n
+    mesh, sub, _ = build_mesh(g_rajini(n_slots=n), n_theta=768, n_gap_rows=2)
+    sg = split_slots(mesh, sub)
+    for k in range(n):
+        cells = sg[f"slot_{k:02d}"]
+        assert cells.size > 0, f"bin {k} is empty"
+        cx, cy = mesh.p[:, mesh.t[:, cells]].mean(axis=2)
+        th = math.atan2(cy.mean(), cx.mean()) % (2 * math.pi)
+        err = (th - k * pitch + math.pi) % (2 * math.pi) - math.pi
+        assert abs(err) < 0.2 * pitch, (
+            f"bin {k} is centred {err / pitch:+.2f} pitch from slot {k}")

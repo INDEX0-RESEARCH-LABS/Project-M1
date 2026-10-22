@@ -1,6 +1,12 @@
 # Current state - single source of truth
 
-**As of D-014 (2026-10-22).** Everything here is reproduced by the scripts named
+**As of D-015 (2026-10-23): certified numbers are FROZEN pending re-certification.**
+A half-slot offset in `split_slots` rotated the applied MMF by 5 deg mechanical, so the
+angle axis of every torque sweep was wrong and the belt boundaries mixed two phases.
+The fix is in and regression-tested; D-014's numbers below were computed on the shipped
+binning and are kept for traceability, not for quoting. See section 4 and
+`validation/torque_curve/RESULT.md`. **As of D-014 (2026-10-22).** Everything here is
+reproduced by the scripts named
 in section 6. Where a number moved during the campaign, the latest value is here and the
 superseded one is marked in `DECISIONS.md`; **quote from this file, not from old RESULT
 sections.**
@@ -54,9 +60,10 @@ it was: 7.37 kg of iron for 0.5 kW, at 93.5%.
 | item | status | what unblocks it |
 |---|---|---|
 | Winding turns | **DECIDED (D-013): k=2**, ceiling **~6,840 rpm** at the 1.6 N.m target with D-014 (was ~5,860 with the shallow rotor) | reopens if the final gear ratio pushes the motor past ~6,800 rpm |
-| **Deep-barrier rotor (D-014)** | **ADOPTED**: +16.2% torque at equal current, PF 0.633, S 0.86 kVA at the target; Gate B SF 12.2 at 7000 rpm; iron 12.1 W median | punching tooling. Ripple/NVH was attempted and is **not established**: the synchronized sweep contradicts the static curve, so no number is quoted (`torque_ripple/RESULT.md`) |
+| **Deep-barrier rotor (D-014)** | **ADOPTED, numbers FROZEN by D-015**: +16.2% torque at equal current, PF 0.633, S 0.86 kVA at the target; Gate B SF 12.2 at 7000 rpm; iron 12.1 W median - all measured on the pre-fix slot binning, re-certification required (torque at the same label moves 1.576 -> 1.790 N.m after the fix) | re-certification on the corrected winding, then punching tooling. Ripple/NVH was attempted and is **not established**: the torque curve is unresolved below 0.5 N.m and has dips the 5 deg grid missed (`torque_curve/RESULT.md`) |
 | **PF at 48 V** | **CLOSED by D-014**: 0.633 / 0.86 kVA at the target, no voltage, winding or frame change | D-012's founder choice shrinks to accepting 0.86 kVA or spending on a higher-current controller; nothing technical is blocking |
-| **Torque extractor convergence** | ABSORBED - 1.45 N.m +/-4%, single-circle torque retired; `torque_at` returns `abs()`, so it cannot detect a torque sign inversion (found 2026-10-22) | one fully converged certification point (4096/20, rings 9 + co-energy) would restore a point value; ~15 min compute. Sign handling needs a signed path before any generating/braking claim |
+| **Torque extractor convergence** | ABSORBED - 1.45 N.m +/-4% **at the certified point only**. `torque_at` returns `abs()` (no sign structure); angle-resolved torque below **~0.5 N.m is not resolvable** (four gap bands spread 10.7% at the certified point, 9x at a dip). New `fem_magnetics.torque_annulus` area-integral estimator gives 1.536 vs 1.576 N.m at the certified point with a per-band error bar (2026-10-23) | one fully converged certification point (4096/20, rings 9 + co-energy + annulus) would restore a point value; ~15 min compute. Low-torque work needs a stress method that does not depend on element-constant B (local jacobian or co-energy) |
+| **Slot binning convention** | **FIXED (D-015)**: `split_slots` was half a slot off the geometry's k*pitch convention (+0.513 pitch measured), rotating the MMF 5 deg mech and mixing phases at belt boundaries; T(0)/T(45) read 0.44/0.46 N.m instead of 0.01/0.03 | regression test in `tests/test_rajini_winding.py`; nothing else to do |
 | True MTPA angle | NOT ESTABLISHED | a ring-averaged angle sweep with continuation between angles |
 | Rotor slot-harmonic loss (~1800 Hz) | NOT MODELLED | a time-domain eddy solve; scoping bound 0.8-3.3 W (ASSUMED ripple, `iron_loss/RESULT.md` s.5) |
 | Slot fill / windability | ASSUMED 0.40 | the 3.0 mm semi-closed mouth needs needle winding; at fill 0.36 the loss is +11% and efficiency ~91.8%. Resolves on the first wound stator |

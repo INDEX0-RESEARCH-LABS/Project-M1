@@ -129,12 +129,26 @@ def d_pattern() -> dict[int, float]:
 
 
 def split_slots(mesh, subdomains, n_slots: int | None = None) -> dict[str, np.ndarray]:
+    """Bin slot cells by slot index, using the geometry's slot convention.
+
+    `stator_profile` centres slot k at angle k*pitch, so bin i must be the set of
+    cells centred on i*pitch: the half-pitch shift below puts the bin boundary
+    between slots instead of through their centres.
+
+    Without it, bin i spans [i*pitch, (i+1)*pitch) and is physically centred at
+    (i+0.5)*pitch.  That rotated the applied MMF by half a slot pitch, mixed the
+    two phases that meet at every belt boundary, and made the two angles that
+    must be torque-free by mirror symmetry (delta = 0 and delta = 45, see the
+    module docstring) read 0.44 and 0.46 N.m.  Found 2026-10-23: the same
+    half-pitch mismatch `_in_slot` had already been corrected for, still live
+    here.  With the fix those two points read 0.010 and 0.030 N.m.
+    """
     n = n_slots if n_slots is not None else N_SLOTS
     pitch = 2 * math.pi / n
     cells = subdomains["slots"]
     ct = mesh.p[:, mesh.t].mean(axis=1)
     th = np.mod(np.arctan2(ct[1][cells], ct[0][cells]), 2 * math.pi)
-    k = np.mod(np.floor(th / pitch).astype(int), n)
+    k = np.mod(np.floor((th + 0.5 * pitch) / pitch).astype(int), n)
     return {f"slot_{i:02d}": cells[k == i] for i in range(n)}
 
 
