@@ -1,6 +1,6 @@
 # Current state - single source of truth
 
-**As of D-017 (2026-10-23): torque, efficiency and PF are RE-CERTIFIED; ripple is the open gate.**
+**As of D-018 (2026-10-23): PF and the torque *shape* are certified; mean torque is the open number.**
 The D-015 half-slot fix changed the machine, so D-014's numbers were re-derived on the
 corrected winding with a 181-point 0.25 deg sweep and a four-mesh ladder. Torque is now
 measured with the gap area integral, because a solid-rotor null test showed the
@@ -12,8 +12,10 @@ the baseline rotor **0.469 / 1.111 kVA** at the same angle and current, so S6 cl
 PF is lower than the 0.532 previously quoted because that number was measured on the
 uncorrected winding at 26.25 deg with a ring torque. **Torque ripple is now ESTABLISHED
 (D-018): ~100% peak-to-peak in-model, gate R3 FAILS, locked to the 30 deg winding repeat
-unit.** The certified 1.873 N.m is an instantaneous peak-angle value, not a running
-average; the full-period mean is being measured. See section 4 and
+unit.** The certified 1.873 N.m is an instantaneous peak-angle value: the measured
+running mean at J=5.21 is **1.202 N.m**, so the 1.6 N.m target now needs about J=6.9 on a
+mean basis (~42 W copper, ~89.6% efficiency, ~1.4 kVA - planning estimates, not
+certified). See section 4 and
 `validation/torque_ripple/RESULT.md`. **Superseded values are kept below and marked.**
 **Originally as of D-014 (2026-10-22).** Everything here is
 reproduced by the scripts named
@@ -48,11 +50,12 @@ ripple/NVH and tooling, not electromagnetics.
 |---|---|---|---|
 | frame | 130 mm bore, 50.4 mm stack, 188 mm OD, 4 poles, 36 slots | - | `envelope_point_design/RESULT.md` |
 | winding (decided, D-013) | single layer, 6 coils/phase, **10 turns/coil at a=4**, 2 x 1.2 mm per turn | SOLVED + scaling | `prototype/design/winding_spec_v1.md` |
-| torque at J=5.34 A/mm2 | **1.873 N.m** annulus, 6.6% band spread (D-016, 3072/10); 1.77 +- 0.14 at J=5.21. D-014 had 1.685 | SOLVED, band | `torque_curve/RESULT.md` s.9 |
+| torque at J=5.34 A/mm2 (**instantaneous**, 26.0 deg) | **1.873 N.m** annulus, 6.6% band spread (D-016, 3072/10); 1.77 +- 0.14 at J=5.21. D-014 had 1.685. This is one rotor position, not the running value | SOLVED, band | `torque_curve/RESULT.md` s.9 |
+| **mean torque over a revolution** (J=5.21, current angle 26.0) | **1.202 N.m** annulus (rings 5: 1.374), min 0.587 / max 1.739, p-p 95.8% at 2 deg sampling. Three 30 deg periods give identical means (1.1918). **This is the sizing number.** D-018 | SOLVED, band | `torque_ripple/RESULT.md` s.8 |
 | torque at J=6.0 | 1.920 N.m (baseline rotor, ring-averaged 3072/10); S6 not measured at J=6 | SOLVED | `torque_extractor/RESULT.md` |
 | torque per stack length | 38.5 N.m/m (rows 4/20/40: 38.50/37.86/39.67), ratio-based, shares the -9% extractor bias | SOLVED | `envelope_point_design/RESULT.md` |
 | torque-density utilization | 0.43 of the anchor-class expectation | DERIVED | `torque_density_audit` |
-| current for the 1.6 N.m target | **J = 5.21 A/mm2, 49.7 A peak** at k=2 (D-014; baseline needed 53.7 A) | SOLVED | `saliency_lever/RESULT.md` s.5 |
+| current for the 1.6 N.m target | **J = 5.21 A/mm2, 49.7 A peak** at k=2 (D-014; baseline needed 53.7 A) - **on an instantaneous basis**. On a *mean* basis (D-018) the estimate is J ~ 6.9 / ~66 A, to be re-certified | SOLVED (instantaneous) / DERIVED (mean, planning) | `saliency_lever/RESULT.md` s.5, `torque_ripple/RESULT.md` s.8 |
 | copper loss (hot, enclosed) | **23-24.5 W** at the 1.6 N.m target (D-014; baseline 26-28 W) | DERIVED | `thermal_first_order`, `saliency_lever` s.5 |
 | iron loss (100 Hz elec.) | 10.1-27.4 W, median **16.3 W** (D-016; D-014 had 12.1 W - the corrected winding saturates the rotor to 2.83 T) | ESTIMATE | `iron_loss --candidate` |
 | winding rise | **~14 K** with iron (9.2 K copper only) at the 1.6 N.m target; enclosed, h=25 | ESTIMATE | `thermal_first_order` |

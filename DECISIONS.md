@@ -634,10 +634,17 @@ matches the known 5th/7th mmf harmonics at 22.7%/18.5% of the fundamental, i.e. 
 
 **Consequences.**
 
-1. The certified 1.873 N.m at 26.0 deg is an **instantaneous peak-angle value**. Over the
-   measured window the mean is 1.296 N.m, about a quarter lower. Every downstream number
-   that used it - current for 1.6 N.m, copper loss, efficiency, kVA - is optimistic until
-   the full-period mean lands (sweep running).
+1. The certified 1.873 N.m at 26.0 deg is an **instantaneous peak-angle value**. The
+   full-period sweep (46 points, 0-90 deg at 2 deg) measures a **running mean of 1.202 N.m
+   at J = 5.21** (rings 5: 1.374), min 0.587 / max 1.739. The three 30 deg periods give the
+   same mean to four decimals (1.1918 each). So the sizing number drops 32% and the design
+   is **undersized on a mean-torque basis**: the 1.6 N.m target needs about J = 6.9, i.e.
+   ~1.8x the copper loss (23-24.5 W -> ~42 W), ~89.6% efficiency and ~1.4 kVA. Those are
+   linear planning estimates that ignore saturation (which makes them worse), not
+   certified numbers; re-certification at the new J is required before they are quoted.
+   Note this is a **stator-level** defect: the mechanism is winding-locked and the
+   baseline rotor inherits it, so D-014's *relative* rotor advantage is untouched while
+   the absolute design point moves.
 2. The R5 lever map frozen in the plan (slot opening or skew) does not cover the measured
    answer. The first lever is the **winding layout**; skew of one slot pitch is designed to
    suppress slot-order ripple and will under-deliver on a 6th-electrical component.

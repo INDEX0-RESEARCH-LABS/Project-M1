@@ -338,3 +338,20 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
     running mean over the measured window is 1.296 N.m. Full-period mean now measured.
   - `torque_ripple.py`: annulus columns added, window-matched adequacy (10 and 11.25 deg),
     ring-column mapping fixed, halt band widened so a legitimate dip cannot abort a sweep.
+
+### Changed
+- **2026-10-23 (D-018 continued: running mean torque measured - design is undersized)**
+  - Full-period sweep, 46 points, 0-90 deg at 2 deg, current angle 26.0, J=5.21:
+    **mean torque 1.202 N.m** (rings 5: 1.374), min 0.587 / max 1.739, p-p 95.8% at 2 deg
+    sampling. The three 30 deg periods give identical means to four decimals (1.1918).
+  - **Period confirmed exactly**: 12 pairs at a 30 deg shift differ by 0.0000 N.m; 22 pairs
+    at 10 deg differ by up to 0.362 N.m. An early 6-pair test suggested 20 deg was a
+    symmetry; 17 pairs show 0.362 N.m, so the partial test would have mis-assigned it.
+  - Consequence: 1.873 N.m at 26.0 deg is an instantaneous peak angle (peak/mean 1.45).
+    On a mean basis the 1.6 N.m target needs about J=6.9, ~1.8x copper loss, ~89.6%
+    efficiency, ~1.4 kVA - planning estimates pending re-certification at the new J.
+  - Co-energy arbiter added: peak 1.863 vs annulus 1.746 (1.07), dip 0.436 vs 0.448 (0.97).
+    The dip is in the stored-energy landscape, so it is not a gap-sampling artefact, and
+    the annulus slightly *understates* the modulation rather than inventing it.
+  - The current angle 26.0 was chosen on instantaneous torque; the mean-torque optimum is
+    unmeasured and is the next cheap lever.

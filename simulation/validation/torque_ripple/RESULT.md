@@ -170,6 +170,21 @@ carries about +-0.07 N.m; p-p is therefore **1.30 +- 0.07 N.m, i.e. 100% +- 5%**
 near-cancellation of large positive and negative gap contributions is a property of the
 dip, not of the mesh.
 
+**Co-energy arbiter: the dip is in the energy landscape.** The co-energy derivative
+shares no machinery with gap sampling, so it is the last independent route. With the coil
+currents frozen at the operating point and only the rotor moved by +-0.5 deg, the
+overall-bias factors come out +7% at the peak and -3% at the dip:
+
+| delta | annulus | co-energy | co/ann |
+|---|---|---|---|
+| 25.50 (peak) | 1.746 | 1.863 | 1.07 |
+| 33.00 (dip) | 0.448 | 0.436 | 0.97 |
+
+The dip survives. What that rules out is the whole class of "the gap integral sees a
+different field from the stored energy" artefacts, angle-dependent sampling included. It
+does not rule out a systematic error in the solved field itself, which would move both
+routes together.
+
 **R6 reconciliation: pass, ratio 0.99.** Over the same 20.375-31.625 deg window, where the
 static envelope slope is near zero, the static 0.25 deg sweep gives p-p 91.4% and the
 synchronized sweep 90.2%. The Gen 1 vs Gen 2 contradiction in section 4 is therefore
@@ -184,9 +199,13 @@ The period is measured, not assumed. Repeating the synchronized sweep and compar
 
 | shift | pairs | max abs difference | period? |
 |---|---|---|---|
-| 10.0 deg | 26 | 0.371 N.m (mean 0.268) | no - six times the estimator band |
-| 20.0 deg | 6 | 0.048 N.m (mean 0.044) | no - residual is inside the band, but 20 deg is not a symmetry of the winding |
-| 30.0 deg | 2.00 vs 32.00 | identical to 4 dp | **yes** (one pair; the full-period sweep extends this) |
+| 10.0 deg | 22 | 0.362 N.m (mean 0.152) | no |
+| 20.0 deg | 17 | 0.362 N.m (mean 0.179) | no |
+| 30.0 deg | 12 | **0.0000 N.m** | **yes, exact** |
+
+The 20 deg row is a lesson worth keeping: with the first 6 pairs it read 0.048 N.m, which
+looked like a symmetry. Seventeen pairs show 0.362 N.m. A partial test would have
+mis-assigned the period.
 
 30 deg mechanical is 60 electrical, which is **three slot pitches and exactly one repeat
 unit of the three-phase winding** (36 slots, 4 poles, q = 3 -> 3 slots per phase belt). It
@@ -205,13 +224,41 @@ shape second, not slot opening or skew alone.
 ## 8. Consequence for the certified operating point
 
 The 1.873 N.m certified at 26.0 deg (D-016) is an **instantaneous value at one rotor
-position inside a ~100% p-p modulation**, not a running average. Over the measured 22.5 deg
-window the mean is 1.296 N.m at J = 5.21, i.e. roughly a quarter below the value at the
-peak angle. A motor is sized on the mean, so every downstream number (current for
-1.6 N.m, copper loss, efficiency, the 48 V kVA figure) is optimistic until the full-period
-mean is measured. That measurement (`torque_ripple.py --start 0 --stop 90 --step 2`, 46
-points) is running; its result becomes the sizing input, and the instantaneous peak
-becomes a ripple specification instead.
+position inside a ~100% p-p modulation**, not a running average. The full-period sweep
+(`torque_ripple.py --start 0 --stop 90 --step 2`, 46 points, log
+`/tmp/opencode/m1/ripple_period.log`) gives the running number:
+
+| quantity | J = 5.21 A/mm2 |
+|---|---|
+| **mean torque, annulus** | **1.202 N.m** |
+| mean, rings 5 (continuity) | 1.374 N.m |
+| min / max | 0.587 / 1.739 N.m |
+| p-p at 2 deg sampling | 95.8% (100.2% at 0.5 deg over the window) |
+| peak at 26.0 deg / mean | 1.45 |
+
+The three 30 deg periods give the same mean to four decimals (1.1918 N.m each), which
+confirms the period independently of the shift test. The co-energy bias measured in
+section 6 (+7% at the peak, -3% at the dip) puts the true mean within a few percent of
+1.20-1.25 N.m; it does not move it toward 1.77.
+
+**So the design is undersized on a mean-torque basis.** The 1.6 N.m target was met at
+J = 5.21 against an instantaneous 1.77 N.m; against a mean of 1.202 N.m the same target
+needs about J = 6.9 A/mm2, which is roughly 1.8x the copper loss (23-24.5 W -> ~42 W) and
+a first-order efficiency of ~89.6% rather than 93.2%. Apparent power scales with current,
+so ~1.4 kVA rather than 1.06 kVA. Those are linear extrapolations that ignore saturation,
+which will make them worse rather than better, so they are a **planning estimate, not a
+certified number** - a re-certification at the new J is required before any of it is
+quoted.
+
+Two clarifications that keep this proportionate:
+
+- The mechanism is **winding-locked**, and the baseline rotor uses the same winding, so
+  this is a stator-level defect that both rotors inherit. It does not overturn D-014's
+  rotor choice, but it does move the whole design point.
+- The current angle 26.0 deg was chosen as the argmax of the *instantaneous* torque. The
+  angle that maximises *mean* torque has not been measured and is unlikely to be the same
+  when the modulation is this large. That is a cheap next lever (one 30 deg period per
+  angle) and it is not yet spent.
 
 Two ways this could still be an over-prediction, both testable at zero cost:
 
