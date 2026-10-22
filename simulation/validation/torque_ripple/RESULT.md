@@ -29,7 +29,7 @@ Checks that passed:
 | check | result |
 |---|---|
 | `alpha = 0` reproduces the certified point | `T5 = 1.6695` N.m at 1536/4; `T9 = 1.663` at 3072/10 (certified 1.60) |
-| 180 deg current rotation (all currents negated) | identical torque to 4 decimals |
+| 180 deg current rotation (all currents negated) | identical to 4 decimals - **VOID** |
 | 90 deg rotor periodicity, 3 independent pairs | identical to 4 decimals |
 | fine mesh at three points | 3.75: 0.802 vs 0.754 coarse; 42.25: 0.610 vs 0.548; 26.25: 1.663 vs 1.670 -> the large variations are not a coarse-mesh artifact |
 
@@ -42,6 +42,13 @@ Checks that failed:
 - Re-optimizing the current phase at `delta = 41.25` finds a best of **1.408 at
   `alpha = 20`**, i.e. 16% below the peak at `delta = 26.25` that no choice of current
   angle recovers.
+
+One check was recorded as passing on first writing and is **void**:
+`torque_at` returns `abs(torque_maxwell(...))`, so negating all three currents cannot
+change the returned number whatever the extractor does. Sign-reversal equality is
+therefore not evidence of anything. It is corrected here rather than left in the table
+as a green tick. Non-convergence is ruled out as a cause of the swing: `solve_raw`
+raises on `converged = False`, so a bad point cannot enter a sweep silently.
 
 ## 3. The static curve is clean, and it confirms D-014
 
@@ -58,9 +65,15 @@ Order 12 - the 6th electrical harmonic, the classic mmf-harmonic torque ripple -
 **2.4% of order 4**. Zeros at 5 and 50 deg, peak at 27-30 deg: **`DELTA_OP = 26.25`
 sits on the peak and the certified 1.60 N.m point is reproduced.** That is an
 independent confirmation of the D-014 headline from a different sweep than the one that
-produced it. `delta = 78` is a single unexplained outlier (0.60 against 1.48 expected);
-dropping it is what takes the RMS from 0.166 to 0.044, so it is worth one re-solve
-before it is called a measurement artifact.
+produced it.
+
+`delta = 78` is **not** a coarse-mesh artifact and not an extractor blip: re-solved at
+1536 rays / 10 gap rows it gives T9 = 0.509, and at 3072/10 it gives 0.528 (coarse 1536/4
+was 0.597). It is stable to ~4% across two mesh levels and sits between two good
+neighbours (75 deg: 1.57, 82 deg: 1.09), so a 3 deg wide dip of that depth is a
+property of the geometry as discretised, not of the mesh quality. Unexplained, and
+consistent with a local defect in the rotor-region classification at particular angles -
+the same class of defect that would explain section 2.
 
 Two caveats on the extractor, unchanged from earlier work: the ring-to-ring spread at
 1536/4 reaches 23% at some angles (`delta = 35`: T1 1.87, T9 1.44), so the coarse mesh
