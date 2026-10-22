@@ -42,13 +42,18 @@ R_SPREAD = 0.00016          # 0.16 mm each side of r_gap, inside the 0.52 mm gap
 
 
 def solve_raw(delta: float, J: float, H, B, n_theta: int, rows: int,
-              geom=None) -> dict:
-    """Same solve as dq_model.solve_point, but keeps the geometry for r_gap."""
+              geom=None, pattern=None) -> dict:
+    """Same solve as dq_model.solve_point, but keeps the geometry for r_gap.
+
+    `pattern` defaults to the certified instantaneous snapshot (i_a = 1,
+    i_b = i_c = -1/2).  The ripple sweep passes a rotated snapshot so that the
+    current vector turns with the rotor and the current angle stays fixed.
+    """
     g = geom if geom is not None else build(delta, BORE)
     mesh, sub, _ = build_mesh(g, n_theta=n_theta, n_gap_rows=rows)
     sg = A.split_slots(mesh, sub)
     areas = A.tri_areas(mesh)
-    pattern = A.d_pattern()
+    pattern = A.d_pattern() if pattern is None else pattern
     jz = {f"slot_{k:02d}": pattern[k] * J * A.FILL for k in range(A.N_SLOTS)}
     materials = {"air": 1.0, "airgap": 1.0, "barriers": 1.0,
                  "rotor_iron": (H, B), "stator_iron": (H, B), "shaft": (H, B)}

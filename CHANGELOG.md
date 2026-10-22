@@ -5,6 +5,23 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
 ## [Unreleased]
 
 ### Added
+- **2026-10-22 (torque ripple: attempted, NOT established)** - Two harness generations
+  for load torque ripple. Gen 1 swept the rotor with the current pattern fixed in the
+  stator frame, which is the **static torque-angle curve**, not ripple; it was
+  re-scoped and re-used as an independent check of the operating point. New
+  `torque_ripple.py` implements the correct steady-state model (phase currents advanced
+  with the rotor, current angle pinned at 26.25 deg), plus an optional `pattern=` on
+  `solve_raw`. It passes every consistency test: reproduces the certified 1.6695 N.m at
+  alpha=0, bit-identical under 180 deg current reversal, bit-identical at delta+90 for
+  three pairs, and fine-mesh stable. It fails adequacy anyway: torque runs 0.64-1.70
+  N.m over 45 deg, while the static curve of the same geometry fits orders 4/8/12 at
+  1.536/0.137/0.037 N.m with 0.044 RMS (order 12 = 2.4%). The winding harmonics were
+  verified correct (5th/7th at 22.7%/18.5%, slipping at alpha/5 backward and alpha/7
+  forward), so the mechanism is real but the 25x amplitude gap is unexplained.
+  **No ripple number is quoted**; R2 fails, R3 not applied. Side result, quotable:
+  the static curve `T = 1.536 sin(4(delta-5)) + ...` peaks at 27-30 deg and confirms
+  the certified 1.60 N.m point from an independent sweep; one outlier at delta=78.
+  `validation/torque_ripple/{PLAN,RESULT}.md`.
 - **2026-10-22 (D-014 adopted)** - **Gate B and iron loss on the deep-barrier rotor both
   pass, so the candidate becomes the design of record.** New `rotor_stress_fem.py`
   (2D plane-stress, validated against the solid-disk known answer to 0.17%) gives
