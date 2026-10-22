@@ -1,13 +1,17 @@
 # RESULT - load torque ripple of the deep-barrier rotor
 
-**Verdict: NOT ESTABLISHED. No ripple number is quoted.**
-The sweep is not reportable: two generations of the harness were built, and the second
-one is internally inconsistent with the first. The discrepancy is documented below
-rather than averaged away. What *is* established is the static torque-angle curve of
-D-014, which independently confirms the certified operating point.
+**Verdict: ESTABLISHED in-model at ~100% peak-to-peak, and that FAILS gate R3.**
+Gen 3 (2026-10-23) removed the two defects that made Gen 1 and Gen 2 disagree: the old
+static curve was sampled at 5 deg, which cannot represent a 10-30 deg modulation, and
+`torque_at` returned `abs()`, which hid the sign reversal. With the current pattern
+rotated with the rotor and the D-016 annulus estimator, the two excitation models now
+agree to within 1% (R6, ratio 0.99). The modulation is locked to the **winding repeat
+unit (30 deg mech = 3 slot pitches)**, not to the slot pitch or the rotor period.
+What follows is the record, including the two invalid generations.
 
-Gates were declared in `PLAN.md` before running. Disposition: **R1 pass, R2 fail,
-R3 not applied, R4 partial pass, R5 not reached.**
+Gates were declared in `PLAN.md` before running. Disposition of Gen 3: **R1 pass,
+R2' partial (window agreement passes, estimator band spread fails), R3 FAIL, R4' pass,
+R5 answered by the periodicity test, R6 pass.**
 
 ## 1. Generation 1 - the static torque-angle curve (invalid for ripple)
 
@@ -127,3 +131,97 @@ settle, and the audit continues in a separate review.
 
 No further compute was spent on this after the inconsistency appeared; the gates exist
 to stop exactly this kind of number from entering the record.
+
+## 6. Gen 3 - the modulation measured (2026-10-23)
+
+46 points, 15.0-37.5 deg at 0.5 deg, J = 5.21 A/mm2, current angle pinned at 26.0,
+1536 rays / 4 gap rows. Estimator: D-016 annulus (rings 1/5/9 written for continuity).
+Log `/tmp/opencode/m1/ripple_gen3.log`, CSV `/tmp/opencode/m1/ripple_gen3.csv`.
+
+| estimator | mean N.m | min | max | p-p fraction |
+|---|---|---|---|---|
+| rings 1 | 1.600 | 0.774 | 2.036 | 78.9% |
+| rings 5 | 1.465 | 0.609 | 1.929 | 90.1% |
+| rings 9 | 1.338 | 0.492 | 1.813 | 98.7% |
+| **annulus** | **1.296** | **0.448** | **1.746** | **100.2%** |
+
+Annulus extrema: minimum at 33.0 deg, maximum at 25.5 deg. All four estimators exceed
+the 15% gate; the sign and size of the verdict do not depend on the estimator.
+
+**R2' adequacy: partial.** The window-agreement half passes comfortably - 98.3% vs
+99.3% for the two 10 deg end windows (1.0 pp) and 98.0% vs 97.6% for 11.25 deg (0.4 pp),
+against a 2.0 pp gate. The estimator half fails: annulus band spread median **14.3%**,
+maximum **58.8%** at the dip, against gates of 10% and 20%. So the fraction is not
+quotable to better than a few percent. It is quotable to well within a factor of two, and
+the gate is 15%.
+
+**R4' extremum validation: pass.** The three extrema re-solved at 3072 rays / 10 gap rows
+(log `/tmp/opencode/m1/ripple_extrema.log`):
+
+| delta | coarse ann | fine ann | change |
+|---|---|---|---|
+| 23.00 | 0.5323 | 0.5551 | +4.3% |
+| 25.50 | 1.7461 | 1.7810 | +2.0% |
+| 33.00 | 0.4479 | 0.4765 | +6.4% |
+
+p-p = 1.3045 fine vs 1.2982 coarse, a difference of **0.5 pp** against a 2 pp gate. The
+band spread at the two dips stays 24% and 31% even at 3072/10, so the absolute dip value
+carries about +-0.07 N.m; p-p is therefore **1.30 +- 0.07 N.m, i.e. 100% +- 5%**. The
+near-cancellation of large positive and negative gap contributions is a property of the
+dip, not of the mesh.
+
+**R6 reconciliation: pass, ratio 0.99.** Over the same 20.375-31.625 deg window, where the
+static envelope slope is near zero, the static 0.25 deg sweep gives p-p 91.4% and the
+synchronized sweep 90.2%. The Gen 1 vs Gen 2 contradiction in section 4 is therefore
+resolved, and the resolution is the one section 4 already suspected: the static curve it
+relied on was sampled at 5 deg, i.e. two samples per 10 deg period, so it could not show
+this modulation. The 4/8/12 harmonic fit that produced "order 12 = 2.4%" is withdrawn.
+
+## 7. What the modulation is locked to
+
+The period is measured, not assumed. Repeating the synchronized sweep and comparing
+`T(delta + shift)`:
+
+| shift | pairs | max abs difference | period? |
+|---|---|---|---|
+| 10.0 deg | 26 | 0.371 N.m (mean 0.268) | no - six times the estimator band |
+| 20.0 deg | 6 | 0.048 N.m (mean 0.044) | no - residual is inside the band, but 20 deg is not a symmetry of the winding |
+| 30.0 deg | 2.00 vs 32.00 | identical to 4 dp | **yes** (one pair; the full-period sweep extends this) |
+
+30 deg mechanical is 60 electrical, which is **three slot pitches and exactly one repeat
+unit of the three-phase winding** (36 slots, 4 poles, q = 3 -> 3 slots per phase belt). It
+is not the 10 deg slot pitch and not the 90 deg rotor pole period. So the dominant
+modulation is locked to the *winding* repeat, which is the signature of an mmf-harmonic
+interaction rather than of bare slot opening. That is consistent with the winding audit in
+section 4: the 5th and 7th spatial harmonics sit at 22.7% and 18.5% of the fundamental,
+which is poor for q = 3 and is the classic source of 6th-electrical-harmonic torque ripple
+(12 cycles per mechanical revolution = 30 deg period).
+
+This does **not** match the R5 decision rule as frozen, which expected either the slot
+order (36) or a low order 2-6. R5 is answered by the measurement but the frozen lever map
+does not cover the answer: the lever is the **winding layout / phase belt**, with barrier
+shape second, not slot opening or skew alone.
+
+## 8. Consequence for the certified operating point
+
+The 1.873 N.m certified at 26.0 deg (D-016) is an **instantaneous value at one rotor
+position inside a ~100% p-p modulation**, not a running average. Over the measured 22.5 deg
+window the mean is 1.296 N.m at J = 5.21, i.e. roughly a quarter below the value at the
+peak angle. A motor is sized on the mean, so every downstream number (current for
+1.6 N.m, copper loss, efficiency, the 48 V kVA figure) is optimistic until the full-period
+mean is measured. That measurement (`torque_ripple.py --start 0 --stop 90 --step 2`, 46
+points) is running; its result becomes the sizing input, and the instantaneous peak
+becomes a ripple specification instead.
+
+Two ways this could still be an over-prediction, both testable at zero cost:
+
+1. **Stator slot opening.** 3.0 mm mouth on a 0.52 mm gap is a 5.8:1 opening, which is a
+   very large permeance modulation. A narrower mouth changes the mmf-harmonic coupling.
+2. **Skew.** None is modelled. Skew of one slot pitch is the standard remedy for exactly
+   this class of order, but it does not remove a pure 6th-electrical component, so the R5
+   answer above predicts skew will help less than usual.
+
+Neither can be tested by re-meshing: both are geometry changes and need their own declared
+gates. The honest status is **FAIL at ~100% p-p in a 2D current-source model, mechanism
+identified as winding-locked, magnitude one order larger than a shippable traction motor,
+and no experimental evidence either way** - there is still no motor on a bench.

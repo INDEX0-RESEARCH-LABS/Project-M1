@@ -57,6 +57,7 @@ J_DEEP = 5.21
 J_BASE = 5.62
 PHASE_ANGLE = {"A": 0.0, "B": -2.0 * math.pi / 3.0, "C": 2.0 * math.pi / 3.0}
 RINGS = (1, 5, 9)
+RING_COL = {1: 1, 5: 2, 9: 3}      # ring count -> CSV column
 
 
 def moving_pattern(alpha: float) -> dict[int, float]:
@@ -140,16 +141,16 @@ def analyse(paths, rings: int = 5) -> int:
     step = float(np.median(np.diff(d)))
     has_ann = np.isfinite(a[:, 4]).any()
     print(f"n={len(d)}  {d.min():.2f}..{d.max():.2f} deg  step {step:.2f}")
-    for r in RINGS:
-        print(f"  rings {r}: mean {a[:, r].mean():.4f}  min {a[:, r].min():.4f}"
-              f"  max {a[:, r].max():.4f}  p-p {_pp(a[:, r]):.2%}")
+    for name, col in RING_COL.items():
+        print(f"  rings {name}: mean {a[:, col].mean():.4f}  min {a[:, col].min():.4f}"
+              f"  max {a[:, col].max():.4f}  p-p {_pp(a[:, col]):.2%}")
     if has_ann:
         m = np.isfinite(a[:, 4])
         print(f"  annulus: mean {a[m, 4].mean():.4f}  min {a[m, 4].min():.4f}"
               f"  max {a[m, 4].max():.4f}  p-p {_pp(a[m, 4]):.2%}")
         print(f"  annulus band spread: median {np.median(a[m, 5]):.1%}  "
               f"max {a[m, 5].max():.1%}")
-    t = a[:, 4] if has_ann else a[:, rings]
+    t = a[:, 4] if has_ann else a[:, RING_COL[rings]]
 
     mean, lo, hi = t.mean(), t.min(), t.max()
     print(f"\nT = {mean:.4f} N.m  p-p = {hi - lo:.4f} N.m = {_pp(t):.2%}")

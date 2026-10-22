@@ -591,3 +591,59 @@ the hardcoded constant is gone, so no stored number enters a comparison.
    `validation/torque_ripple/PLAN.md`, Gen 3).
 4. `--confirm` costs two 3072/10 solves (~10 min) instead of one; that is the price of
    never comparing against a constant again.
+
+## D-018 - Torque ripple established at ~100% p-p; the design fails its ripple gate (2026-10-23)
+
+**Problem.** Ripple had been "NOT ESTABLISHED" for two turns of work. Gen 1 (stator-frame
+current) was deemed the wrong excitation; Gen 2 (rotor-frame current) swung 60-90% and was
+deemed inconsistent with a smooth static curve; the two were treated as irreconcilable.
+D-017 also left open whether the dips in `torque_curve/` meant anything for a running
+machine.
+
+**What was actually wrong.** Two defects, both in the comparison rather than the field
+solve. (1) The static curve Gen 2 was checked against was sampled every 5 deg, hence at
+most two samples per 10 deg period: it could not have shown the modulation even if the
+modulation were real. (2) `torque_at` returns `abs()`, which turned the sign reversal into
+a notch. Neither defect is in `solve_raw` or the mesh.
+
+**Gates** were frozen in `torque_ripple/PLAN.md` before Gen 3 ran (R1-R6, including R2'
+band-spread limits and R6 reconciliation with the static curve).
+
+**Result** (`sweep_gen3_0p5deg.csv`, 46 points, 15-37.5 deg at 0.5 deg, annulus):
+
+| estimator | p-p |
+|---|---|
+| rings 1 / 5 / 9 | 78.9% / 90.1% / 98.7% |
+| **annulus** | **100.2%** (1.30 +- 0.07 N.m) |
+
+- R2' **partial**: the two end-window p-p agree to 1.0 pp (gate 2.0), but the estimator
+  band spread is 14.3% median / 58.8% max (gates 10/20%). The fraction is therefore good
+  to a few percent, not exact.
+- R4' **pass**: extrema at 3072/10 give p-p 1.3045 vs 1.2982 coarse, 0.5 pp (gate 2 pp).
+- R6 **pass, ratio 0.99**: static and synchronized sweeps give 91.4% and 90.2% over the
+  same window. The two excitation models agree; the contradiction is closed.
+- R3 **FAIL**: 100% p-p against a 15% threshold, robust across four estimators and two
+  meshes.
+
+**Locking, measured not assumed.** `T(delta+10)` differs by up to 0.371 N.m (26 pairs), so
+the modulation is not at the 10 deg slot pitch. `T(delta+30)` is identical to four
+decimals (2.00 vs 32.00). 30 deg mechanical = 60 electrical = one repeat unit of the 3-phase
+winding (36 slots, 4 poles, q=3). The modulation is therefore **winding-locked**, which
+matches the known 5th/7th mmf harmonics at 22.7%/18.5% of the fundamental, i.e. the
+6th-electrical-harmonic family.
+
+**Consequences.**
+
+1. The certified 1.873 N.m at 26.0 deg is an **instantaneous peak-angle value**. Over the
+   measured window the mean is 1.296 N.m, about a quarter lower. Every downstream number
+   that used it - current for 1.6 N.m, copper loss, efficiency, kVA - is optimistic until
+   the full-period mean lands (sweep running).
+2. The R5 lever map frozen in the plan (slot opening or skew) does not cover the measured
+   answer. The first lever is the **winding layout**; skew of one slot pitch is designed to
+   suppress slot-order ripple and will under-deliver on a 6th-electrical component.
+3. This does not reopen D-014's rotor choice: the baseline rotor has the same winding and
+   would inherit the same mechanism. It reopens the **stator**, not the rotor.
+4. Nothing here is experimental. It is a 2D current-source model with no skew, no
+   eccentricity and no PWM. Magnitude is one order larger than a shippable 2W traction
+   motor, which is the strongest reason to suspect the model over-predicts - but no test
+   has yet shown that, and the burden is now on a declared slot-opening/skew study.

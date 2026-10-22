@@ -322,3 +322,19 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
     modulation on a smooth envelope. Origin **unconfirmed**, reality supported.
   - `torque_ripple.py` gains the annulus columns and a window-matched adequacy check;
     Gen 3 gates (R2', R4', R6) are frozen in `torque_ripple/PLAN.md` before running.
+
+### Fixed
+- **2026-10-23 (D-018: torque ripple established at ~100% p-p, gate R3 FAIL)**
+  - Gen 3 ran with the current pattern rotated with the rotor and the annulus estimator:
+    46 points, 15-37.5 deg at 0.5 deg. p-p **100.2%** (annulus), 78.9/90.1/98.7% for
+    rings 1/5/9, `1.30 +- 0.07 N.m`; extrema reproduce at 3072/10 within 0.5 pp.
+  - The Gen 1 vs Gen 2 contradiction is **closed**: same window gives 91.4% (static) vs
+    90.2% (synchronized), ratio 0.99. The old static curve was sampled at 5 deg and could
+    not represent a 10-30 deg modulation; its "order 12 = 2.4%" is withdrawn.
+  - Modulation period measured: 10 deg shift off by 0.371 N.m, **30 deg shift exact**
+    (2.00 vs 32.00). 30 deg = 3 slot pitches = one winding repeat unit, so the mechanism
+    is winding-locked (5th/7th mmf at 22.7%/18.5%), not slot-opening-locked.
+  - Consequence: the certified 1.873 N.m is an instantaneous peak-angle value; the
+    running mean over the measured window is 1.296 N.m. Full-period mean now measured.
+  - `torque_ripple.py`: annulus columns added, window-matched adequacy (10 and 11.25 deg),
+    ring-column mapping fixed, halt band widened so a legitimate dip cannot abort a sweep.

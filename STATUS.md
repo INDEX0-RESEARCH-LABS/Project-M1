@@ -10,9 +10,11 @@ PF is re-certified **like-for-like** at 3072/10 (D-017): S6 **0.578 / 1.059 kVA*
 the baseline rotor **0.469 / 1.111 kVA** at the same angle and current, so S6 clears the
 +0.030 PF gate by +0.109 with 18.3% more torque at 4.7% less apparent power. The baseline
 PF is lower than the 0.532 previously quoted because that number was measured on the
-uncorrected winding at 26.25 deg with a ring torque. Ripple is now the binding risk and
-is being re-measured with the current pattern rotated with the rotor (Gen 3). See section
-4 and `validation/torque_curve/RESULT.md`. **Superseded values are kept below and marked.**
+uncorrected winding at 26.25 deg with a ring torque. **Torque ripple is now ESTABLISHED
+(D-018): ~100% peak-to-peak in-model, gate R3 FAILS, locked to the 30 deg winding repeat
+unit.** The certified 1.873 N.m is an instantaneous peak-angle value, not a running
+average; the full-period mean is being measured. See section 4 and
+`validation/torque_ripple/RESULT.md`. **Superseded values are kept below and marked.**
 **Originally as of D-014 (2026-10-22).** Everything here is
 reproduced by the scripts named
 in section 6. Where a number moved during the campaign, the latest value is here and the
@@ -76,7 +78,7 @@ it was: 7.37 kg of iron for 0.5 kW, at 93.5%.
 | **Torque extractor convergence** | ABSORBED - 1.45 N.m +/-4% **at the certified point only**. `torque_at` returns `abs()` (no sign structure); angle-resolved torque below **~0.5 N.m is not resolvable** (four gap bands spread 10.7% at the certified point, 9x at a dip). New `fem_magnetics.torque_annulus` area-integral estimator gives 1.536 vs 1.576 N.m at the certified point with a per-band error bar (2026-10-23) | one fully converged certification point (4096/20, rings 9 + co-energy + annulus) would restore a point value; ~15 min compute. Low-torque work needs a stress method that does not depend on element-constant B (local jacobian or co-energy) |
 | **Slot binning convention** | **FIXED (D-015)**: `split_slots` was half a slot off the geometry's k*pitch convention (+0.513 pitch measured), rotating the MMF 5 deg mech and mixing phases at belt boundaries; T(0)/T(45) read 0.44/0.46 N.m instead of 0.01/0.03 | regression test in `tests/test_rajini_winding.py`; nothing else to do |
 | True MTPA angle | **MAPPED at 0.25 deg (D-016)**: argmax 26.0 deg, plateau 25.5-27.5 within 1.5%. The curve has converged dips at 12.5 / 22.5 / 33.0 / 41.75 deg (14-29% of peak) and a negative lobe at 1.5-3.9 deg | resolved enough for the operating point. The dips are mirror-symmetric about 22.5 deg (4.0<->41.6, 12.5<->33.0) and *irregularly* spaced (8.5/10.0/10.5/8.6 deg), so no single order explains them; origin unconfirmed but they respect the geometry's symmetry |
-| **Running torque ripple** | **Gen 3 RUNNING**: current pattern rotated with the rotor, annulus estimator, 22.5 deg window (D-017 gates R1-R6 frozen in `torque_ripple/PLAN.md`) | if Gen 3 passes R2/R6 the ripple fraction is quotable; Gen 1's 5 deg sampling aliased the modulation, so its "order-12 = 2.4%" is withdrawn as evidence that ripple is small |
+| **Running torque ripple** | **ESTABLISHED in-model, R3 FAIL (D-018)**: at 26.0 deg, J=5.21, p-p **100.2% annulus** (78.9/90.1/98.7% for rings 1/5/9), `1.30 +- 0.07 N.m`; fine-mesh extrema reproduce p-p within 0.5 pp; modulation period **exactly 30 deg mech** = one winding repeat (3 slot pitches), so the lever is the **winding layout**, with barrier shape second | full-period mean torque (sweep 0-90 at 2 deg, running) replaces the instantaneous peak as the sizing number; then a declared slot-opening and skew study. Origin narrowed, magnitude ~6x the 15% gate |
 | Rotor slot-harmonic loss (~1800 Hz) | NOT MODELLED | a time-domain eddy solve; scoping bound 0.8-3.3 W (ASSUMED ripple, `iron_loss/RESULT.md` s.5) |
 | Slot fill / windability | ASSUMED 0.40 | the 3.0 mm semi-closed mouth needs needle winding; at fill 0.36 the loss is +11% and efficiency ~91.8%. Resolves on the first wound stator |
 | 33% flux-linkage vs torque gap | OPEN, interpretation-limited | rotating-field solve; does not change the torque or the envelope |
