@@ -13,9 +13,10 @@ PF is lower than the 0.532 previously quoted because that number was measured on
 uncorrected winding at 26.25 deg with a ring torque. **Torque ripple is now ESTABLISHED
 (D-018): ~100% peak-to-peak in-model, gate R3 FAILS, locked to the 30 deg winding repeat
 unit.** The certified 1.873 N.m is an instantaneous peak-angle value: the measured
-running mean at J=5.21 is **1.202 N.m**, so the 1.6 N.m target now needs about J=6.9 on a
-mean basis (~42 W copper, ~89.6% efficiency, ~1.4 kVA - planning estimates, not
-certified). See section 4 and
+running mean at J=5.21 is **1.1918 N.m**, so the 1.6 N.m target now needs about J=6.99 on a
+mean basis (~43 W copper, ~89.5% efficiency, ~1.42 kVA - planning estimates, not
+certified). The ripple is **order 36, i.e. slot-locked**, not winding-locked, and skew of
+two slot pitches brings it inside the 15% gate in-model (D-019). See section 4 and
 `validation/torque_ripple/RESULT.md`. **Superseded values are kept below and marked.**
 **Originally as of D-014 (2026-10-22).** Everything here is
 reproduced by the scripts named
@@ -51,11 +52,11 @@ ripple/NVH and tooling, not electromagnetics.
 | frame | 130 mm bore, 50.4 mm stack, 188 mm OD, 4 poles, 36 slots | - | `envelope_point_design/RESULT.md` |
 | winding (decided, D-013) | single layer, 6 coils/phase, **10 turns/coil at a=4**, 2 x 1.2 mm per turn | SOLVED + scaling | `prototype/design/winding_spec_v1.md` |
 | torque at J=5.34 A/mm2 (**instantaneous**, 26.0 deg) | **1.873 N.m** annulus, 6.6% band spread (D-016, 3072/10); 1.77 +- 0.14 at J=5.21. D-014 had 1.685. This is one rotor position, not the running value | SOLVED, band | `torque_curve/RESULT.md` s.9 |
-| **mean torque over a revolution** (J=5.21, current angle 26.0) | **1.202 N.m** annulus (rings 5: 1.374), min 0.587 / max 1.739, p-p 95.8% at 2 deg sampling. Three 30 deg periods give identical means (1.1918). **This is the sizing number.** D-018 | SOLVED, band | `torque_ripple/RESULT.md` s.9 |
+| **mean torque over a revolution** (J=5.21, current angle 26.0) | **1.1918 N.m** annulus (rings 5: 1.374), min 0.587 / max 1.739, p-p 96.6% at 2 deg sampling. Three 30 deg periods give identical means. **This is the sizing number.** D-018, corrected by D-019 | SOLVED, band | `torque_ripple/RESULT.md` s.9 |
 | torque at J=6.0 | 1.920 N.m (baseline rotor, ring-averaged 3072/10); S6 not measured at J=6 | SOLVED | `torque_extractor/RESULT.md` |
 | torque per stack length | 38.5 N.m/m (rows 4/20/40: 38.50/37.86/39.67), ratio-based, shares the -9% extractor bias | SOLVED | `envelope_point_design/RESULT.md` |
 | torque-density utilization | 0.43 of the anchor-class expectation | DERIVED | `torque_density_audit` |
-| current for the 1.6 N.m target | **J = 5.21 A/mm2, 49.7 A peak** at k=2 (D-014; baseline needed 53.7 A) - **on an instantaneous basis**. On a *mean* basis (D-018) the estimate is J ~ 6.9 / ~66 A, to be re-certified | SOLVED (instantaneous) / DERIVED (mean, planning) | `saliency_lever/RESULT.md` s.5, `torque_ripple/RESULT.md` s.9 |
+| current for the 1.6 N.m target | **J = 5.21 A/mm2, 49.7 A peak** at k=2 (D-014; baseline needed 53.7 A) - **on an instantaneous basis**. On a *mean* basis the estimate is J = 6.99 / ~67 A peak, ~43 W copper, to be re-certified (D-019) | SOLVED (instantaneous) / DERIVED (mean, planning) | `saliency_lever/RESULT.md` s.5, `torque_ripple/RESULT.md` s.9 |
 | copper loss (hot, enclosed) | **23-24.5 W** at the 1.6 N.m target (D-014; baseline 26-28 W) | DERIVED | `thermal_first_order`, `saliency_lever` s.5 |
 | iron loss (100 Hz elec.) | 10.1-27.4 W, median **16.3 W** (D-016; D-014 had 12.1 W - the corrected winding saturates the rotor to 2.83 T) | ESTIMATE | `iron_loss --candidate` |
 | winding rise | **~14 K** with iron (9.2 K copper only) at the 1.6 N.m target; enclosed, h=25 | ESTIMATE | `thermal_first_order` |
@@ -81,7 +82,10 @@ it was: 7.37 kg of iron for 0.5 kW, at 93.5%.
 | **Torque extractor convergence** | ABSORBED - 1.45 N.m +/-4% **at the certified point only**. `torque_at` returns `abs()` (no sign structure); angle-resolved torque below **~0.5 N.m is not resolvable** (four gap bands spread 10.7% at the certified point, 9x at a dip). New `fem_magnetics.torque_annulus` area-integral estimator gives 1.536 vs 1.576 N.m at the certified point with a per-band error bar (2026-10-23) | one fully converged certification point (4096/20, rings 9 + co-energy + annulus) would restore a point value; ~15 min compute. Low-torque work needs a stress method that does not depend on element-constant B (local jacobian or co-energy) |
 | **Slot binning convention** | **FIXED (D-015)**: `split_slots` was half a slot off the geometry's k*pitch convention (+0.513 pitch measured), rotating the MMF 5 deg mech and mixing phases at belt boundaries; T(0)/T(45) read 0.44/0.46 N.m instead of 0.01/0.03 | regression test in `tests/test_rajini_winding.py`; nothing else to do |
 | True MTPA angle | **MAPPED at 0.25 deg (D-016)**: argmax 26.0 deg, plateau 25.5-27.5 within 1.5%. The curve has converged dips at 12.5 / 22.5 / 33.0 / 41.75 deg (14-29% of peak) and a negative lobe at 1.5-3.9 deg | resolved enough for the operating point. The dips are mirror-symmetric about 22.5 deg (4.0<->41.6, 12.5<->33.0) and *irregularly* spaced (8.5/10.0/10.5/8.6 deg), so no single order explains them; origin unconfirmed but they respect the geometry's symmetry |
-| **Running torque ripple** | **ESTABLISHED in-model, R3 FAIL (D-018)**: at 26.0 deg, J=5.21, p-p **100.2% annulus** (78.9/90.1/98.7% for rings 1/5/9), `1.30 +- 0.07 N.m`; fine-mesh extrema reproduce p-p within 0.5 pp; modulation period **exactly 30 deg mech** = one winding repeat (3 slot pitches), so the lever is the **winding layout**, with barrier shape second | full-period mean torque (sweep 0-90 at 2 deg, running) replaces the instantaneous peak as the sizing number; then a declared slot-opening and skew study. Origin narrowed, magnitude ~6x the 15% gate |
+| **Running torque ripple** | **ESTABLISHED in-model (D-018), mechanism identified (D-019)**: p-p **96.6% annulus** unskewed, over an exact 30 deg period; fine-mesh extrema reproduce p-p within 0.5 pp. Period exactly 30 deg (12 pairs, 0.0000 N.m). Harmonic fit: **order 36 = 0.495 N.m is 3.2x order 12 = 0.157**, so the ripple is **slot-locked**, not winding-locked | **R3 FAIL unskewed**; see the skew row |
+| **Ripple mechanism is stator-side** | **the baseline 2-barrier rotor shows the same dips at the same angles** (12.0, 22.0 deg), same order-12 amplitude to 0.2%, order 36 within 6%, at its own rated current. The barriers barely modulate it, so this is not an S6 defect | closed; the lever is the stator slot/skew, not the barrier shape |
+| **Skew lever** | **in-model, from the measured curve (multi-slice 2D, no new solves)**: 1 slot pitch (10 deg) 96.6% -> 21.9%; **2 slot pitches (20 deg) -> 12.4%, PASSES the 15% R3 gate**; 15 deg is *worse* (26.9%) because it is 1.5 pitches. Mean unchanged in-model; real cost ~2% via the skew factor 0.980 at 40 deg elec | needs a skewed-rotor solve for a certified number, and a lamination-stacking/tooling decision |
+| D-014 advantage on a **mean** basis | **+12% to +21%** at equal current (bracket over T ~ J^1..J^2), against +18.3% instantaneous. S6's relative ripple is shallower (96.6% vs 106.7%), so its mean is depressed less | bracket tightens with a torque-vs-J solve at 5.21; no change to the decision |
 | Rotor slot-harmonic loss (~1800 Hz) | NOT MODELLED | a time-domain eddy solve; scoping bound 0.8-3.3 W (ASSUMED ripple, `iron_loss/RESULT.md` s.5) |
 | Slot fill / windability | ASSUMED 0.40 | the 3.0 mm semi-closed mouth needs needle winding; at fill 0.36 the loss is +11% and efficiency ~91.8%. Resolves on the first wound stator |
 | 33% flux-linkage vs torque gap | OPEN, interpretation-limited | rotating-field solve; does not change the torque or the envelope |

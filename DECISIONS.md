@@ -643,15 +643,74 @@ matches the known 5th/7th mmf harmonics at 22.7%/18.5% of the fundamental, i.e. 
    ~1.8x the copper loss (23-24.5 W -> ~42 W), ~89.6% efficiency and ~1.4 kVA. Those are
    linear planning estimates that ignore saturation (which makes them worse), not
    certified numbers; re-certification at the new J is required before they are quoted.
-   Note this is a **stator-level** defect: the mechanism is winding-locked and the
-   baseline rotor inherits it, so D-014's *relative* rotor advantage is untouched while
-   the absolute design point moves.
+   Note this is a **stator-level** defect, so D-014's relative rotor advantage is
+   untouched while the absolute design point moves.
+   **Corrected by D-019:** the mean is 1.1918 N.m, not 1.202 (the 0-90 deg average
+   weighted 0, 30 and 90 deg, which are one physical point, three times out of 46); J for
+   1.6 N.m mean is 6.99; and the mechanism is slot-locked, not winding-locked, so the
+   baseline inherits the *period* and almost exactly the *depth*, not just the former.
 2. The R5 lever map frozen in the plan (slot opening or skew) does not cover the measured
-   answer. The first lever is the **winding layout**; skew of one slot pitch is designed to
-   suppress slot-order ripple and will under-deliver on a 6th-electrical component.
+   answer. ~~The first lever is the winding layout; skew of one slot pitch is designed to
+   suppress slot-order ripple and will under-deliver on a 6th-electrical component.~~
+   **Corrected by D-019, which measured it:** the dominant order is the slot order 36, and
+   skew of *two* slot pitches (20 deg) takes p-p from 96.6% to 12.4%, inside the gate. The
+   winding layout is the second-step lever on the residual order-12 component.
 3. This does not reopen D-014's rotor choice: the baseline rotor has the same winding and
    would inherit the same mechanism. It reopens the **stator**, not the rotor.
 4. Nothing here is experimental. It is a 2D current-source model with no skew, no
    eccentricity and no PWM. Magnitude is one order larger than a shippable 2W traction
    motor, which is the strongest reason to suspect the model over-predicts - but no test
    has yet shown that, and the burden is now on a declared slot-opening/skew study.
+
+## D-019 - The ripple is slot-locked, not winding-locked; skew is the lever (2026-10-23)
+
+**Problem.** D-018 established the modulation and its period (exactly 30 deg mech) but
+named the wrong lever: "locked to the winding repeat unit, so the lever is the winding
+layout". A period is a property of the *set* of harmonics present; it does not identify
+which one dominates. Three questions were open: which order dominates, does the rotor
+cause it, and what actually fixes it.
+
+**What was found**, all from data already on disk (no new solves except the baseline
+sweep):
+
+1. **Order 36 dominates.** A least-squares fit of one exact period with only the
+   harmonics a 30 deg period permits (12, 24, 36, 48, 60) gives S6 amplitudes of 0.157,
+   0.087, **0.495**, 0.009, 0.020 N.m. Order 36 is one event per 10 deg slot pitch, 3.2x
+   the phase-belt order 12. The 0.5 deg sweep puts the dips 10.5 deg apart, consistent
+   with the slot pitch.
+2. **It is stator-side.** The baseline 2-barrier rotor (`sweep_base_2deg.csv`, J=5.62,
+   same 30 deg span) dips at the *same angles* (12.0 and 22.0 deg), to the same depth
+   within 0.10 N.m, with order 12 identical to 0.2% and order 36 within 6%. Two very
+   different rotor geometries producing the same slot-order torque means the barriers are
+   not the mechanism.
+3. **Skew removes it, and skew must be an integer number of slot pitches.** Multi-slice
+   2D skew applied to the measured curve: 10 deg -> 21.9% p-p (from 96.6%), 15 deg ->
+   26.9% (*worse* than 10 deg: 1.5 pitches does not cancel order 36), **20 deg -> 12.4%,
+   inside the 15% R3 gate**. The mean is unchanged in this model.
+4. **A correction.** The D-018 mean of 1.202 N.m included both 0 and 90 deg on the 0-90
+   grid; 0, 30 and 90 are the same physical point (T = 1.6660), weighted three times out
+   of 46. Over one exact period the mean is **1.1918 N.m**. Consequence unchanged.
+
+**Decision.**
+- The primary ripple lever is **rotor skew of two slot pitches (20 deg mech)**, not
+  winding layout. Winding layout (q=3 -> q=4 / 48 slots) becomes a second-step lever on
+  the order-12 residual left after skew.
+- The baseline's measured mean makes D-014's advantage a **mean-basis** statement: +12% to
+  +21% at equal current (T ~ J^1..J^2 bracket) against the +18.3% instantaneous figure.
+  D-014 holds; its margin is not a ripple artefact.
+- The mean torque remains the binding problem: 1.1918 N.m at J=5.21 means J=6.99 for the
+  1.6 N.m target (~43 W copper, ~89.5% efficiency). Skew does not address that, and the
+  two must not be conflated.
+
+**Caveats.**
+- Multi-slice 2D skew ignores axial flux redistribution. A real machine has one current
+  vector, so the saliency is averaged along the stack: the skew factor for 40 deg
+  electrical is sin(20 deg)/(20 deg in rad) = 0.980, i.e. ~2% mean torque, which the model
+  does not charge. A skewed-rotor solve is required before this is a certified number.
+- Order 36 at 0.495 N.m is 42% of the mean, and real SynRMs show single-digit slot-order
+  ripple unskewed. The model is plausibly 2-4x high (no skew, no axial redistribution,
+  sharp-edged 2D slots). Magnitude stays in-model until there is a bench; the mechanism
+  and its remedy are now identified, which is what a zero-budget phase can deliver.
+- The harmonic table ranks mechanisms; it does not reconstruct the curve. Residual rms is
+  0.137 N.m (11.4% of mean) because the sharp dip shoulders are not spanned by five
+  harmonics.

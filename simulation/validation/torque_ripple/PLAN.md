@@ -84,3 +84,13 @@ Frozen gates:
 Prediction, stated so it can fail: if the modulation is a real slot-locked torque, R6
 lands inside 0.5-2.0 and R3 returns FAIL (> 15%), because the static dips alone are
 14-29% of the local envelope.
+
+## Post-result note (not a gate change; added 2026-10-23)
+
+R5's frozen rule ("slot order 36 means the lever is slot opening or skew; a low order means
+barrier shape or winding layout") was written to discriminate between mechanisms, and the
+measurement did answer it, but the answer was not one of the two branches: **order 36
+dominates at 0.495 N.m while order 12 is present at 0.157 N.m, so both levers are real and
+they rank in that order.** R5 is therefore recorded as *answered, mapping incomplete* - not
+as a failed gate. The gates R1-R6 and the R2'/R4'/R6 thresholds above were not changed
+after the fact.

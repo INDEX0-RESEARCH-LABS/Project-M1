@@ -355,3 +355,23 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
     the annulus slightly *understates* the modulation rather than inventing it.
   - The current angle 26.0 was chosen on instantaneous torque; the mean-torque optimum is
     unmeasured and is the next cheap lever.
+
+### Changed
+- **2026-10-23 (D-019: ripple mechanism identified - slot-locked, skew is the lever)**
+  - Harmonic fit of the exact 30 deg period: order 36 = 0.495 N.m is **3.2x** order 12 =
+    0.157 N.m. The ripple is **slot-locked** (one dip per 10 deg slot pitch), not
+    winding-locked. D-018 named the period correctly and the lever wrongly.
+  - Baseline 2-barrier rotor measured over the same span at its rated current
+    (`sweep_base_2deg.csv`): same dip angles (12.0, 22.0), same depth within 0.10 N.m,
+    order 12 identical to 0.2%, order 36 within 6%. **The modulation is stator-side**;
+    the barrier geometry is not the mechanism, and the ripple is not an S6 defect.
+  - Multi-slice 2D skew from the measured curve: 10 deg -> 21.9% p-p, **20 deg -> 12.4%
+    (passes the 15% R3 gate)**, 15 deg -> 26.9% (worse - skew must be an integer number
+    of slot pitches). Real cost ~2% mean torque via the skew factor 0.980.
+  - **Mean torque corrected 1.202 -> 1.1918 N.m**: the 0-90 deg average counted 0, 30 and
+    90 deg, which are the same physical point, so it was weighted three times. Mean-basis
+    current for 1.6 N.m is J = 6.99 (~43 W copper, ~89.5% efficiency).
+  - D-014's advantage restated on a mean basis: **+12% to +21%** at equal current against
+    +18.3% instantaneous. S6's relative ripple is shallower (96.6% vs 106.7%).
+  - An earlier hypothesis that the dip depth was rotor-tip dependent (from dip symmetry
+    about 22.5 deg) is refuted by the baseline sweep.
