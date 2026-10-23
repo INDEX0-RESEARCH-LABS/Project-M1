@@ -403,7 +403,7 @@ solves. This is the standard first-order skew model.
 - What the model cannot see, and the real cost: a machine has **one** current vector, so
   the saliency is averaged along the stack. The classic skew factor for 40 deg electrical
   is sin(20 deg)/(20 deg in rad) = 0.980, i.e. about **2% mean torque**. That is a far
-  better trade than the 34% mean-torque shortfall, and the two problems are independent.
+  better trade than the 30% mean-torque shortfall, and the two problems are independent.
 
 After 20 deg skew the residual is order 12, only partially cancelled (a 20 deg skew spans
 2/3 of its 30 deg period), which is exactly where **winding layout** becomes the lever - as

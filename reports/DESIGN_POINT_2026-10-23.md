@@ -23,7 +23,7 @@ What this buys: the ripple risk no longer justifies a stator redesign. What it c
 lamination-stacking decision (skewed stacking, or a skewed key), which is a tooling
 question rather than a design one.
 
-## 2. Efficiency is 90.3%, not 93.2%
+## 2. Efficiency is 90.6%, not 93.2%
 
 A synchronous-frame drive holds current constant over a revolution, so copper loss is
 constant while torque is not. Energy-average efficiency is therefore set by the **mean**
