@@ -5,6 +5,20 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
 ## [Unreleased]
 
 ### Added
+- **2026-10-23 (D-024: the current angle is not a lever on the 48 V constraint)**
+  - `pf_cycle.py --delta-op` run at 14, 20, 26, 32, 38 deg, 15 points per period. Gates
+    declared in `angle_kva/PLAN.md` before the run; P2/P3 pass, P1 fires and is overridden
+    on the merit (it asked about VA without asking which rail quantity binds).
+  - At 1.6 N.m mean: **14 deg gives 1.076 kVA and 37.2 W copper; 26 deg gives 1.339 kVA and
+    30.5 W.** The VA-optimal angle is at or below 14 deg, but it costs **+28% current**.
+    A 48 V rail binds on amps, so **26.0 deg stands**.
+  - **26.0 deg is also mean-torque-optimal** (1.192 N.m against 1.164 at 20 and 1.029 at
+    32), closing the open item left by choosing the angle on an instantaneous basis.
+  - Cross-check: the 26 deg row scaled to 1.6 N.m gives 1.29 / 1.34 kVA, reproducing D-023's
+    1.29 / 1.32 to 1.5%.
+  - Consequence: apparent power per N.m cannot be moved by controller tuning at all, only
+    by saliency (rotor) or speed (gearing). The 48 V problem is a rotor or gear-ratio
+    problem.
 - **2026-10-23 (D-023: apparent power per N.m is design-invariant - the kVA column of D-020 does not close)**
   - `S = (T*omega + P_cu)/PF`, so `S/T = (omega + P_cu/T)/PF`: speed, PF and copper per N.m
     only. Stack length and bore do not enter. Verified on the certified point: 779 VA/N.m x

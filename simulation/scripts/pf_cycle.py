@@ -51,10 +51,11 @@ V_RAIL = 48.0          # V DC link, from the D-012 envelope
 V_CEIL = 26.32         # V peak phase available at the rail (48/sqrt(3)) - see dq_model
 
 
-def point(delta: float, j_mm2: float, H, B, base: bool = False) -> dict:
+def point(delta: float, j_mm2: float, H, B, base: bool = False,
+          delta_op: float = DELTA_OP) -> dict:
     j = j_mm2 * 1e6
     kw = {} if base else CAND
-    alpha = D.P_POLES * math.radians(delta - DELTA_OP)
+    alpha = D.P_POLES * math.radians(delta - delta_op)
     g = build(delta, D.BORE, **kw)
     r = solve_raw(delta, j, H, B, 1536, 4, geom=g,
                   pattern=moving_pattern(alpha))
@@ -89,11 +90,12 @@ def point(delta: float, j_mm2: float, H, B, base: bool = False) -> dict:
     return out
 
 
-def run(step: float, j_mm2: float, out: str, base: bool = False) -> int:
+def run(step: float, j_mm2: float, out: str, base: bool = False,
+        delta_op: float = DELTA_OP) -> int:
     H, B = load_bh_curve("M-43 Steel")
     n = int(round(30.0 / step))            # 0..29.9, one exact period
     print(f"pf cycle sweep 0..30 step {step} ({n} pts), J={j_mm2:.2f}, "
-          f"{'BASE' if base else 'S6'}", flush=True)
+          f"{'BASE' if base else 'S6'}, delta_op={delta_op:.2f}", flush=True)
     with open(out, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["delta_deg", "T", "i_hat", "lam_alpha", "lam_beta",
@@ -101,7 +103,7 @@ def run(step: float, j_mm2: float, out: str, base: bool = False) -> int:
                     "S_geo", "S_tq", "pf_geo", "pf_tq"])
         for k in range(n):
             d = k * step
-            r = point(d, j_mm2, H, B, base)
+            r = point(d, j_mm2, H, B, base, delta_op)
             w.writerow([f"{d:.2f}"] +
                        [f"{r[c]:.6f}" for c in ("T", "i", "lam_a", "lam_b",
                                                 "p_cu", "p_mech")] +
@@ -161,18 +163,69 @@ def analyse(path: str) -> int:
     return 0
 
 
+def analyse_angles(specs: str, target: float = 1.6) -> int:
+    """Compare current angles on torque per kVA at a fixed mean torque.
+
+    Spec format: "26:/path/a.csv,20:/path/b.csv". Scaling to `target` uses the
+    SynRM quadratic law at fixed angle (T proportional to i^2), so k = sqrt(target/T)
+    and both S and P_cu scale as k^2. Linear-material estimate: the ranking is the
+    claim, not the absolute.
+    """
+    rows = []
+    for spec in specs.split(","):
+        ang, path = spec.split(":", 1)
+        ang = float(ang)
+        recs = list(csv.DictReader(open(path)))
+        c = {k: np.array([float(r[k]) for r in recs]) for k in recs[0]}
+        t = c["T"].mean()
+        k = math.sqrt(target / t)
+        p_cu = c["p_cu"].mean() * k * k
+        p_in = target * 2 * math.pi * D.RPM / 60.0 + p_cu
+        s_mean = c["S_geo"].mean() * k * k
+        s_max = c["S_geo"].max() * k * k
+        rows.append({"angle": ang, "T": t, "k": k, "p_cu": p_cu,
+                     "S_mean": s_mean, "S_max": s_max,
+                     "PF": p_in / s_max,
+                     "pf_pt": c["pf_geo"].mean()})
+
+    base = next((r for r in rows if abs(r["angle"] - DELTA_OP) < 1e-6), None)
+    print(f"target mean torque {target:.2f} N.m, {D.RPM:.0f} rpm, S6, J={J_DEEP:.2f}")
+    print(f"{'angle':>6} {'T_mean':>8} {'i/i0':>6} {'P_cu':>7} {'S_mean':>8} {'S_max':>8} "
+          f"{'PF':>6} {'S vs 26':>8}")
+    for r in sorted(rows, key=lambda r: r["angle"]):
+        rel = (r["S_max"] / base["S_max"] - 1.0) if base else float("nan")
+        print(f"{r['angle']:6.1f} {r['T']:8.4f} {r['k']:6.3f} {r['p_cu']:7.2f} "
+              f"{r['S_mean']/1e3:8.3f} {r['S_max']/1e3:8.3f} {r['PF']:6.3f} {rel:+8.1%}")
+    if base:
+        print("\nP1 (adopt an angle only if S_max drops >=5% and P_cu <= 40 W):")
+        ok = [r for r in rows if abs(r["angle"] - DELTA_OP) > 1e-6
+              and r["S_max"] <= 0.95 * base["S_max"] and r["p_cu"] <= 40.0]
+        best = min(rows, key=lambda r: r["S_max"])
+        print(f"  minimum S_max at {best['angle']:.1f} deg, "
+              f"{best['S_max']/1e3:.3f} kVA ({best['S_max']/base['S_max']:+0.1%} vs 26.0), "
+              f"P_cu {best['p_cu']:.1f} W")
+        print(f"  angles passing: {[r['angle'] for r in ok] or 'none'}")
+        print(f"  verdict: {'ADOPT ' + str(best['angle']) if ok else 'KEEP 26.0 deg'}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--step", type=float, default=2.0)
     ap.add_argument("--j", type=float, default=J_DEEP)
     ap.add_argument("--base", action="store_true")
+    ap.add_argument("--delta-op", type=float, default=DELTA_OP)
     ap.add_argument("--out", default="/tmp/opencode/m1/pf_cycle.csv")
     ap.add_argument("--analyse")
+    ap.add_argument("--angles")
+    ap.add_argument("--target", type=float, default=1.6)
     a = ap.parse_args()
     if a.analyse:
         return analyse(a.analyse)
+    if a.angles:
+        return analyse_angles(a.angles, a.target)
     H, B = load_bh_curve("M-43 Steel")
-    return run(a.step, a.j, a.out, a.base)
+    return run(a.step, a.j, a.out, a.base, a.delta_op)
 
 
 if __name__ == "__main__":

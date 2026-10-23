@@ -943,3 +943,48 @@ advantage is illusory and must not be quoted to the founder.
 
 **Sensitivity.** PF is held at 0.427 across the load increase. If saturation drops it to
 0.40, both S figures rise 7% (1.38 / 1.33 kVA) and the ranking is unchanged.
+
+## D-024 - The current angle is not a lever on the 48 V constraint; 26.0 deg stands (2026-10-23)
+
+**Question.** D-023 showed apparent power per N.m depends only on speed, PF and efficiency.
+PF depends on the current angle, and 26.0 deg had been chosen for peak *instantaneous*
+torque. Is another angle cheaper on the rail?
+
+**Test.** `pf_cycle.py --delta-op` at 14, 20, 26, 32, 38 deg, 15 points per 30 deg period,
+J=5.21, S6. Gates P1-P3 declared in `angle_kva/PLAN.md` before running.
+
+| angle | T_mean | i/i(26) | P_cu at 1.6 N.m | S max at 1.6 N.m | PF | S vs 26 |
+|---|---|---|---|---|---|---|
+| 14 | 0.977 | 1.28 | 37.2 W | **1.076 kVA** | **0.502** | -19.6% |
+| 20 | 1.164 | 1.17 | 31.3 W | 1.141 kVA | 0.468 | -14.8% |
+| **26** | **1.192** | 1.00 | **30.5 W** | 1.339 kVA | 0.398 | 0 |
+| 32 | 1.029 | 1.25 | 35.4 W | 1.757 kVA | 0.306 | +31.3% |
+| 38 | 0.564 | 1.68 | 64.5 W | 3.411 kVA | 0.166 | +154.8% |
+
+**Decision 1: keep 26.0 deg.** The VA-optimal angle is at or below 14 deg, but it buys 20%
+less apparent power with 28% more current and 22% more copper. A 48 V traction rail is
+limited in amperes (wiring, MOSFET conduction, copper), not in volt-amperes, and the
+machine already sits at the top of the normal TEFC current-density band. Amps per N.m is
+minimised at 26 deg by definition - that is what MTPA is.
+
+**Decision 2: gate P1 was mis-specified.** It fired (14 and 20 deg pass a "S drops >=5% and
+P_cu <= 40 W" test) and its verdict is overridden. P1 asked whether apparent power falls
+without asking which rail quantity binds. Recorded as a gate-design error, not a result
+that was ignored.
+
+**Decision 3: 26.0 deg is mean-torque-optimal, closing an open item.** The mean torque peaks
+at 26 within the 6 deg sampling, so the original instantaneous-basis choice survives the
+switch to a mean basis. No re-certification is needed on that account.
+
+**What remains true.** PF can be raised from 0.398 to 0.502 by moving to 14 deg, but that
+reduces apparent power per N.m by only 20% while raising copper per N.m - the pairing in
+D-023. **Apparent power per N.m cannot be improved by controller tuning at all; only by
+saliency (rotor design) or by reducing speed.** The 48 V constraint is therefore a rotor
+problem or a gearing problem, not a control problem.
+
+**Cross-check.** The 26 deg row scaled to 1.6 N.m gives 1.29 mean / 1.34 max kVA, matching
+D-023's independent 1.29 / 1.32 to 1.5%.
+
+**Open.** If the chosen inverter turns out to be VA-rated rather than amp-rated, the 14 deg
+operating point becomes attractive and should be revisited. Torque ripple at other angles
+was not measured.

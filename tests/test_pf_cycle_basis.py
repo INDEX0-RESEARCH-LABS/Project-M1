@@ -63,3 +63,30 @@ def test_kva_per_nm_is_design_invariant():
     s_current = (W_M + pcu_current / 1.6) / pf0 * 1.6
     assert abs(s_current - s_at_target) / s_at_target < 0.05
     assert s_at_target / 1e3 > 1.20, "1.06 kVA at 1.6 N.m must not come back"
+
+
+def test_angle_study_ranking():
+    """D-024: 26 deg is MTPA, and the VA-optimal angle costs current.
+
+    Reads the committed sweep CSVs, so it is a guard on the data, not a re-run.
+    """
+    import csv
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent / "simulation/validation/angle_kva"
+
+    def load(angle):
+        rows = list(csv.DictReader(open(root / f"sweep_{angle}deg.csv")))
+        t = sum(float(r["T"]) for r in rows) / len(rows)
+        s = sum(float(r["S_geo"]) for r in rows) / len(rows)
+        return t, s
+
+    t20, s20 = load(20)
+    t26, s26 = load(26)
+    t32, s32 = load(32)
+    # 26 is the mean-torque optimum inside the sampled span
+    assert t26 > t20 > t32
+    # apparent power rises with the angle, so the VA benefit lives below 20
+    assert s20 < s26 < s32
+    # ... but it is bought with current: S per N.m is what improves, not S per amp
+    assert s20 / t20 < s26 / t26
