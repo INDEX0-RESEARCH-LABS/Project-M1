@@ -78,7 +78,7 @@ def solve_raw(delta: float, J: float, H, B, n_theta: int, rows: int,
                              - sum(abar[f"slot_{k:02d}"] for k in n))
     lam_alpha = (2.0 / 3.0) * (lam["A"] - 0.5 * lam["B"] - 0.5 * lam["C"])
     return {"sol": sol, "r_gap": r_gap, "a_slot": a_slot, "mesh": mesh,
-            "lam_alpha": lam_alpha}
+            "lam_alpha": lam_alpha, "lam": lam}
 
 
 def torque_at(res: dict, n_rings: int, n_theta: int = 2880) -> float:

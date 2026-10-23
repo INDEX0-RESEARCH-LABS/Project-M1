@@ -42,19 +42,39 @@ Mean torque at the certified current is 1.2305 N.m. Two ways to reach 1.6 N.m:
 | copper loss | 40 W | **31 W** |
 | efficiency | 89.9% | **90.6%** |
 | apparent power | **1.38 kVA** | **1.06 kVA** (unchanged) |
-| speed ceiling | 6840 rpm | **~5260 rpm** |
+| speed ceiling | 5,900 rpm | **~4,500 rpm** (bracket 4,000-4,800) |
+| cycle-basis power factor | ~0.40 | ~0.40 |
 
 The stack route holds current density, kVA and efficiency fixed and pays with speed range.
 Torque is exactly proportional to stack length in the model, so this estimate needs no new
 solve to be right within the 2D approximation.
 
+**Correction added after this memo (D-022).** The ceiling figures above were built on a
+11.5 V terminal voltage that belonged to a superseded state; the machine's own flux
+solution gives 12.5-14.0 V at 3000 rpm, which puts the ceiling at 5,200-6,300 rpm before
+any stack change (5,900 above is the top of that bracket, 4,500 the stack route). Two
+further consequences, both adverse but bounded:
+
+- The quoted PF of 0.578 is a peak-angle value. On a cycle basis it is **0.40**, so ~1.0
+  kVA buys **387 W** of shaft, not 556 W. The rail budget in question 3 below does not
+  change; the work it delivers does.
+- The air-gap shear is **0.89 kPa** against the "a few kPa" usual for a machine this size,
+  i.e. the rotor is magnetically under-loaded and the 48 V rail, not the iron, is the
+  binding constraint. This is why the stack route beats the current route: the iron is
+  free, the current is not.
+
 ## Decision needed from the founder
 
 1. **Is a 65.5 mm stack acceptable** in the target envelope? This is the only question that
    determines which route is taken.
-2. **Is a ~5260 rpm voltage ceiling acceptable** for a 3000 rpm nominal machine?
-3. **Is the 48 V rail able to carry 1.06 kVA** at the chosen thermal design? (This figure is
-   unchanged by the recommendation, and 1.38 kVA would be the alternative.)
+2. **Is a ~4,500 rpm voltage ceiling acceptable** for a 3000 rpm nominal machine? (Was
+   quoted as ~5,260 before D-022; the honest bracket is 4,000-4,800 rpm for the stack
+   route, 5,200-6,300 rpm at 50.4 mm. This is the question most likely to change the
+   answer, because it interacts with the gear ratio.)
+3. **Is the 48 V rail able to carry ~1.0 kVA at PF ~0.40** at the chosen thermal design?
+   (The kVA is unchanged by the recommendation, and the PF figure is lower than the 0.578
+   previously quoted, so the rail must deliver more current per watt of shaft than the
+   earlier memo implied.)
 
 If stack length is capped by the application, the current route is the fallback and the
 efficiency figure drops to 89.9%.

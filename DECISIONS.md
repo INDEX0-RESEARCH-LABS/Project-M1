@@ -836,3 +836,59 @@ statistics; the FFT leakage; the aliased order-12 reading; the 6-pair period tes
 the ripple risk is closed. It is, but it was closed on a 3%-wrong mean and a 10 pp
 understated modulation. A gate that passes at 12.9% rather than 12.4% has less margin than
 advertised, and the efficiency number the founder will read moved by 0.3 pp.
+
+## D-022 - PF, kVA and the voltage ceiling are cycle quantities too (2026-10-23)
+
+**Finding.** `dq_model.pf_check` evaluates PF at a single rotor angle, with the
+torque of that same angle in the numerator. A sweep over one 30 deg mechanical
+period (`pf_cycle.py`, 15 points, J=5.21) shows that the torque swings over that
+period while the apparent power does not follow it down. Power factor therefore
+carries the same peak-angle bias that D-018/D-021 found in mean torque and D-020 in
+efficiency - the third instance of one error class.
+
+| | quoted | cycle basis |
+|---|---|---|
+| PF (rail-sizing, mean P / max S) | 0.578 | **0.39 - 0.43** |
+| PF (mean P / mean S) | 0.578 | 0.41 - 0.57 |
+| S over the period | 1.06 kVA | 0.93 - 1.00 kVA (Faraday route) |
+| V-hat at 3000 rpm, k=2 | 11.5 V | **12.5 - 14.0 V** |
+| speed ceiling at 26.3 V | ~6,840 rpm | **5,200 - 6,300 rpm** |
+
+**Decision 1.** Quote PF on a cycle basis, with the basis named. The rail-sizing
+definition (mean real power over the largest apparent power in the period) is the
+conservative one and is the default: **PF 0.40 (0.39 - 0.43)**.
+
+**Decision 2.** Keep 1.06 kVA as the apparent-power sizing figure. S is turns-
+invariant and, on the Faraday route, nearly angle-invariant (3.5% band), so the rail
+budget does not change. What changes is the real power it buys: 409 W in for 387 W
+of shaft, where the point PF implied ~556 W of shaft.
+
+**Decision 3.** Restate the voltage ceiling as a bracket, 5,200 - 6,300 rpm, and
+retire the 11.5 V point value. That value belongs to the superseded 0.86 kVA /
+0.633 PF triplet; the current state recomputes to 12.5 - 14.0 V. Consequence for
+D-020: the 65.5 mm stack route is worth roughly 4,000 - 4,800 rpm, not 5,260, and
+any gear-ratio commitment should be made against the bracket.
+
+**Decision 4.** D-017's conclusion is unaffected. S6 beats the baseline at equal
+angle and current, and both numbers carry the same bias, so the like-for-like
+comparison holds; only its absolute values are superseded.
+
+**Loading anchor (new, independent of the PF question).** At the certified point the
+air-gap shear is **0.89 kPa mean / 1.30 kPa peak** over a 669 cm3 rotor, against the
+"a few kPa" band for small machines (Kirtley, MIT 6.685 ch.1) and the 3 - 7 kPa a
+0.1 - 5 kW induction machine normally reaches. At 5.21 A/mm2 the winding sits at the
+top of the normal TEFC range. The machine is **magnetically under-loaded and
+electrically normal**: the iron is not the constraint, the 48 V rail is. This is an
+independent argument for D-020's stack-length route over its current route.
+
+**Reference band for PF (sourced).** Measured small SynRMs give 0.60 - 0.65
+(Ozcelik et al., Energies 12(11):2190 Table 18: 0.647 / 0.60 / 0.60 at 2.2 / 4 /
+5.5 kW) against 0.78 - 0.79 for the induction machines on the same stators; ABB
+ACH550-PHPB11U-EN quotes 0.64 at 2 HP. Our 0.39 - 0.43 is far below that, which is
+what a saliency ratio near 4 (8/6) rather than 7 - 14 would predict. The comparison
+is not like-for-like in loading and is flagged as directional only.
+
+**Open.** The 33% disagreement between the two V-hat routes (phase linkages vs
+torque-implied) is now the dominant uncertainty on the ceiling and on the PF
+bracket. It has been open since D-012 addendum 7 and is interpretation-limited; a
+co-energy solve at two current levels would bound it.

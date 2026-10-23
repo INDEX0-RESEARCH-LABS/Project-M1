@@ -5,6 +5,26 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
 ## [Unreleased]
 
 ### Added
+- **2026-10-23 (D-022: PF, kVA and the voltage ceiling are cycle quantities)**
+  - `pf_cycle.py` sweeps one 30 deg period (15 points, 2 deg, J=5.21) and records lam_alpha,
+    lam_beta, both V-hat routes, S and PF per rotor angle. `solve_raw` now also returns the
+    per-phase linkages (`lam`).
+  - **PF 0.578 -> 0.40 cycle-basis (0.39-0.43).** The quoted value is a peak-angle number:
+    real power follows the mean torque (1.2305), apparent power does not follow it down.
+    Third instance of one error class, after torque and efficiency.
+  - **S survives as a sizing figure**: 0.929-0.997 kVA over the period (3.5% band, Faraday
+    route). But ~1.0 kVA now buys 387 W of shaft, not 556 W (P_in 409.3 W, P_cu 22.75 W).
+  - **Voltage ceiling restated: 5,200-6,300 rpm, not 6,840.** The 11.5 V belonged to the
+    superseded 0.86 kVA state; the field solution gives 12.5-14.0 V at k=2, and the worst
+    rotor angle adds 4-6.5%. `tests/test_voltage_scaling.py` (V=6.52 V at k=1) already
+    implied ~6,060 rpm. D-020's stack route inherits ~4,000-4,800 rpm.
+  - **Loading anchor**: air-gap shear 0.89 kPa mean / 1.30 kPa peak over a 669 cm3 rotor,
+    against the "a few kPa" band for small machines (Kirtley, MIT 6.685 ch.1) and 3-7 kPa
+    typical at 0.1-5 kW. J=5.21 A/mm2 is at the top of the normal TEFC band. Magnetically
+    under-loaded, electrically normal: the 48 V rail is the constraint, not the iron.
+  - Sourced SynRM PF band for context: 0.60-0.65 measured at 2.2/4/5.5 kW (Ozcelik,
+    Energies 12(11):2190 Table 18), 0.64 at 2 HP (ABB ACH550-PHPB11U-EN); saliency 7-14 and
+    >9 for PF>0.8. Ours is ~4, hence the gap. Directional comparison only.
 - **2026-10-23 (D-016: re-certification done - torque and efficiency re-certified, PF open)**
   - 181-point 0.25 deg static sweep on the corrected winding (`torque_curve/sweep_0p25deg.csv`).
     Peak **1.813 N.m at 26.0 deg** (9-ring) / 1.753 at 25.5 (annulus); plateau 25.5-27.5
