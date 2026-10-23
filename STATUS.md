@@ -91,7 +91,7 @@ it was: 7.37 kg of iron for 0.5 kW, at 93.5%.
 | **Torque extractor convergence** | ABSORBED - 1.45 N.m +/-4% **at the certified point only**. `torque_at` returns `abs()` (no sign structure); angle-resolved torque below **~0.5 N.m is not resolvable** (four gap bands spread 10.7% at the certified point, 9x at a dip). New `fem_magnetics.torque_annulus` area-integral estimator gives 1.536 vs 1.576 N.m at the certified point with a per-band error bar (2026-10-23) | one fully converged certification point (4096/20, rings 9 + co-energy + annulus) would restore a point value; ~15 min compute. Low-torque work needs a stress method that does not depend on element-constant B (local jacobian or co-energy) |
 | **Slot binning convention** | **FIXED (D-015)**: `split_slots` was half a slot off the geometry's k*pitch convention (+0.513 pitch measured), rotating the MMF 5 deg mech and mixing phases at belt boundaries; T(0)/T(45) read 0.44/0.46 N.m instead of 0.01/0.03 | regression test in `tests/test_rajini_winding.py`; nothing else to do |
 | True MTPA angle | **MAPPED at 0.25 deg (D-016)**: argmax 26.0 deg, plateau 25.5-27.5 within 1.5%. The curve has converged dips at 12.5 / 22.5 / 33.0 / 41.75 deg (14-29% of peak) and a negative lobe at 1.5-3.9 deg | resolved enough for the operating point. The dips are mirror-symmetric about 22.5 deg (4.0<->41.6, 12.5<->33.0) and *irregularly* spaced (8.5/10.0/10.5/8.6 deg), so no single order explains them; origin unconfirmed but they respect the geometry's symmetry |
-| **current angle vs the 48 V budget** | **CLOSED (D-024)**: 26.0 deg is both current-optimal (MTPA: 1.192 N.m mean against 1.164 at 20 deg and 1.029 at 32) and mean-optimal, so the instantaneous-basis choice survives. The VA-optimal angle is at or below 14 deg, but it buys -20% apparent power for **+28% current and +22% copper** (1.076 kVA / 37.2 W against 1.339 kVA / 30.5 W at 1.6 N.m). A 48 V rail binds on amps, so **no change**; apparent power per N.m is a rotor or gearing problem, not a control problem | reopens only if the chosen inverter is VA-rated rather than amp-rated |
+| **current angle vs the 48 V budget** | **CLOSED (D-024)**: 26.0 deg is both current-optimal (MTPA: 1.192 N.m mean against 1.164 at 20 deg and 1.029 at 32) and mean-optimal, so the instantaneous-basis choice survives. The VA-optimal angle is at or below 14 deg, but it buys -20% apparent power for **+28% current and +22% copper** (1.076 kVA / 37.2 W against 1.339 kVA / 30.5 W at 1.6 N.m). A 48 V rail binds on amps, so **no change**; apparent power per N.m is a rotor problem, not a control or gearing one | reopens only if the chosen inverter is VA-rated rather than amp-rated |
 | **Running torque ripple** | **ESTABLISHED in-model (D-018), mechanism identified (D-019)**: p-p **107.2% annulus** unskewed, over an exact 30 deg period at 0.5 deg sampling; fine-mesh extrema reproduce p-p within 0.5 pp. Period exactly 30 deg (12 pairs, 0.0000 N.m). Harmonic fit: **order 36 = 0.457 N.m is 2.8x order 12 = 0.161**, so the ripple is **slot-locked**, not winding-locked | **R3 FAIL unskewed**; see the skew row |
 | **Ripple mechanism is stator-side** | **the baseline 2-barrier rotor shows the same dips at the same angles** (12.0, 22.0 deg), same order-12 amplitude to 0.2%, order 36 within 6%, at its own rated current. The barriers barely modulate it, so this is not an S6 defect | closed; the lever is the stator slot/skew, not the barrier shape |
 | **Skew lever** | **in-model, from the measured curve (multi-slice 2D, no new solves)**: 1 slot pitch (10 deg) 107.2% -> 23.1%; **2 slot pitches (20 deg) -> 12.9%, PASSES the 15% R3 gate**; 30 deg (one winding repeat) -> **2.7%**; 15 deg is *worse* (25.9%) because it is 1.5 pitches. Mean unchanged in-model; real cost ~2% via the skew factor 0.980 at 40 deg elec | needs a skewed-rotor solve for a certified number, and a lamination-stacking/tooling decision |
@@ -134,7 +134,7 @@ copies carried the same error. The three routes are now tied by
   E3 arbitration 1.45 N.m (1.40-1.51); E4 FAIL on the 25% margin (+20% actual).
 - Voltage/angle A1-A3 + V1-V2: A1 PASS, A2 FAIL as declared (no angle lever), A3 gain
   inside the bracket; V1/V2 PASS at 1e-12. See `voltage_and_angle/RESULT.md`.
-- Tests: **32 passed** (`.venv/bin/python -m pytest -q`).
+- Tests: **38 passed** (`.venv/bin/python -m pytest -q`).
 
 ## 6. Reproduce
 
@@ -143,6 +143,10 @@ copies carried the same error. The three routes are now tied by
     .venv/bin/python -u simulation/scripts/dq_model.py --pf-check   # ~40 s, PF bracket
     .venv/bin/python -u simulation/scripts/thermal_first_order.py   # seconds
     .venv/bin/python -u simulation/scripts/iron_loss.py      # ~3 min, 2 solves
+    .venv/bin/python -u simulation/scripts/pf_cycle.py --step 2        # cycle PF/kVA, ~11 min
+    .venv/bin/python -u simulation/scripts/pf_cycle.py --analyse /tmp/opencode/m1/pf_cycle.csv
+    .venv/bin/python -u simulation/scripts/pf_cycle.py --step 2 --delta-op 14  # angle study
+    .venv/bin/python -u simulation/scripts/pf_cycle.py --angles "14:simulation/validation/angle_kva/sweep_14deg.csv,26:simulation/validation/angle_kva/sweep_26deg.csv"
     .venv/bin/python -u simulation/scripts/pf_angle_sweep.py        # ~10 min, 10 solves
     .venv/bin/python -u simulation/scripts/pf_angle_sweep.py --angle-check
     .venv/bin/python -u simulation/scripts/torque_mesh_convergence.py  # ~12 min
