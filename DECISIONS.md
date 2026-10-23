@@ -988,3 +988,39 @@ D-023's independent 1.29 / 1.32 to 1.5%.
 **Open.** If the chosen inverter turns out to be VA-rated rather than amp-rated, the 14 deg
 operating point becomes attractive and should be revisited. Torque ripple at other angles
 was not measured.
+
+## D-024 - addendum: gearing is not a lever either (2026-10-23)
+
+The decision above says the 48 V budget can only move "via saliency or gearing". The second
+half is wrong and is withdrawn the same day it was written.
+
+Gearing trades torque for speed at constant power: `T_motor = T_wheel / g` and
+`omega_motor = g * omega_wheel`, so `T * omega` is invariant. Since
+`S = T * omega / (eta * PF)`, apparent power is invariant too. Worked numerically for a
+fixed 12 N.m / 300 rpm wheel load at gears 1, 3, 8 and 20: S is 1.036 kVA in every case.
+
+**What actually sets the budget.** Apparent power per kW of shaft is `1/(eta * PF)`:
+
+| eta | PF | kVA per kW of shaft |
+|---|---|---|
+| 0.91 | 0.40 (this rotor, cycle basis) | **2.75** |
+| 0.91 | 0.60 (commercial small SynRM) | 1.83 |
+| 0.91 | 0.70 | 1.57 |
+
+So for 1.6 N.m at 3000 rpm (0.503 kW shaft), S = 1.38 kVA by this rule - consistent with
+the 1.29-1.34 kVA measured in D-023/D-024 to the rounding of PF.
+
+**Consequence, and this is the useful part.** Neither stack length, nor bore, nor winding,
+nor gearing nor current angle can reduce apparent power for a given shaft power. The
+machine's electrical cost is a single number, `1/(eta * PF)`, and only two things move it:
+efficiency, where this design is already good (0.91), and **power factor, where it is not
+(0.40 against 0.60 for a commercial small SynRM).**
+
+The 48 V kVA problem is therefore **a saliency problem and nothing else.** A lower power
+factor is the entire cost of the first-pass 4-barrier rotor; the subagent check puts xi at
+3.7 against 8-10 for optimised 4-barrier TLAs, with the 25% q-axis ribs the usual culprit
+(ribs short-circuit the q-axis flux and depress Ld/Lq).
+
+**Status.** Recorded as a correction to D-024, not a new direction. Any rotor change is
+lamination tooling and F-class spend, so this is a founder decision; no simulation work
+follows from it without that decision.

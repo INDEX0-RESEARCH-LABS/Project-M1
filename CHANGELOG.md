@@ -5,6 +5,14 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
 ## [Unreleased]
 
 ### Added
+- **2026-10-23 (D-024 addendum: gearing withdrawn as a lever)**
+  - Gearing trades torque for speed at constant power, so `T*omega` and hence `S` are
+    invariant: a fixed 12 N.m / 300 rpm wheel load costs 1.036 kVA at gear 1, 3, 8 and 20.
+  - Apparent power per kW of shaft is **`1/(eta*PF)`**: 2.75 kVA/kW at PF 0.40, 1.83 at a
+    commercial small SynRM's 0.60, 1.57 at 0.70.
+  - Neither stack, bore, winding, gearing nor current angle moves it. The 48 V kVA problem
+    is **a saliency problem and nothing else**; anything further is rotor tooling (F-class,
+    founder-gated).
 - **2026-10-23 (D-024: the current angle is not a lever on the 48 V constraint)**
   - `pf_cycle.py --delta-op` run at 14, 20, 26, 32, 38 deg, 15 points per period. Gates
     declared in `angle_kva/PLAN.md` before the run; P2/P3 pass, P1 fires and is overridden
