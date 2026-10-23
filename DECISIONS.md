@@ -714,3 +714,61 @@ sweep):
 - The harmonic table ranks mechanisms; it does not reconstruct the curve. Residual rms is
   0.137 N.m (11.4% of mean) because the sharp dip shoulders are not spanned by five
   harmonics.
+
+## D-020 - Mean torque sets the envelope; the 34% deficit is cheapest bought with stack length (2026-10-23)
+
+**Problem.** D-018/D-019 moved the design point from an instantaneous 1.77 N.m to a
+running mean of 1.1918 N.m at J = 5.21 A/mm2. The 1.6 N.m target is therefore 34% short.
+The earlier planning estimate met it by raising current to J = 6.99; that number was never
+compared against the alternatives, and one of the affected quantities - efficiency - had
+not been restated on a mean basis at all.
+
+**What was found.**
+
+1. **The certified 93.2% efficiency is a peak-angle figure.** In a synchronous-frame drive
+   the current magnitude is constant over a revolution, so copper loss is constant while
+   the torque is not. Energy-average efficiency therefore uses the mean torque:
+   eta = T_mean*omega / (T_mean*omega + P_cu + P_fe). At J = 5.21, T_mean = 1.1918 N.m,
+   omega = 314.16 rad/s: 374.4 / (374.4 + 23.75 + 16.3) = **90.3%** (90.2-90.4% over the
+   copper band 23-24.5 W), not 93.2%. The 3 pp difference is the same peak-versus-mean
+   error that D-018 found in torque.
+2. **The deficit can be bought three ways, and they are not equivalent.**
+
+| route | what changes | copper loss | efficiency | apparent power | voltage ceiling |
+|---|---|---|---|---|---|
+| A. current | J 5.21 -> 6.99 (+34%) | 23.75 -> 42.8 W | 89.5% | 1.06 -> **1.42 kVA** | 6840 rpm (unchanged) |
+| B. stack length | L 50.4 -> **67.7 mm** (+34%) | 23.75 -> **31.9 W** | **90.3%** | **1.06 kVA** (unchanged) | 6840 -> **~5100 rpm** |
+| C. larger bore | 130 -> ~150 mm | not evaluated | - | - | - |
+
+   Torque is **exactly proportional to L in this model**: the 2D field solve does not
+   depend on axial length, only the force integral does. So route B is the most reliable
+   of the three estimates - it needs no new solve to be right within the 2D approximation.
+3. **Route B does not change any loading.** At fixed J, copper loss per unit length is
+   identical (0.471 W/mm in both cases), so thermal flux, current density and kVA are
+   unchanged. It is a 34% longer machine working exactly as hard, not a machine working
+   34% harder.
+4. **Route B's cost is speed range.** Back-EMF scales with L, so the ~6840 rpm voltage
+   ceiling falls to ~5100 rpm. At a 3000 rpm nominal that is ample headroom, but it is a
+   real trade against route A, which keeps the ceiling.
+
+**Decision.**
+- **Route B (stack length 50.4 -> 67.7 mm, J held at 5.21) is the primary response** to
+  the mean-torque deficit. It holds the two scarce resources - current density and 48 V
+  kVA - fixed, and keeps efficiency at 90.3%.
+- Route A is the fallback if stack length is capped by the application envelope.
+- Route C is deferred until the frame is chosen; it needs the barrier geometry redesigned,
+  so it is not a cheap option.
+- **Efficiency is quoted as 90.3% (mean basis) from here on**; 93.2% is retained only as a
+  peak-angle figure and must be labelled as such wherever it appears.
+- Ripple no longer sets the envelope: D-019 gives 12.4% p-p in-model with a 20 deg skew
+  at a cost of ~2% mean torque.
+
+**Caveats.**
+- End-winding resistance and end leakage do not scale with L, so route B's real gain is
+  slightly below 1.343x; a longer stack also dilutes the end-loss fraction, which partly
+  offsets that.
+- Iron loss scaling with L assumes unchanged flux density and volume - correct to first
+  order, end-region effects ignored.
+- Route B changes the frame, so it re-opens the D-012 point design. It does not change the
+  rotor or stator *geometry* decisions, which are scale-invariant in this model.
+- All of it is a 2D current-source model: no skew (D-019), no PWM, no end effects.

@@ -5,7 +5,8 @@ The D-015 half-slot fix changed the machine, so D-014's numbers were re-derived 
 corrected winding with a 181-point 0.25 deg sweep and a four-mesh ladder. Torque is now
 measured with the gap area integral, because a solid-rotor null test showed the
 single-circle extractor the old chain used reads +0.55 N.m on a machine that must give
-zero. Re-certified: torque 1.77 +- 0.14 N.m at 26.0 deg, efficiency 93.2%, iron 16.3 W.
+zero. Re-certified: torque 1.77 +- 0.14 N.m at 26.0 deg, efficiency 93.2% **at that peak
+angle only - 90.3% on a mean basis (D-020)**, iron 16.3 W.
 PF is re-certified **like-for-like** at 3072/10 (D-017): S6 **0.578 / 1.059 kVA** against
 the baseline rotor **0.469 / 1.111 kVA** at the same angle and current, so S6 clears the
 +0.030 PF gate by +0.109 with 18.3% more torque at 4.7% less apparent power. The baseline
@@ -39,7 +40,7 @@ deep-barrier rotor beats the shallow baseline on torque, efficiency *and* power 
 when both are measured the same way.** The barrier stack used
 to occupy only the outer 10.4 mm of a 64.5 mm rotor radius, so q-flux dived under it. At
 44.5 mm depth (4 barriers, 25% ribs, 0.62 angular fraction) the machine at the 1.6 N.m
-target needs **J 5.21 / 49.7 A**, gives **PF 0.578, S 1.06 kVA, 93.2% efficiency** (D-016
+target needs **J 5.21 / 49.7 A**, gives **PF 0.578, S 1.06 kVA, 93.2% peak-angle efficiency / 90.3% mean-basis** (D-016, D-020
 numbers; D-014's 0.633 / 0.86 kVA were on the uncorrected winding), and
 carries **17% less iron** with a **~6,840 rpm** voltage ceiling. Gate B (plane-stress FE,
 SF 12.2 at 7000 rpm) and iron loss (12.1 W median) both pass. The open risks are torque
@@ -60,7 +61,8 @@ ripple/NVH and tooling, not electromagnetics.
 | copper loss (hot, enclosed) | **23-24.5 W** at the 1.6 N.m target (D-014; baseline 26-28 W) | DERIVED | `thermal_first_order`, `saliency_lever` s.5 |
 | iron loss (100 Hz elec.) | 10.1-27.4 W, median **16.3 W** (D-016; D-014 had 12.1 W - the corrected winding saturates the rotor to 2.83 T) | ESTIMATE | `iron_loss --candidate` |
 | winding rise | **~14 K** with iron (9.2 K copper only) at the 1.6 N.m target; enclosed, h=25 | ESTIMATE | `thermal_first_order` |
-| efficiency | **93.2% (91.6-94.1%)** (D-016; D-014 had 93.4%) - unchanged within the band | ESTIMATE | `iron_loss --candidate` |
+| efficiency | **90.3% mean-basis** (D-020), 93.2% at the peak angle only (D-016; D-014 had 93.4%). The 3 pp gap is the same peak-vs-mean error as the torque | ESTIMATE | `iron_loss --candidate` |
+| **response to the mean-torque deficit** | **stack length 50.4 -> 67.7 mm at J=5.21** (D-020): torque is exactly proportional to L in-model, so this holds copper density (0.471 W/mm), kVA (1.06) and efficiency (90.3%) fixed and pays with speed ceiling (~6840 -> ~5100 rpm). The current route (J=6.99) costs 1.42 kVA and 89.5% | DERIVED (2D exact in L) | `DECISIONS.md` D-020 |
 | phase current | **49.7 A** peak for the target at k=2 (D-014; 99.4 A at the k=1 FEM state, N_c = 1.247) | SOLVED | `saliency_lever` s.5 |
 | terminal voltage | **11.5 V** peak at 3000 rpm against a 26.3 V ceiling (D-014) | DERIVED | `saliency_lever` s.5 |
 | PF / apparent power | **0.578 / 1.059 kVA** (D-017, S6) against **0.469 / 1.111 kVA** (baseline), both at 26.0 deg, J=5.34, 3072/10, annulus. Gate +0.030 -> **+0.109 PASS** | SOLVED / DERIVED | `saliency_screen --confirm` |
@@ -77,7 +79,7 @@ it was: 7.37 kg of iron for 0.5 kW, at 93.5%.
 | item | status | what unblocks it |
 |---|---|---|
 | Winding turns | **DECIDED (D-013): k=2**, ceiling **~6,840 rpm** at the 1.6 N.m target with D-014 (was ~5,860 with the shallow rotor) | reopens if the final gear ratio pushes the motor past ~6,800 rpm |
-| **Deep-barrier rotor (D-014)** | **ADOPTED; torque, efficiency and PF RE-CERTIFIED (D-016, D-017)**: 1.873 N.m at J=5.34 (annulus), 1.77 +- 0.14 at J=5.21, 93.2%, iron 16.3 W, **PF 0.578 vs baseline 0.469**; Gate B SF 12.2 at 7000 rpm stands (independent of the winding fix) | punching tooling once ripple is settled. Ripple remains **the binding risk** (`torque_ripple/`, Gen 3 running) |
+| **Deep-barrier rotor (D-014)** | **ADOPTED; torque, efficiency and PF RE-CERTIFIED (D-016, D-017)**: 1.873 N.m at J=5.34 (annulus), 1.77 +- 0.14 at J=5.21, 93.2% peak-angle / 90.3% mean (D-020), iron 16.3 W, **PF 0.578 vs baseline 0.469**; Gate B SF 12.2 at 7000 rpm stands (independent of the winding fix). Ripple is **stator-side and skew-fixable (D-019)**, so it no longer sets the envelope; **mean torque does (D-020)** | punching tooling once the frame (stack length) is chosen. Rotor choice D-014 holds on a mean basis (+12..21% at equal current) |
 | **PF at 48 V** | **CLOSED (D-017)**: like-for-like at 3072/10, S6 **0.578 / 1.059 kVA** vs baseline **0.469 / 1.111 kVA** at 26.0 deg, J=5.34. S6 wins by +0.109 PF and 18.3% torque at 4.7% *less* kVA. The kVA problem belongs to the frame and the current, not to S6 | D-012's choice is now a controller question: ~1.06 kVA at 48 V (65-88 A class) for either rotor |
 | **Torque extractor convergence** | ABSORBED - 1.45 N.m +/-4% **at the certified point only**. `torque_at` returns `abs()` (no sign structure); angle-resolved torque below **~0.5 N.m is not resolvable** (four gap bands spread 10.7% at the certified point, 9x at a dip). New `fem_magnetics.torque_annulus` area-integral estimator gives 1.536 vs 1.576 N.m at the certified point with a per-band error bar (2026-10-23) | one fully converged certification point (4096/20, rings 9 + co-energy + annulus) would restore a point value; ~15 min compute. Low-torque work needs a stress method that does not depend on element-constant B (local jacobian or co-energy) |
 | **Slot binning convention** | **FIXED (D-015)**: `split_slots` was half a slot off the geometry's k*pitch convention (+0.513 pitch measured), rotating the MMF 5 deg mech and mixing phases at belt boundaries; T(0)/T(45) read 0.44/0.46 N.m instead of 0.01/0.03 | regression test in `tests/test_rajini_winding.py`; nothing else to do |

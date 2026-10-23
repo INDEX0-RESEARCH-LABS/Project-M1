@@ -375,3 +375,18 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
     +18.3% instantaneous. S6's relative ripple is shallower (96.6% vs 106.7%).
   - An earlier hypothesis that the dip depth was rotor-tip dependent (from dip symmetry
     about 22.5 deg) is refuted by the baseline sweep.
+
+### Changed
+- **2026-10-23 (D-020: mean torque sets the envelope; efficiency restated; stack length is the response)**
+  - **Efficiency corrected 93.2% -> 90.3% on a mean basis.** In a synchronous-frame drive
+    the current (hence copper loss) is constant over a revolution, so energy-average
+    efficiency uses the mean torque. 93.2% is a peak-angle figure and must be labelled as
+    such wherever it survives.
+  - Three routes to the 1.6 N.m mean target compared. **Stack length 50.4 -> 67.7 mm at
+    J=5.21** holds current density (0.471 W/mm), kVA (1.06) and efficiency (90.3%) fixed;
+    the current route (J=6.99) costs 1.42 kVA and 89.5%. Torque is exactly proportional to
+    L in this 2D model, so this is the most reliable of the three estimates.
+  - Cost of the stack route: back-EMF scales with L, so the ~6840 rpm voltage ceiling falls
+    to ~5100 rpm - ample at a 3000 rpm nominal, but a real trade.
+  - Ripple no longer sets the envelope (D-019 fixes it in-model with skew); mean torque
+    does.
