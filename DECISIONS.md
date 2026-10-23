@@ -645,9 +645,9 @@ matches the known 5th/7th mmf harmonics at 22.7%/18.5% of the fundamental, i.e. 
    certified numbers; re-certification at the new J is required before they are quoted.
    Note this is a **stator-level** defect, so D-014's relative rotor advantage is
    untouched while the absolute design point moves.
-   **Corrected by D-019:** the mean is 1.1918 N.m, not 1.202 (the 0-90 deg average
-   weighted 0, 30 and 90 deg, which are one physical point, three times out of 46); J for
-   1.6 N.m mean is 6.99; and the mechanism is slot-locked, not winding-locked, so the
+   **Corrected by D-019 and D-021:** the mean is 1.2305 N.m (1.202 came from weighting the
+   one physical point at 0/30/90 deg three times out of 46; 1.1918 was the 2 deg grid,
+   itself biased 3.2% low); J for 1.6 N.m mean is 6.77; and the mechanism is slot-locked, not winding-locked, so the
    baseline inherits the *period* and almost exactly the *depth*, not just the former.
 2. The R5 lever map frozen in the plan (slot opening or skew) does not cover the measured
    answer. ~~The first lever is the winding layout; skew of one slot pitch is designed to
@@ -674,22 +674,26 @@ cause it, and what actually fixes it.
 sweep):
 
 1. **Order 36 dominates.** A least-squares fit of one exact period with only the
-   harmonics a 30 deg period permits (12, 24, 36, 48, 60) gives S6 amplitudes of 0.157,
-   0.087, **0.495**, 0.009, 0.020 N.m. Order 36 is one event per 10 deg slot pitch, 3.2x
-   the phase-belt order 12. The 0.5 deg sweep puts the dips 10.5 deg apart, consistent
-   with the slot pitch.
+   harmonics a 30 deg period permits gives S6 amplitudes of 0.161, 0.088, **0.457**,
+   0.014, 0.025 N.m at 0.5 deg (0.157, 0.087, 0.495, 0.009, 0.020 at 2 deg). Order 36 is
+   one event per 10 deg slot pitch, 2.8x the phase-belt order 12. The 0.5 deg sweep puts
+   the dips at 3.0, 12.5 and 22.5 deg - spacings 9.5 and 10.0 against a 10.0 deg slot
+   pitch - and shows the dip is a notch, with real energy at orders 72 and 108.
 2. **It is stator-side.** The baseline 2-barrier rotor (`sweep_base_2deg.csv`, J=5.62,
    same 30 deg span) dips at the *same angles* (12.0 and 22.0 deg), to the same depth
    within 0.10 N.m, with order 12 identical to 0.2% and order 36 within 6%. Two very
    different rotor geometries producing the same slot-order torque means the barriers are
    not the mechanism.
 3. **Skew removes it, and skew must be an integer number of slot pitches.** Multi-slice
-   2D skew applied to the measured curve: 10 deg -> 21.9% p-p (from 96.6%), 15 deg ->
-   26.9% (*worse* than 10 deg: 1.5 pitches does not cancel order 36), **20 deg -> 12.4%,
-   inside the 15% R3 gate**. The mean is unchanged in this model.
-4. **A correction.** The D-018 mean of 1.202 N.m included both 0 and 90 deg on the 0-90
-   grid; 0, 30 and 90 are the same physical point (T = 1.6660), weighted three times out
-   of 46. Over one exact period the mean is **1.1918 N.m**. Consequence unchanged.
+   2D skew applied to the measured curve (0.5 deg): 10 deg -> 23.1% p-p (from 107.2%),
+   15 deg -> 25.9% (*worse* than 10 deg: 1.5 pitches does not cancel order 36), **20 deg ->
+   12.9%, inside the 15% R3 gate**, 30 deg (one winding repeat) -> **2.7%**. The mean is
+   unchanged in this model.
+4. **A correction, twice over.** The D-018 mean of 1.202 N.m included both 0 and 90 deg on
+   the 0-90 grid; 0, 30 and 90 are the same physical point (T = 1.6660), weighted three
+   times out of 46. Over one exact period at 2 deg that gave 1.1918 N.m. The 0.5 deg sweep
+   then showed the 2 deg grid was itself biased 3.2% low by quadrature across the notches:
+   the mean is **1.2305 N.m** and p-p is 107.2%. See D-021, which supersedes this number.
 
 **Decision.**
 - The primary ripple lever is **rotor skew of two slot pitches (20 deg mech)**, not
@@ -698,9 +702,9 @@ sweep):
 - The baseline's measured mean makes D-014's advantage a **mean-basis** statement: +12% to
   +21% at equal current (T ~ J^1..J^2 bracket) against the +18.3% instantaneous figure.
   D-014 holds; its margin is not a ripple artefact.
-- The mean torque remains the binding problem: 1.1918 N.m at J=5.21 means J=6.99 for the
-  1.6 N.m target (~43 W copper, ~89.5% efficiency). Skew does not address that, and the
-  two must not be conflated.
+- The mean torque remains the binding problem: 1.2305 N.m at J=5.21 means J=6.77 for the
+  1.6 N.m target (~40 W copper, ~89.9% efficiency, D-021). Skew does not address that, and
+  the two must not be conflated.
 
 **Caveats.**
 - Multi-slice 2D skew ignores axial flux redistribution. A real machine has one current
@@ -715,10 +719,11 @@ sweep):
   0.137 N.m (11.4% of mean) because the sharp dip shoulders are not spanned by five
   harmonics.
 
-## D-020 - Mean torque sets the envelope; the 34% deficit is cheapest bought with stack length (2026-10-23)
+## D-020 - Mean torque sets the envelope; the 30% deficit is cheapest bought with stack length (2026-10-23)
 
 **Problem.** D-018/D-019 moved the design point from an instantaneous 1.77 N.m to a
-running mean of 1.1918 N.m at J = 5.21 A/mm2. The 1.6 N.m target is therefore 34% short.
+running mean of 1.2305 N.m at J = 5.21 A/mm2 (D-021). The 1.6 N.m target is therefore
+30% short.
 The earlier planning estimate met it by raising current to J = 6.99; that number was never
 compared against the alternatives, and one of the affected quantities - efficiency - had
 not been restated on a mean basis at all.
@@ -728,16 +733,16 @@ not been restated on a mean basis at all.
 1. **The certified 93.2% efficiency is a peak-angle figure.** In a synchronous-frame drive
    the current magnitude is constant over a revolution, so copper loss is constant while
    the torque is not. Energy-average efficiency therefore uses the mean torque:
-   eta = T_mean*omega / (T_mean*omega + P_cu + P_fe). At J = 5.21, T_mean = 1.1918 N.m,
-   omega = 314.16 rad/s: 374.4 / (374.4 + 23.75 + 16.3) = **90.3%** (90.2-90.4% over the
-   copper band 23-24.5 W), not 93.2%. The 3 pp difference is the same peak-versus-mean
-   error that D-018 found in torque.
+   eta = T_mean*omega / (T_mean*omega + P_cu + P_fe). At J = 5.21, T_mean = 1.2305 N.m
+   (D-021), omega = 314.16 rad/s: 386.6 / (386.6 + 23.75 + 16.3) = **90.6%** (90.5-90.8%
+   over the copper band 23-24.5 W), not 93.2%. The 2.6 pp difference is the same
+   peak-versus-mean error that D-018 found in torque.
 2. **The deficit can be bought three ways, and they are not equivalent.**
 
 | route | what changes | copper loss | efficiency | apparent power | voltage ceiling |
 |---|---|---|---|---|---|
-| A. current | J 5.21 -> 6.99 (+34%) | 23.75 -> 42.8 W | 89.5% | 1.06 -> **1.42 kVA** | 6840 rpm (unchanged) |
-| B. stack length | L 50.4 -> **67.7 mm** (+34%) | 23.75 -> **31.9 W** | **90.3%** | **1.06 kVA** (unchanged) | 6840 -> **~5100 rpm** |
+| A. current | J 5.21 -> 6.77 (+30%) | 23.75 -> 40.2 W | 89.9% | 1.06 -> **1.38 kVA** | 6840 rpm (unchanged) |
+| B. stack length | L 50.4 -> **65.5 mm** (+30%) | 23.75 -> **30.9 W** | **90.6%** | **1.06 kVA** (unchanged) | 6840 -> **~5260 rpm** |
 | C. larger bore | 130 -> ~150 mm | not evaluated | - | - | - |
 
    Torque is **exactly proportional to L in this model**: the 2D field solve does not
@@ -745,22 +750,22 @@ not been restated on a mean basis at all.
    of the three estimates - it needs no new solve to be right within the 2D approximation.
 3. **Route B does not change any loading.** At fixed J, copper loss per unit length is
    identical (0.471 W/mm in both cases), so thermal flux, current density and kVA are
-   unchanged. It is a 34% longer machine working exactly as hard, not a machine working
-   34% harder.
+   unchanged. It is a 30% longer machine working exactly as hard, not a machine working
+   30% harder.
 4. **Route B's cost is speed range.** Back-EMF scales with L, so the ~6840 rpm voltage
-   ceiling falls to ~5100 rpm. At a 3000 rpm nominal that is ample headroom, but it is a
+   ceiling falls to ~5260 rpm. At a 3000 rpm nominal that is ample headroom, but it is a
    real trade against route A, which keeps the ceiling.
 
 **Decision.**
-- **Route B (stack length 50.4 -> 67.7 mm, J held at 5.21) is the primary response** to
+- **Route B (stack length 50.4 -> 65.5 mm, J held at 5.21) is the primary response** to
   the mean-torque deficit. It holds the two scarce resources - current density and 48 V
-  kVA - fixed, and keeps efficiency at 90.3%.
+  kVA - fixed, and keeps efficiency at 90.6%.
 - Route A is the fallback if stack length is capped by the application envelope.
 - Route C is deferred until the frame is chosen; it needs the barrier geometry redesigned,
   so it is not a cheap option.
-- **Efficiency is quoted as 90.3% (mean basis) from here on**; 93.2% is retained only as a
+- **Efficiency is quoted as 90.6% (mean basis) from here on**; 93.2% is retained only as a
   peak-angle figure and must be labelled as such wherever it appears.
-- Ripple no longer sets the envelope: D-019 gives 12.4% p-p in-model with a 20 deg skew
+- Ripple no longer sets the envelope: D-019 gives 12.9% p-p in-model with a 20 deg skew
   at a cost of ~2% mean torque.
 
 **Caveats.**
@@ -772,3 +777,62 @@ not been restated on a mean basis at all.
 - Route B changes the frame, so it re-opens the D-012 point design. It does not change the
   rotor or stator *geometry* decisions, which are scale-invariant in this model.
 - All of it is a 2D current-source model: no skew (D-019), no PWM, no end effects.
+
+## D-021 - Mean torque is 1.2305 N.m: a 2 deg grid reads it 3.2% low (2026-10-23)
+
+**Problem.** D-018 through D-020 took the full-period mean and p-p on a 2 deg grid
+(1.1918 N.m, 96.6%). D-019's central claim - that a 20 deg skew brings the ripple inside
+the 15% gate - had only ever been tested on that grid.
+
+**What was found.** A 0.5 deg sweep over one exact period (61 points,
+`sweep_period_0p5deg.csv`, log `/tmp/opencode/m1/ripple_period_0p5.log`):
+
+| grid | samples per period | mean | p-p |
+|---|---|---|---|
+| 2.0 deg | 15 | 1.1918 N.m | 96.6% |
+| 1.0 deg | 30 | 1.2258 N.m | - |
+| **0.5 deg** | **60** | **1.2305 N.m** | **107.2%** |
+
+1. **This is a quadrature error, not noise.** The dips are V-notches about 3 deg wide with
+   a bottom of 0.4268 N.m at 12.50 deg. With five samples per 10 deg slot period the 2 deg
+   grid lands on the flank at 12.0 deg (0.5870) and misses the bottom by 0.16 N.m; across
+   the period it over-samples the falling edges and under-samples the flat tops, so the
+   estimate is systematically low. It converges: 1.0 -> 0.5 deg moves only 0.005 N.m.
+2. **The harmonic picture is the same fact from the other side.** At 0.5 deg: order 36 =
+   0.457, order 72 = 0.269, order 12 = 0.161, order 108 = 0.102, order 24 = 0.088. The
+   residual only falls below 1% with harmonics to order 240. The notch needs the higher
+   orders, which is why a grid that samples 5 points per slot period cannot integrate it.
+3. **Skew is confirmed on the finer curve**: 10 deg -> 23.1%, 15 deg -> 25.9%,
+   **20 deg -> 12.9% (PASS)**, 30 deg (one winding repeat) -> **2.7%**. D-019's conclusion
+   holds; its numbers move by about half a point.
+
+**Corrected numbers** (these supersede D-018, D-019 and D-020 wherever they differ):
+
+| quantity | before | after |
+|---|---|---|
+| mean torque at J=5.21 | 1.1918 N.m | **1.2305 N.m** |
+| p-p, unskewed | 96.6% | **107.2%** |
+| deficit to the 1.6 N.m mean target | 34% | **30%** |
+| J for 1.6 N.m mean (linear) | 6.99 | **6.77** |
+| copper loss at that J | ~43 W | **~40 W** |
+| efficiency at 1.6 N.m | 89.5% | **89.9%** |
+| apparent power at 1.6 N.m | 1.42 kVA | **1.38 kVA** |
+| efficiency at J=5.21, mean basis | 90.3% | **90.6%** |
+| stack-length route | 67.7 mm, 90.3%, ~5100 rpm | **65.5 mm, 90.6%, ~5260 rpm** |
+| order 36 / order 12 | 0.495 / 0.157 (3.2x) | **0.457 / 0.161 (2.8x)** |
+| skew 20 deg p-p | 12.4% | **12.9%** |
+
+**Decision.** The corrected numbers are the quotable ones. Every conclusion of D-018,
+D-019 and D-020 survives: the ripple is slot-locked, skew-fixable and stator-side; D-014's
+rotor choice holds; stack length remains the cheapest route to the target. Only the
+magnitudes move, by 2-3%.
+
+**Standing rule added.** Any mean or p-p of this torque curve must be computed at 0.5 deg
+or finer, or carry an explicit grid-convergence check reported next to it. This joins the
+standing list of statistics that looked settled and were not (the four poorly chosen pass
+statistics; the FFT leakage; the aliased order-12 reading; the 6-pair period test).
+
+**Why it was worth the 40 minutes.** The 20 deg skew claim was the whole basis for saying
+the ripple risk is closed. It is, but it was closed on a 3%-wrong mean and a 10 pp
+understated modulation. A gate that passes at 12.9% rather than 12.4% has less margin than
+advertised, and the efficiency number the founder will read moved by 0.3 pp.

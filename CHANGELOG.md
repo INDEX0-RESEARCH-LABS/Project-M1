@@ -390,3 +390,20 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
     to ~5100 rpm - ample at a 3000 rpm nominal, but a real trade.
   - Ripple no longer sets the envelope (D-019 fixes it in-model with skew); mean torque
     does.
+
+### Changed
+- **2026-10-23 (D-021: 0.5 deg sweep corrects the mean to 1.2305 N.m and p-p to 107.2%)**
+  - Grid convergence: 2 deg -> 1.1918 N.m, 1 deg -> 1.2258, **0.5 deg -> 1.2305**. The
+    2 deg grid is 3.2% low because its five samples per 10 deg slot period land on the
+    notch flanks and never on the bottom (0.4268 N.m at 12.50 deg).
+  - p-p 96.6% -> **107.2%**; peak/mean 1.42; rings 1/5/9 give 81.8/94.2/103.6%, so the
+    modulation grows outward from the rotor - consistent with a stator-slot origin.
+  - Harmonic content at 0.5 deg: order 36 = 0.457, **order 72 = 0.269**, order 12 = 0.161,
+    order 108 = 0.102. Residual only <1% to order 240: the dip is a notch, not a sinusoid.
+  - Skew re-tested on the fine curve: 10 deg 23.1%, 15 deg 25.9%, **20 deg 12.9% (PASS)**,
+    **30 deg 2.7%**. D-019's conclusion holds; the gate margin is thinner than advertised.
+  - Corrected downstream: J 6.99 -> **6.77**, copper ~43 -> **~40 W**, efficiency 89.9%,
+    kVA 1.42 -> **1.38**; efficiency at J=5.21 mean basis 90.3% -> **90.6%**; stack route
+    67.7 -> **65.5 mm**, ~5100 -> ~5260 rpm ceiling.
+  - Standing rule: means and p-p of this curve at 0.5 deg or finer, or with a reported
+    grid-convergence check.

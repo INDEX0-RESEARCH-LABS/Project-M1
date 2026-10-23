@@ -234,37 +234,55 @@ shape second, not slot opening or skew alone.
 ## 9. Consequence for the certified operating point
 
 The 1.873 N.m certified at 26.0 deg (D-016) is an **instantaneous value at one rotor
-position inside a ~100% p-p modulation**, not a running average. The full-period sweep
-(`torque_ripple.py --start 0 --stop 90 --step 2`, 46 points, log
-`/tmp/opencode/m1/ripple_period.log`) gives the running number:
+position inside a ~107% p-p modulation**, not a running average. The full-period sweep at
+0.5 deg resolution (`torque_ripple.py --start 0 --stop 30 --step 0.5`, 61 points, log
+`/tmp/opencode/m1/ripple_period_0p5.log`, `sweep_period_0p5deg.csv`) gives the running
+number:
 
 | quantity | J = 5.21 A/mm2 |
 |---|---|
-| **mean torque, annulus** | **1.1918 N.m** (one exact period, 15 samples) |
-| mean, rings 5 (continuity) | 1.374 N.m |
-| min / max | 0.587 / 1.739 N.m |
-| p-p at 2 deg sampling | 96.6% (100.2% at 0.5 deg over the window) |
-| peak at 26.0 deg / mean | 1.46 |
+| **mean torque, annulus** | **1.2305 N.m** (one exact period, 60 samples) |
+| rings 1 / 5 / 9 (mean) | 1.544 / 1.402 / 1.275 N.m |
+| min / max | **0.4268** (at 12.50 deg) / **1.7461** (at 25.50 deg) |
+| p-p | **107.2%** (rings 1/5/9: 81.8 / 94.2 / 103.6% - it grows outward) |
+| peak / mean | 1.42 |
+| annulus band spread | median 17.2%, max 58.8% |
 
-The three 30 deg periods give the same mean to four decimals (1.1918 N.m each), which
-confirms the period independently of the shift test. The co-energy bias measured in
-section 7 (+7% at the peak, -3% at the dip) puts the true mean within a few percent of
-1.19-1.24 N.m; it does not move it toward 1.77.
+**The sampling resolution is part of the result, not a tolerance.** The same curve
+integrated on the 2, 1 and 0.5 deg grids gives:
 
-**Correction.** D-018 quoted 1.202 N.m. That average was taken over all 46 rows of the
-0-90 deg grid, which includes both 0 and 90 deg, and 0, 30 and 90 deg are the same
-physical point (T = 1.6660 N.m): the point was weighted three times out of 46. Averaged
-over one exact period the mean is **1.1918 N.m**. The conclusion is unchanged; the
-0.9% difference is the endpoint duplication, and section 10.5 records it.
+| grid | samples per period | mean torque |
+|---|---|---|
+| 2.0 deg | 15 | 1.1918 N.m |
+| 1.0 deg | 30 | 1.2258 N.m |
+| **0.5 deg** | **60** | **1.2305 N.m** |
 
-**So the design is undersized on a mean-torque basis.** The 1.6 N.m target was met at
-J = 5.21 against an instantaneous 1.77 N.m; against a mean of 1.1918 N.m the same target
-needs about J = 6.99 A/mm2 (5.21 x 1.6/1.1918), which is 1.80x the copper loss
-(23-24.5 W -> ~43 W) and a first-order efficiency of ~89.5% rather than 93.2%. Apparent
-power scales with current, so ~1.42 kVA rather than 1.06 kVA. Those are linear
-extrapolations that ignore saturation, which will make them worse rather than better, so
-they are a **planning estimate, not a certified number** - a re-certification at the new J
-is required before any of it is quoted.
+The 2 deg estimate is biased **3.2% low**, and the mechanism is visible in the data: the
+dips are narrow V-notches about 3 deg wide (bottom 0.4268 at 12.50 deg), so with only five
+samples per 10 deg slot period the grid lands on the dip flanks and never on the bottom.
+Convergence from 1.0 to 0.5 deg is 0.005 N.m, so 1.2305 is good to about +-0.005; use
+**1.2305**, and any future mean of this curve must be taken at 0.5 deg or with an explicit
+convergence test.
+
+The three 30 deg periods still agree (T(0) = T(30) = T(90) = 1.6660 N.m, difference
+0.000000), and the co-energy bias measured in section 7 (+7% at the peak, -3% at the dip)
+puts the true mean within a few percent of 1.23; it does not move it toward 1.77.
+
+**Correction chain on this number.** D-018 quoted 1.202 N.m (a 0-90 deg average that
+counted the single physical point at 0/30/90 deg three times out of 46); the per-period
+average at 2 deg resolution was 1.1918 N.m; the 0.5 deg sweep gives **1.2305 N.m**. Both
+earlier values were quadrature artefacts of the grids they were taken on.
+
+**So the design is undersized on a mean-torque basis, by 30%.** The 1.6 N.m target was
+met at J = 5.21 against an instantaneous 1.77 N.m; against a mean of 1.2305 N.m the same
+target needs about J = 6.77 A/mm2 (5.21 x 1.6/1.2305), which is 1.69x the copper loss
+(23-24.5 W -> ~40 W) and a first-order efficiency of ~89.9% rather than the 93.2%
+peak-angle figure. Apparent power scales with current, so ~1.38 kVA rather than 1.06 kVA.
+Those are linear extrapolations that ignore saturation, which will make them worse rather
+than better, so they are a **planning estimate, not a certified number** - a
+re-certification at the new J is required before any of it is quoted. D-020 compares this
+route against buying the deficit with stack length instead, and D-021 supersedes
+D-018/D-019 on this number.
 
 Two clarifications that keep this proportionate:
 
@@ -303,23 +321,27 @@ If the period is exactly 30 deg, only orders that are multiples of 12 can be pre
 least-squares fit of one exact period (0-28 deg, 15 samples, harmonics 12/24/36/48/60)
 needs no window and no period assumption:
 
-| order | meaning | S6 amplitude (N.m) | baseline amplitude (N.m) |
+| order | meaning | S6 amplitude (N.m), 0.5 deg | baseline (N.m), 2 deg |
 |---|---|---|---|
-| 12 | 3-slot phase belt (5th/7th MMF) | 0.157 | 0.157 |
-| 24 | 2nd belt harmonic | 0.087 | 0.088 |
-| **36** | **slot pitch (once per 10 deg)** | **0.495** | **0.524** |
-| 48 | 4th belt harmonic | 0.009 | 0.009 |
-| 60 | 5th belt harmonic | 0.020 | 0.021 |
-| residual rms | | 0.137 (11.4% of mean) | 0.146 (12.7%) |
+| 12 | 3-slot phase belt (5th/7th MMF) | 0.161 | 0.157 |
+| 24 | 2nd belt harmonic | 0.088 | 0.088 |
+| **36** | **slot pitch (once per 10 deg)** | **0.457** | **0.524** |
+| 48 | 4th belt harmonic | 0.014 | 0.009 |
+| 60 | 5th belt harmonic | 0.025 | 0.021 |
+| 72 | 2nd slot harmonic | 0.269 | - |
+| 108 | 3rd slot harmonic | 0.102 | - |
+| residual rms | | 0.208 (16.9%) with 5 harmonics; 0.081 (6.6%) to order 96; 0.013 (1.1%) to order 240 | 0.146 (12.7%) |
 
-Order 36 is **3.2x order 12**. One dip per slot pitch is what a slot-tooth-tip interaction
-looks like, and it explains the dip spacing directly: the 0.5 deg sweep finds dips at 22.50
-and 33.00 deg, 10.5 deg apart, i.e. the slot pitch within the 0.5 deg sampling.
+Order 36 is **2.8x order 12**. One dip per slot pitch is what a slot-tooth-tip interaction
+looks like, and it explains the dip spacing directly: the full-period 0.5 deg sweep finds
+dips at **3.0, 12.5 and 22.5 deg**, spacings 9.5 and 10.0 deg against a 10.0 deg slot
+pitch. The dip is a narrow notch, not a sinusoid: orders 72 (0.269) and 108 (0.102) carry
+real energy, and the residual only falls below 1% when harmonics to order 240 are
+included. The notch shape is why the mean is so quadrature-sensitive (section 9).
 
-The residual (11-13% rms, i.e. 0.14 N.m) is *not* small: the five harmonics above carry the
-mean and the main structure but not the sharp dip shoulders, which are the part of the
-curve most sensitive to where exactly a dip lands between samples. Take the harmonic table
-as a ranking of the mechanisms, not as a complete reconstruction.
+The residual is *not* small at five harmonics (0.21 N.m rms, 16.9%), and it should not be:
+the five harmonics carry the mean and the main structure but not the notch. Take the table
+as a **ranking of mechanisms**, not as a reconstruction of the curve.
 
 ### 10.2 The depth does not come from the barrier rotor
 
@@ -329,14 +351,17 @@ own rated current, which is the equal-torque loading):
 
 | | S6 (4 barriers, J=5.21) | baseline (2 barriers, J=5.62) |
 |---|---|---|
-| mean | 1.1918 N.m | 1.1459 N.m |
-| min / max | 0.587 / 1.739 | 0.492 / 1.715 |
-| p-p | 96.6% | 106.7% |
+| mean | 1.2305 N.m (0.5 deg) | 1.1459 N.m (2 deg) |
+| min / max | 0.4268 / 1.7461 | 0.492 / 1.715 |
+| p-p | 107.2% (0.5 deg) | 106.7% (2 deg) |
 | dip angles | 12.0, 22.0 deg | 12.0, 22.0 deg |
 | order 12 | 0.157 | 0.157 |
 | order 36 | 0.495 | 0.524 |
 
-A four-barrier and a two-barrier rotor cannot produce the same slot-order torque, at the
+The two rotors were measured on different grids (0.5 deg for S6, 2 deg for the baseline),
+so their p-p values are not directly comparable - and they need not be, because the
+conclusion rests on the *angles* and the *harmonic identity*, which are grid-robust. A
+four-barrier and a two-barrier rotor cannot produce the same slot-order torque, at the
 same rotor angles, to within 6% by coincidence. The barriers barely modulate the ripple:
 the same relative shape appears on both, and order 12 is identical to 0.2%. **The
 modulation is a stator-side effect** - the slot mouth and tooth tip against the rotor
@@ -357,19 +382,22 @@ should cancel it. Multi-slice 2D skew does exactly that as a post-process on the
 curve: `T_skew(th) = mean over slices of T(th + offset)`, 41-point integration, no new
 solves. This is the standard first-order skew model.
 
-| axial skew | S6 p-p | baseline p-p | R3 gate (15%) |
+| axial skew | S6 p-p (0.5 deg curve) | baseline p-p (2 deg curve) | R3 gate (15%) |
 |---|---|---|---|
-| 0 deg (unskewed, as measured) | 96.5% | 106.6% | FAIL |
+| 0 deg (unskewed, as measured) | 107.2% | 106.7% | FAIL |
 | 2.5 deg | 87.6% | 95.2% | FAIL |
-| 5.0 deg (half slot pitch) | 71.1% | 76.9% | FAIL |
+| 5.0 deg (half slot pitch) | 66.9% | 76.9% | FAIL |
 | 7.5 deg | 43.7% | 47.0% | FAIL |
-| 10.0 deg (one slot pitch) | 21.9% | 22.9% | FAIL |
-| 15.0 deg (1.5 slot pitches) | 26.9% | 28.9% | FAIL |
-| 20.0 deg (two slot pitches) | **12.4%** | **13.1%** | **PASS** |
+| 10.0 deg (one slot pitch) | 23.1% | 22.9% | FAIL |
+| 15.0 deg (1.5 slot pitches) | 25.9% | 28.9% | FAIL |
+| 20.0 deg (two slot pitches) | **12.9%** | **13.1%** | **PASS** |
+| 30.0 deg (three pitches = one winding repeat) | **2.7%** | - | **PASS** |
 
-- One slot pitch removes 4.4x of the ripple but leaves 21.9%, still above the gate.
-- Two slot pitches passes. **Skew must be an integer number of slot pitches**: 15 deg is
-  *worse* than 10 deg because the order-36 average over 1.5 cycles does not vanish.
+- One slot pitch removes 4.6x of the ripple but leaves 23.1%, still above the gate.
+- Two slot pitches passes at 12.9%. **Skew must be an integer number of slot pitches**:
+  15 deg is *worse* than 10 deg because the order-36 average over 1.5 cycles does not
+  vanish. Three pitches (30 deg, one full winding repeat) gives 2.7%, the cleanest
+  cancellation available, and it kills order 12 as well.
 - The mean is unchanged in this model (1.1930 N.m at every skew) because each slice is
   excited at its own ideal current angle.
 - What the model cannot see, and the real cost: a machine has **one** current vector, so
@@ -377,26 +405,28 @@ solves. This is the standard first-order skew model.
   is sin(20 deg)/(20 deg in rad) = 0.980, i.e. about **2% mean torque**. That is a far
   better trade than the 34% mean-torque shortfall, and the two problems are independent.
 
-After 20 deg skew the residual is dominated by order 12 (0.065 N.m amplitude, the 2/3
-partial cancellation of a 30 deg period by a 20 deg skew), which is exactly where
-**winding layout** becomes the lever - as a second step, on a much smaller component.
+After 20 deg skew the residual is order 12, only partially cancelled (a 20 deg skew spans
+2/3 of its 30 deg period), which is exactly where **winding layout** becomes the lever - as
+a second step, on a much smaller component. A 30 deg skew removes that too.
 
 ### 10.4 Why the magnitude may still be 2-4x too high
 
 Order 36 at 0.495 N.m is 42% of the mean torque. Real SynRMs show single-digit slot-order
 ripple unskewed. The 2D model has no skew, no axial flux redistribution, and sharp-edged
 slots, all of which inflate slot-order torque; section 10.3 is the quantitative version of
-that statement, and the missing skew alone accounts for a factor of 4.4. So the model is
+that statement, and the missing skew alone accounts for a factor of 4.6. So the model is
 not necessarily wrong - it is modelling an unskewed rotor, and real rotors are skewed.
 The absolute magnitude stays in-model until there is a bench, but the *mechanism* is now
 identified and the remedy is standard practice.
 
 ### 10.5 Corrections to earlier text
 
-- The full-period mean was quoted as 1.202 N.m in D-018. That average included both ends
-  of the 0-90 deg grid, and 0, 30 and 90 deg are the same physical point, so it was
-  weighted three times out of 46. Averaged over one exact period the mean is
-  **1.1918 N.m**. The 1.6 N.m mean-basis consequence is unchanged: J = 6.99.
+- **The mean has been corrected twice.** D-018 quoted 1.202 N.m, an average over the
+  0-90 deg grid that counted the physical point at 0/30/90 deg three times out of 46. On
+  one exact period at 2 deg that became 1.1918 N.m. The 0.5 deg sweep then showed that the
+  2 deg grid was itself biased 3.2% low by quadrature across the notches, and the value is
+  **1.2305 N.m**. The mean-basis consequence moves from J = 6.99 to **J = 6.77** (~40 W
+  copper, ~89.9% efficiency, ~1.38 kVA). See section 9 and D-021.
 - D-018's "the lever is the winding layout" is corrected. The period is stator-set, but
   the dominant order is the slot order, so the primary lever is **skew** (section 10.3)
   and winding layout acts on the residual order 12 afterwards.
