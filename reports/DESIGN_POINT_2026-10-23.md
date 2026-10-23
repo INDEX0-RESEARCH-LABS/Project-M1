@@ -39,15 +39,18 @@ Mean torque at the certified current is 1.2305 N.m. Two ways to reach 1.6 N.m:
 | | current route | stack route (recommended) |
 |---|---|---|
 | what changes | J 5.21 -> 6.77 A/mm2 | stack 50.4 -> **65.5 mm** |
-| copper loss | 40 W | **31 W** |
-| efficiency | 89.9% | **90.6%** |
-| apparent power | **1.38 kVA** | **1.06 kVA** (unchanged) |
-| speed ceiling | 5,900 rpm | **~4,500 rpm** (bracket 4,000-4,800) |
-| cycle-basis power factor | ~0.40 | ~0.40 |
+| copper loss | 38.5 W | **25.8 W** |
+| efficiency | 90.2% | **91.4%** |
+| apparent power, rail-sizing | 1.32 kVA | **1.29 kVA** |
+| speed ceiling | 5,200-6,300 rpm | **~4,500 rpm** (bracket 4,000-4,800) |
+| cycle-basis power factor | ~0.41 | ~0.41 |
 
-The stack route holds current density, kVA and efficiency fixed and pays with speed range.
-Torque is exactly proportional to stack length in the model, so this estimate needs no new
-solve to be right within the 2D approximation.
+The stack route buys 1.2 pp of efficiency and 12.7 W of copper loss, and pays ~24% of the
+speed range. **It does not buy apparent power** (D-023): S per N.m is fixed by speed, power
+factor and efficiency, so both routes cost ~1.3 kVA for 1.6 N.m. Torque is exactly
+proportional to stack length in the model, so the torque estimate needs no new solve. Copper
+loss grows 13.5% rather than 30% because the end windings do not stretch (MTL = 2L + 1.2
+tau_p) - this corrects the 31 W / 90.6% / 1.06 kVA row in the earlier version of this memo.
 
 **Correction added after this memo (D-022).** The ceiling figures above were built on a
 11.5 V terminal voltage that belonged to a superseded state; the machine's own flux
@@ -58,6 +61,10 @@ further consequences, both adverse but bounded:
 - The quoted PF of 0.578 is a peak-angle value. On a cycle basis it is **0.40**, so ~1.0
   kVA buys **387 W** of shaft, not 556 W. The rail budget in question 3 below does not
   change; the work it delivers does.
+- **The kVA for 1.6 N.m is ~1.3 kVA, not 1.06 (D-023).** Stack length scales torque and
+  flux together, so it cannot reduce apparent power per N.m; both routes pay ~1.3 kVA.
+  What the stack route actually buys is 1.2 pp of efficiency (91.4% vs 90.2%), against
+  ~24% of the speed range.
 - The air-gap shear is **0.89 kPa** against the "a few kPa" usual for a machine this size,
   i.e. the rotor is magnetically under-loaded and the 48 V rail, not the iron, is the
   binding constraint. This is why the stack route beats the current route: the iron is
@@ -71,10 +78,10 @@ further consequences, both adverse but bounded:
    quoted as ~5,260 before D-022; the honest bracket is 4,000-4,800 rpm for the stack
    route, 5,200-6,300 rpm at 50.4 mm. This is the question most likely to change the
    answer, because it interacts with the gear ratio.)
-3. **Is the 48 V rail able to carry ~1.0 kVA at PF ~0.40** at the chosen thermal design?
-   (The kVA is unchanged by the recommendation, and the PF figure is lower than the 0.578
-   previously quoted, so the rail must deliver more current per watt of shaft than the
-   earlier memo implied.)
+3. **Is the 48 V rail able to carry ~1.3 kVA at PF ~0.41** at the chosen thermal design? This
+   is the number for the 1.6 N.m target, and it is ~25% more apparent power than the 1.06 kVA
+   in the earlier version of this memo. It is the same for both routes (D-023), so it does
+   not decide between them - but it does decide whether 48 V can deliver 1.6 N.m at all.
 
 If stack length is capped by the application, the current route is the fallback and the
 efficiency figure drops to 89.9%.

@@ -892,3 +892,54 @@ is not like-for-like in loading and is flagged as directional only.
 torque-implied) is now the dominant uncertainty on the ceiling and on the PF
 bracket. It has been open since D-012 addendum 7 and is interpretation-limited; a
 co-energy solve at two current levels would bound it.
+
+## D-023 - Apparent power per N.m is set by speed, PF and efficiency - not by the design (2026-10-23)
+
+**Finding.** D-020's decision table holds kVA at 1.06 for the stack route while pricing the
+current route at 1.38. That column does not close. Stack length is a pure multiplier in this
+2D model: torque scales with L, flux linkage scales with L, and so V-hat and S scale with L
+too, at fixed current. A 30% longer stack therefore costs 30% more apparent power for 30%
+more torque - exactly the ratio the current route pays.
+
+The general statement is simpler than either route:
+
+    S = (T * omega + P_cu) / PF        so       S / T = (omega + P_cu/T) / PF
+
+with omega fixed by the operating speed. **Apparent power per N.m depends only on speed,
+power factor and the copper loss per N.m.** Neither stack length nor bore enters it. The
+48 V kVA constraint cannot be bought out with iron; it can be moved only by speed (gearing),
+power factor (saliency) or efficiency.
+
+**Check.** At the certified point: (314.16 + 22.75/1.2305)/0.427 = 779 VA/N.m, and
+779 x 1.2305 = 959 VA - reproducing the swept S of 0.959 kVA exactly.
+
+**Consequence for the 1.6 N.m mean target.** Same basis as D-020 (2D exact in L, linear in
+J, PF held at the certified 0.427):
+
+| | current route (J 6.77) | stack route (65.5 mm) | D-020 claimed |
+|---|---|---|---|
+| torque | 1.60 N.m | 1.60 N.m | 1.60 |
+| copper loss | 38.5 W | **25.8 W** | 40 / 31 |
+| iron loss | 16.3 W | 21.2 W | 16.3 / 16.3 |
+| efficiency | 90.2% | **91.4%** | 89.9 / 90.6 |
+| S, mean basis | 1.27 kVA | **1.24 kVA** | 1.38 / 1.06 |
+| S, rail-sizing (max over period) | 1.32 kVA | **1.29 kVA** | - |
+
+Two corrections fall out:
+
+1. **kVA.** The routes differ by ~2%, not 30%. The 1.38 figure was right (it is S at
+   1.6 N.m); the 1.06 was the error, because it kept V-hat fixed while L grew. The founder's
+   rail question must be "can it carry ~1.3 kVA", not "1.06 kVA".
+2. **Copper loss at longer stack.** D-020 scaled copper linearly with L (0.471 W/mm, 31 W).
+   But stretching the stack does not stretch the end windings: at fixed turns the resistance
+   tracks the mean turn length, MTL = 2L + 1.2*tau_p, which grows 13.5% when L grows 30%.
+   The stack route's copper loss is therefore **25.8 W, not 31 W**, and its efficiency
+   **91.4%, not 90.6%** - the same formula `thermal_first_order` and `dq_model` already use.
+
+**Decision.** The stack route still wins, but for one reason instead of two, and by a larger
+margin on that reason: **efficiency and thermal headroom, not apparent power.** It buys
+1.2 pp of efficiency and 12.7 W of copper loss for ~24% of the speed ceiling. Its kVA
+advantage is illusory and must not be quoted to the founder.
+
+**Sensitivity.** PF is held at 0.427 across the load increase. If saturation drops it to
+0.40, both S figures rise 7% (1.38 / 1.33 kVA) and the ranking is unchanged.

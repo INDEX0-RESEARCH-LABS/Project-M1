@@ -47,3 +47,19 @@ def test_ceiling_bracket():
     ceiling = RPM * (48 / math.sqrt(3) * 0.95) / v_k2
     assert 5_700 < ceiling < 6_300, ceiling
     assert ceiling < 6_840, "the retired 11.5 V figure must not come back"
+
+
+def test_kva_per_nm_is_design_invariant():
+    """D-023: S/T = (omega + P_cu/T)/PF. Length and bore do not enter."""
+    t0, pcu0, pf0 = 1.2305, 22.75, 0.427
+    s_per_nm = (W_M + pcu0 / t0) / pf0
+    assert abs(s_per_nm * t0 - 959.0) / 959.0 < 0.005, "must reproduce the swept 0.959 kVA"
+
+    # stack route: torque and flux both scale with L, so S scales with L too
+    s_at_target = s_per_nm * 1.6
+    assert 1.20 < s_at_target / 1e3 < 1.30, s_at_target
+    # and both routes land in the same band, not at 1.06 vs 1.38
+    pcu_current = pcu0 * (1.6 / t0) ** 2
+    s_current = (W_M + pcu_current / 1.6) / pf0 * 1.6
+    assert abs(s_current - s_at_target) / s_at_target < 0.05
+    assert s_at_target / 1e3 > 1.20, "1.06 kVA at 1.6 N.m must not come back"

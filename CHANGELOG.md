@@ -5,6 +5,20 @@ All notable changes to Project M1 deliverables. Format: Keep a Changelog-ish, da
 ## [Unreleased]
 
 ### Added
+- **2026-10-23 (D-023: apparent power per N.m is design-invariant - the kVA column of D-020 does not close)**
+  - `S = (T*omega + P_cu)/PF`, so `S/T = (omega + P_cu/T)/PF`: speed, PF and copper per N.m
+    only. Stack length and bore do not enter. Verified on the certified point: 779 VA/N.m x
+    1.2305 = 959 VA, reproducing the swept S exactly.
+  - D-020 held kVA at 1.06 for the stack route while pricing the current route at 1.38. At
+    1.6 N.m mean the two routes are **1.29 and 1.32 kVA** (rail-sizing), a 2% difference,
+    not 30%. The founder's rail question was ~25% understated.
+  - Copper loss at 65.5 mm is **25.8 W, not 31 W**: stretching the stack does not stretch the
+    end windings, and the project's own MTL = 2L + 1.2*tau_p grows only 13.5%. Efficiency on
+    the stack route is **91.4%**, not 90.6%; the current route **90.2%**.
+  - The stack route still wins, on one axis instead of two: 1.2 pp efficiency and 12.7 W of
+    copper for ~24% of the speed ceiling. Its kVA advantage is withdrawn.
+  - Pin test added (`test_kva_per_nm_is_design_invariant`) so 1.06 kVA at 1.6 N.m cannot
+    return.
 - **2026-10-23 (D-022: PF, kVA and the voltage ceiling are cycle quantities)**
   - `pf_cycle.py` sweeps one 30 deg period (15 points, 2 deg, J=5.21) and records lam_alpha,
     lam_beta, both V-hat routes, S and PF per rotor angle. `solve_raw` now also returns the

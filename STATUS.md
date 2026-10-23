@@ -1,6 +1,6 @@
 # Current state - single source of truth
 
-**As of D-022 (2026-10-23): torque, efficiency AND power factor all carry a peak-angle bias; the electrical budget is the binding constraint, and it is a bracket.**
+**As of D-023 (2026-10-23): torque, efficiency AND power factor all carry a peak-angle bias; the electrical budget is the binding constraint, and apparent power per N.m cannot be improved by geometry.**
 The D-015 half-slot fix changed the machine, so D-014's numbers were re-derived on the
 corrected winding with a 181-point 0.25 deg sweep and a four-mesh ladder. Torque is now
 measured with the gap area integral, because a solid-rotor null test showed the
@@ -16,7 +16,9 @@ values (D-022): over one 30 deg period the apparent power stays inside a 3.5% ba
 the real power follows the mean torque, so the cycle-basis PF is 0.40 (0.39-0.43) and
 ~1.0 kVA buys 387 W of shaft, not 556 W. The voltage ceiling is 5,200-6,300 rpm, not
 6,840, and the machine is magnetically under-loaded (0.89 kPa air-gap shear) while
-electrically normal (5.21 A/mm2) - the 48 V rail, not the iron, is the constraint.** **Torque ripple is now ESTABLISHED
+electrically normal (5.21 A/mm2) - the 48 V rail, not the iron, is the constraint.
+**S per N.m is fixed by speed, PF and efficiency (D-023), so the 1.6 N.m target costs
+~1.3 kVA on either route - stack length buys efficiency, not apparent power.** **Torque ripple is now ESTABLISHED
 (D-018): ~100% peak-to-peak in-model, gate R3 FAILS, locked to the 30 deg winding repeat
 unit.** The certified 1.873 N.m is an instantaneous peak-angle value: the measured
 running mean at J=5.21 is **1.2305 N.m**, so the 1.6 N.m target now needs about J=6.77 on a
@@ -67,7 +69,7 @@ ripple/NVH and tooling, not electromagnetics.
 | iron loss (100 Hz elec.) | 10.1-27.4 W, median **16.3 W** (D-016; D-014 had 12.1 W - the corrected winding saturates the rotor to 2.83 T) | ESTIMATE | `iron_loss --candidate` |
 | winding rise | **~14 K** with iron (9.2 K copper only) at the 1.6 N.m target; enclosed, h=25 | ESTIMATE | `thermal_first_order` |
 | efficiency | **90.6% mean-basis** (D-020, D-021), 93.2% at the peak angle only (D-016; D-014 had 93.4%). The 3 pp gap is the same peak-vs-mean error as the torque | ESTIMATE | `iron_loss --candidate` |
-| **response to the mean-torque deficit** | **stack length 50.4 -> 65.5 mm at J=5.21** (D-020, D-021): torque is exactly proportional to L in-model, so this holds copper density (0.471 W/mm), kVA (1.06) and efficiency (90.6%) fixed and pays with speed ceiling (~6840 -> ~5260 rpm on the retired point basis; on the D-022 bracket 5,200-6,300 -> 4,000-4,800 rpm). The current route (J=6.77) costs 1.38 kVA and 89.9% | DERIVED (2D exact in L) | `DECISIONS.md` D-020 |
+| **response to the mean-torque deficit** | **stack length 50.4 -> 65.5 mm at J=5.21** (D-020, D-021): torque is exactly proportional to L in-model, so it holds current density and improves efficiency (**91.4%**, copper **25.8 W** - D-023 corrected D-020's 31 W; end windings do not stretch), and pays with speed ceiling (~6840 -> ~5260 rpm on the retired point basis; on the D-022 bracket 5,200-6,300 -> 4,000-4,800 rpm). **D-023: kVA does NOT stay at 1.06** - S per N.m is fixed by speed and PF, so both routes cost ~1.3 kVA (1.29 stack / 1.32 current). The current route (J=6.77) costs 1.32 kVA and 90.2% | DERIVED (2D exact in L) | `DECISIONS.md` D-020, D-023 |
 | phase current | **49.7 A** peak for the target at k=2 (D-014; 99.4 A at the k=1 FEM state, N_c = 1.247) | SOLVED | `saliency_lever` s.5 |
 | terminal voltage | **12.5-14.0 V** peak at 3000 rpm at k=2 against a 26.3 V ceiling -> **5,200-6,300 rpm**; the worst rotor angle adds 4-6.5% (D-022). The old 11.5 V / 6,840 rpm belonged to the superseded 0.86 kVA state | DERIVED | `pf_cycle/RESULT.md` |
 | PF / apparent power | **0.578 / 1.059 kVA** (D-017, S6) against **0.469 / 1.111 kVA** (baseline), both at 26.0 deg, J=5.34, 3072/10, annulus. Gate +0.030 -> **+0.109 PASS**. Both PF figures are **peak-angle values**: on a cycle basis (D-022) PF is **0.40 (0.39-0.43)** while S stays in a 3.5% band, so the rail number stands and the real power it buys drops to 409 W in / 387 W shaft | SOLVED / DERIVED | `saliency_screen --confirm`, `pf_cycle/RESULT.md` |
