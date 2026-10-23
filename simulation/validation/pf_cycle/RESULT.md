@@ -142,3 +142,11 @@ transverse-laminated rotor. Caveat: those figures are at rated thermal load, our
   the size of that recovery is not modelled.
 - 1536/4 mesh, 2 deg grid: good enough for ratios, not for quotable absolutes. The
   torque mean is carried over from the certified 0.5 deg curve.
+- **The 33% flux-vs-torque gap was probed and remains unresolved.** A linear-material run
+  should satisfy `lam_beta = -T/(1.5 p i)` exactly; over two permeabilities and two current
+  levels the ratio came out 0.83 - 1.11 (sign flips with mu_r), while the annulus
+  estimator's own four-band spread was 17 - 74%. The effect is smaller than the estimator's
+  uncertainty at those torque levels, so the probe is inconclusive and was not pursued.
+  Note it used the baseline geometry by mistake (`dq_model` has no CAND), so it is not
+  evidence about S6 either way. The gap needs a certified torque error bar at the operating
+  point (4096/20 plus co-energy), not more sweeps.
